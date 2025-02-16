@@ -1,0 +1,28 @@
+<h1>Tagesplan für den {{ day() }}</h1>
+
+<h2>Aktuelle Uhrzeit</h2>
+{{ currentTime.formattedString() }}
+<button (click)="addTime()">Hinzufügen</button>
+<h2>Angefangener Abschnitt</h2>
+{{ nextStart?.formattedString()}} -
+<h2>Erfasste Abschnitte</h2>
+<ul>
+@for (section of sections; track $index) {
+    <li>{{section.start.formattedString()}} - {{section.end.formattedString()}} <button (click)="removeSection($index)">Entfernen</button></li>
+}
+</ul>
+<h2>Zusammenfassung</h2>
+<table>
+    <tr>
+        <th>Gesamtzeit</th>
+        <td>{{ totalTime().formattedString() }}</td>
+    </tr>
+    <tr>
+        <th>Industriezeit (genau)</th>
+        <td>{{ totalTime().industrial().toFixed(2) }}</td>
+    </tr>
+    <tr>
+        <th>Industriezeit (gerundet)</th>
+        <td>{{ totalTime().industrialQuarterPrecision().toFixed(2) }}</td>
+    </tr>
+</table>
