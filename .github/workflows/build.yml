@@ -47,6 +47,9 @@ jobs:
             dist
             ./Dockerfile
   create-image:
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NME: ${{ github.repository }}
     runs-on: ubuntu-latest
     needs: [build]
 
@@ -63,17 +66,16 @@ jobs:
         with:
           name: build-artifact
       - name: Log in to the Container registry
-        id: meta
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract docker metadata
+      - name: Extract docker metadata (tags, labels)
+        id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/mohrm/workingdiary
-          tags: type=ref,event=branch
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -81,8 +83,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          file: ./Dockerfile
-          platforms: linux/amd64
     
           
           
