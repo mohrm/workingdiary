@@ -58,8 +58,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ./Dockerfile
-          platforms:
-            - linux/amd64
+          platforms: linux/amd64
           push: false
           context: .
           tags: mohrm/workingdiary:latest
