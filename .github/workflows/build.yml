@@ -49,7 +49,7 @@ jobs:
   create-image:
     env:
       REGISTRY: ghcr.io
-      IMAGE_NME: ${{ github.repository }}
+      IMAGE_NAME: ${{ github.repository }}
     runs-on: ubuntu-latest
     needs: [build]
 
