@@ -1,0 +1,29 @@
+@if (abschnitte()) {
+
+    <mat-list>
+        @for (abschnitt of abschnitte(); track $index) {
+          <mat-list-item>
+            {{ abschnitt.formattedString() }}
+            <mat-icon matListItemIcon (click)="entferneAbschnitt($index)">delete</mat-icon>
+          </mat-list-item>
+        }
+      </mat-list>
+    
+    <table mat-table class="mat-elevation-z8">
+        <thead align="center">
+            <tr>
+                <th mat-header-cell>Gesamtdauer</th>
+                <th mat-header-cell>Industriezeit</th>
+                <th mat-header-cell>Industriezeit (gerundet)</th>
+            </tr>
+        </thead>
+        <tbody align="center">
+            <tr>
+                <td>{{ gesamtdauer().formattedString()}}</td>
+                <td>{{ gesamtdauer().industrial() | number: '1.2-2'}}</td>
+                <td>{{ gesamtdauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
+            </tr>
+        </tbody>
+
+    </table>
+}
