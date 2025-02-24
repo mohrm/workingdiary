@@ -42,3 +42,8 @@ jobs:
         run: |
           npm i
           npm run build:ci
+      - name: store build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: dist
