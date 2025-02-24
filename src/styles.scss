@@ -1,5 +1,17 @@
 @use '@angular/material' as mat;
 
+html {
+  height: 100%;
+}
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+:root {
+  @include mat.table-overrides((
+    background-color: orange,
+    header-headline-color: red,
+  ));
+}
+
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
   margin: 0;
@@ -17,16 +29,4 @@ body {
   ));
 }
 
-html {
-  height: 100%;
-}
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-// Customize the entire app. Change :root to your selector if you want to scope the styles.
-:root {
-  @include mat.table-overrides((
-    background-color: orange,
-    header-headline-color: red,
-  ));
-}
