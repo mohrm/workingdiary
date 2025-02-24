@@ -73,6 +73,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/morhm/workingdiary
+          tags: type=ref,event=branch
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
