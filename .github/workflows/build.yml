@@ -53,7 +53,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-      attestaions: write
+      attestations: write
       id-token: write
 
 
