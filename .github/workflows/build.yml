@@ -46,7 +46,6 @@ jobs:
           path: |
             dist
             ./Dockerfile
-          path: 
   create-image:
     runs-on: ubuntu-latest
     needs: [build]
