@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Time } from './model/Time';
 import { Section } from './model/Section';
+import moment, { Moment } from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -72,6 +73,41 @@ export class PersistenceServiceService {
       return sections.map((v:any,i:number,a:any[]) => Section.fromJSON(v));
     } else {
       return undefined;
+    }
+  }
+
+  public previousDay(day: string): string {
+    const plans = this.loadPlans();
+    const daysBefore : Moment[] = new Array();
+    const mDay = moment(day, 'DD.MM.YYYY')
+    for (const pDay in plans) {
+      const d = moment(pDay, 'DD.MM.YYYY')
+      if (d.isBefore(mDay)) {
+        daysBefore.push(d)
+      }
+    }
+    if (daysBefore.length > 0) {
+      return moment.max(daysBefore).toDate().toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit", year: "numeric"});
+    } else {
+      return day;
+    }
+  }
+
+
+  public nextDay(day: string): string {
+    const plans = this.loadPlans();
+    const daysAfter : Moment[] = new Array();
+    const mDay = moment(day, 'DD.MM.YYYY')
+    for (const pDay in plans) {
+      const d = moment(pDay, 'DD.MM.YYYY')
+      if (d.isAfter(mDay)) {
+        daysAfter.push(d)
+      }
+    }
+    if (daysAfter.length > 0) {
+      return moment.min(daysAfter).toDate().toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit", year: "numeric"});
+    } else {
+      return day;
     }
   }
 }
