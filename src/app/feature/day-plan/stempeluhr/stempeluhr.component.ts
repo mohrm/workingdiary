@@ -1,4 +1,4 @@
-import { Component, inject, Inject, input, model, OnInit, output } from '@angular/core';
+import { Component, inject, Inject, input, model, OnChanges, OnInit, output, SimpleChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Time } from '../../../model/Time';
 import { Section } from '../../../model/Section';
@@ -11,13 +11,17 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './stempeluhr.component.html',
   styleUrl: './stempeluhr.component.css'
 })
-export class StempeluhrComponent implements OnInit {
+export class StempeluhrComponent implements OnInit, OnChanges {
   persistence = inject(PersistenceServiceService)
   day = input.required<string>();
   startTime = model<Time>();
   stempelEreignis = output<Section>();
 
   ngOnInit(): void {
+    this.startTime.set(this.persistence.loadStartTime(this.day()));
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
     this.startTime.set(this.persistence.loadStartTime(this.day()));
   }
 

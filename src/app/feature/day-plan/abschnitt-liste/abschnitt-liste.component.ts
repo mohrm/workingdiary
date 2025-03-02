@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, inject, input, model, OnInit } from '@angular/core';
+import { Component, computed, EventEmitter, inject, input, model, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Section } from '../../../model/Section';
 import { Time } from '../../../model/Time';
 import { PersistenceServiceService } from '../../../persistence-service.service';
@@ -13,7 +13,7 @@ import { DecimalPipe } from '@angular/common';
   templateUrl: './abschnitt-liste.component.html',
   styleUrl: './abschnitt-liste.component.css'
 })
-export class AbschnittListeComponent implements OnInit {
+export class AbschnittListeComponent implements OnInit, OnChanges {
 
   persistence = inject(PersistenceServiceService)
   stempelEreignis = input<EventEmitter<Section>>();
@@ -35,6 +35,10 @@ export class AbschnittListeComponent implements OnInit {
       })
       this.persistence.saveSections(this.day(), this.abschnitte())
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.abschnitte.set(this.persistence.loadSections(this.day()))
   }
 
   entferneAbschnitt(index: number): void {
