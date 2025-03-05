@@ -6,14 +6,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
 import { DecimalPipe } from '@angular/common';
+import { AbschnittComponent } from '../abschnitt/abschnitt.component';
 
 @Component({
   selector: 'app-abschnitt-liste',
-  imports: [MatButtonModule, MatIconModule, DecimalPipe, MatListModule],
+  imports: [MatButtonModule, MatIconModule, DecimalPipe, MatListModule, AbschnittComponent],
   templateUrl: './abschnitt-liste.component.html',
   styleUrl: './abschnitt-liste.component.css'
 })
 export class AbschnittListeComponent implements OnInit, OnChanges {
+
 
   persistence = inject(PersistenceServiceService)
   stempelEreignis = input<EventEmitter<Section>>();
@@ -43,6 +45,17 @@ export class AbschnittListeComponent implements OnInit, OnChanges {
 
   entferneAbschnitt(index: number): void {
     this.abschnitte.update(alteAbschnitte => alteAbschnitte?.filter((v,i,a) => i !== index));
+    this.persistence.saveSections(this.day(), this.abschnitte())
+  }
+
+  aendereAbschnitt(index: number, newSection: Section) {
+    this.abschnitte.update(alteAbschnitte => alteAbschnitte?.map((v,i,a) => {
+      if (i == index) {
+        return newSection;
+      } else {
+        return v;
+      }
+    }))
     this.persistence.saveSections(this.day(), this.abschnitte())
   }
 

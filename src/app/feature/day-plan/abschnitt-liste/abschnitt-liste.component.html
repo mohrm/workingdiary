@@ -3,7 +3,7 @@
     <mat-list>
         @for (abschnitt of abschnitte(); track $index) {
           <mat-list-item>
-            {{ abschnitt.formattedString() }}
+            <app-abschnitt [section]="abschnitt" (sectionChange)="aendereAbschnitt($index, $event)"/>
             <mat-icon matListItemIcon (click)="entferneAbschnitt($index)">delete</mat-icon>
           </mat-list-item>
         }
