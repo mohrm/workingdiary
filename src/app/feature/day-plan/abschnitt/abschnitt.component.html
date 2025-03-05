@@ -1,8 +1,8 @@
 @if (isEdit()) {
-    <input size=2 type="number" [(ngModel)]="startHour"/>:
-    <input size=2 type="number" [(ngModel)]="startMinute"/> - 
-    <input size=2 type="number" [(ngModel)]="endHour"/>:
-    <input size=2 type="number" [(ngModel)]="endMinute"/> <mat-icon matListItemIcon (click)="finishEdit()">check</mat-icon><mat-icon matListItemIcon (click)="abortEdit()">close</mat-icon>
+    <input type="number" min="0" max="23" [(ngModel)]="startHour"/>:
+    <input type="number" min="0" max="59" [(ngModel)]="startMinute"/> - 
+    <input type="number" min="0" max="23" [(ngModel)]="endHour"/>:
+    <input type="number" min="0" max="59" [(ngModel)]="endMinute"/> <mat-icon matListItemIcon (click)="finishEdit()">check</mat-icon><mat-icon matListItemIcon (click)="abortEdit()">close</mat-icon>
 } @else {
     {{ section().formattedString() }} <mat-icon matListItemIcon (click)="setEditable()">edit</mat-icon>
 }
