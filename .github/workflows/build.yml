@@ -115,12 +115,12 @@ jobs:
           END
       - name: Add Martoserver to Known Hosts
         run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-      - name: Update GIT repository and restart all containers
+      - name: deploy docker image on server via SSH
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} <<EOF
           cd docker
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main && \
-          docker-compose up --create -d workingdiary && \
+          docker-compose up -d workingdiary && \
           docker image prune -a -f
           EOF
     
