@@ -7,7 +7,7 @@ export class AppPagePO {
   }
 
   static hasElementWithText(page: Page, testId: string, expectedText: string): Promise<unknown> {
-    return expect(page.getByTestId("dayplan-title")).toContainText(expectedText);
+    return expect(page.getByTestId(testId)).toContainText(expectedText);
   }
 
   static getTitle(page: Page): Locator {

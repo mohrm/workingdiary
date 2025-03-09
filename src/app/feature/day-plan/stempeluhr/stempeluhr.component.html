@@ -3,11 +3,11 @@ Eingestempelt um:
     @if (!this.startTime()) { 
         <i>noch nicht eingestempelt</i>
     } @else { 
-        {{ this.startTime()?.formattedString() }} 
+        <div data-testid="login-time">{{ this.startTime()?.formattedString() }}</div>
     }
 <p></p>
 @if (!this.startTime()) {
-    <button mat-button (click)="einstempeln()"><mat-icon>login</mat-icon>Einstempeln</button>
+    <button mat-button (click)="einstempeln()" data-testid="log-button"><mat-icon>login</mat-icon>Einstempeln</button>
 } @else {
-    <button mat-button (click)="ausstempeln()"><mat-icon>logout</mat-icon>Ausstempeln</button>
+    <button mat-button (click)="ausstempeln()" data-testid="log-button"><mat-icon>logout</mat-icon>Ausstempeln</button>
 }
