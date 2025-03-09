@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build:ci": "ng build --configuration production"
+    "e2e": "npx bddgen -c e2e/playwright.config.js && npx playwright install && npx playwright test -c e2e/playwright.config.js",
+    "build:ci": "ng build --configuration production && npm run e2e"
   },
   "private": true,
   "dependencies": {
@@ -31,6 +32,8 @@
     "@angular-devkit/build-angular": "^19.1.8",
     "@angular/cli": "^19.1.8",
     "@angular/compiler-cli": "^19.1.7",
+    "@cucumber/cucumber": "^11.2.0",
+    "@playwright/test": "^1.51.0",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.5.0",
     "karma": "~6.4.0",
@@ -38,6 +41,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "npm-run-all": "^4.1.5",
+    "playwright-bdd": "^8.2.1",
     "typescript": "~5.7.2"
   }
 }
