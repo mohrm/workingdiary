@@ -1,4 +1,4 @@
-<h1>Tagesplan für den {{ day() }}</h1>
+<h1 data-testid="dayplan-title">Tagesplan für den {{ day() }}</h1>
 
 <app-stempeluhr [day]="day()" (stempelEreignis)="benutzerHatAusgestempelt($event)" />
 <app-abschnitt-liste [day]="day()" [stempelEreignis]="stempelUhrEreignis" (abschnitteChange)="abschnitteGeaendert($event)"/>
