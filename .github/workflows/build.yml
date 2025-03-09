@@ -94,6 +94,35 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+      IMAGE_TAG: main
+    needs: [build]
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/martoserver.key
+          chmod 600 ~/.ssh/martoserver.key
+          cat >>~/.ssh/config <<END
+          Host ${{ secrets.SSH_HOST }}
+            HostName ${{ secrets.SSH_HOST }}
+            User ${{ secrets.SSH_USER }}
+            IdentityFile ~/.ssh/martoserver.key
+          END
+      - name: Add Martoserver to Known Hosts
+        run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Update GIT repository and restart all containers
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} <<EOF
+          cd docker
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main && \
+          docker-compose up --create -d workingdiary && \
+          docker image prune -a -f
+          EOF
     
           
           
