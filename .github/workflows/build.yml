@@ -45,6 +45,11 @@ jobs:
       - name: execute e2e tests
         run: |
           npm run e2e:ci
+      - name: upload e2e test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-report
+          path: build/e2e
       - name: store build artifact
         uses: actions/upload-artifact@v4
         with:
