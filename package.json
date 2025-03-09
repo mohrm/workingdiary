@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "e2e": "npx bddgen -c e2e/playwright.config.js && npx playwright install && npx playwright test -c e2e/playwright.config.js",
+    "e2e": "npx bddgen -c e2e/playwright.config.js && npx playwright install --with-deps && npx playwright test -c e2e/playwright.config.js",
     "build:ci": "ng build --configuration production && npm run e2e"
   },
   "private": true,
