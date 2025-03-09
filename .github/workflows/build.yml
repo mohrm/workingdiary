@@ -39,6 +39,8 @@ jobs:
         run: |
           npm i
           npm run build:ci
+          npm run e2e-prepare:ci
+          npm run e2e:ci
       - name: store build artifact
         uses: actions/upload-artifact@v4
         with:
