@@ -1,4 +1,14 @@
-<day-plan [day]="day()"/>
+<main>
+    <day-plan [day]="day()"/>
 
-<a routerLink="" [queryParams]="nextDay()">Vor</a>
-<a routerLink="" [queryParams]="previousDay()">Zurück</a>
+    <a routerLink="" [queryParams]="nextDay()">Vor</a>
+    <a routerLink="" [queryParams]="previousDay()">Zurück</a>
+</main>
+<p></p>
+<footer>
+    Versionsinformation
+    <div>
+        <div>{{ commitTimestamp() }}</div>
+        <div><a [href]="urlOfLastCommit()">{{ commitHash() }}</a></div>
+    </div>
+</footer>

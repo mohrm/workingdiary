@@ -3,6 +3,7 @@ import { Section } from './model/Section';
 import { DayPlan } from './feature/day-plan/day-plan';
 import { ActivatedRoute, Params, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PersistenceServiceService } from './persistence-service.service';
+import { VersionService } from './version.service';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,8 @@ export class AppComponent implements OnInit {
   day = model.required<string>();
 
   persistence = inject(PersistenceServiceService)
+  version = inject(VersionService)
+
 
   constructor(private route: ActivatedRoute) {}
 
@@ -40,5 +43,21 @@ export class AppComponent implements OnInit {
 
   private today(): string {
     return new Date().toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit", year: "numeric"});
+  }
+
+  versionInfo(): string {
+    return this.version.getVersion()
+  }
+
+  commitTimestamp(): string {
+    return this.version.commitTimestamp()
+  }
+
+  commitHash(): string {
+    return this.version.commitHash()
+  }
+
+  urlOfLastCommit(): string {
+    return this.version.urlOfLastCommit()
   }
 }
