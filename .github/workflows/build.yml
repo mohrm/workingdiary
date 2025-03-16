@@ -59,6 +59,7 @@ jobs:
             dist
             ./Dockerfile
   create-image:
+    if: github.event == 'push'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
@@ -96,6 +97,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
   deploy:
+    if: github.event == 'push'
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
