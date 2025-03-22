@@ -4,10 +4,11 @@ import { Time } from '../../../model/Time';
 import { Section } from '../../../model/Section';
 import { PersistenceServiceService } from '../../../persistence-service.service';
 import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-stempeluhr',
-  imports: [MatButtonModule,MatIconModule],
+  imports: [MatButtonModule,MatIconModule,FormsModule],
   templateUrl: './stempeluhr.component.html',
   styleUrl: './stempeluhr.component.css'
 })
@@ -16,6 +17,9 @@ export class StempeluhrComponent implements OnInit, OnChanges {
   day = input.required<string>();
   startTime = model<Time>();
   stempelEreignis = output<Section>();
+  isEdit = model<boolean>(false);
+  hour = model<number>(0);
+  minute = model<number>(0);
 
   ngOnInit(): void {
     this.startTime.set(this.persistence.loadStartTime(this.day()));
@@ -23,6 +27,26 @@ export class StempeluhrComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     this.startTime.set(this.persistence.loadStartTime(this.day()));
+  }
+
+  setEditable() {
+    this.isEdit.set(true);
+    const startTime = this.startTime();
+    if (startTime) {
+      this.hour.set(startTime.hour);
+      this.minute.set(startTime.minute);
+    }
+  }
+
+  abortEdit() {
+    this.isEdit.set(false);
+  }
+
+  finishEdit() {
+    const newHour = this.hour();
+    const newMinute = this.minute();
+    this.startTime.set(new Time(newHour, newMinute));
+    this.isEdit.set(false);
   }
 
   einstempeln(): void {

@@ -2,8 +2,13 @@
 Eingestempelt um:
     @if (!this.startTime()) { 
         <i>noch nicht eingestempelt</i>
-    } @else { 
-        <div data-testid="login-time">{{ this.startTime()?.formattedString() }}</div>
+    } @else {
+        @if (isEdit()) {
+            <input type="number" min="0" max="23" [(ngModel)]="hour"/>:
+            <input type="number" min="0" max="59" [(ngModel)]="minute"/> <mat-icon matListItemIcon (click)="finishEdit()">check</mat-icon><mat-icon matListItemIcon (click)="abortEdit()">close</mat-icon>
+        } @else {
+            <div data-testid="login-time">{{ this.startTime()?.formattedString() }}<mat-icon matListItemIcon (click)="setEditable()">edit</mat-icon></div>
+        }
     }
 <p></p>
 @if (!this.startTime()) {
