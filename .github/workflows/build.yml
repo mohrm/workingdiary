@@ -101,6 +101,8 @@ jobs:
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
