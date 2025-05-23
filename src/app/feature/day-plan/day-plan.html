@@ -1,5 +1,6 @@
 <h1 data-testid="dayplan-title">Tagesplan für den {{ day() }}</h1>
 
-<app-stempeluhr [day]="day()" (stempelEreignis)="benutzerHatAusgestempelt($event)" />
-<app-abschnitt-liste [day]="day()" [stempelEreignis]="stempelUhrEreignis" (abschnitteChange)="abschnitteGeaendert($event)"/>
-
+<section style="display: flex; flex-direction: column;">
+    <app-stempeluhr style="flex-grow: 0.4; flex-shrink: 0.4" [day]="day()" (stempelEreignis)="benutzerHatAusgestempelt($event)" />
+    <app-abschnitt-liste style="flex-grow: 0.4; flex-shrink: 0.4" [day]="day()" [stempelEreignis]="stempelUhrEreignis" (abschnitteChange)="abschnitteGeaendert($event)"/>
+</section>

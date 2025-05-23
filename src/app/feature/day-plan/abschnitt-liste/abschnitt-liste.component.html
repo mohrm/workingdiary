@@ -1,6 +1,5 @@
-@if (abschnitte()) {
-
-    <mat-list>
+<div style="display: flex; flex-direction: column;">
+    <mat-list style="flex-grow: 0.8; flex-shrink: 0.8">
         @for (abschnitt of abschnitte(); track $index) {
           <mat-list-item>
             <app-abschnitt [attr.data-testid]="'section-'+$index" [section]="abschnitt" (sectionChange)="aendereAbschnitt($index, $event)"/>
@@ -9,7 +8,7 @@
         }
       </mat-list>
     
-    <table mat-table class="mat-elevation-z8">
+    <table style="flex-grow: 0.2; flex-shrink: 0.2" mat-table class="mat-elevation-z8">
         <thead align="center">
             <tr>
                 <th mat-header-cell>Gesamtdauer</th>
@@ -26,4 +25,4 @@
         </tbody>
 
     </table>
-}
+</div>
