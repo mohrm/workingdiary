@@ -4,10 +4,11 @@ import { DayPlan } from './feature/day-plan/day-plan';
 import { ActivatedRoute, Params, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PersistenceServiceService } from './persistence-service.service';
 import { VersionService } from './version.service';
+import { DownloadPlansComponent } from './feature/download-plans/download-plans.component';
 
 @Component({
   selector: 'app-root',
-  imports: [DayPlan, RouterLink],
+  imports: [DayPlan, RouterLink, DownloadPlansComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

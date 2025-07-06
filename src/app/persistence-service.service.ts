@@ -15,7 +15,7 @@ export class PersistenceServiceService {
     return emptyPlans;
   }
 
-  private loadPlans(): any {
+  public loadPlans(): any {
     const sPlans = localStorage.getItem("plans");
     if (sPlans) {
       return JSON.parse(sPlans)
