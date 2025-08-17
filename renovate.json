@@ -5,5 +5,11 @@
   ],
   "baseBranchPatterns": [
     "dep_updates"
+  ],
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "rangeStrategy": "pin"
+    }
   ]
 }
