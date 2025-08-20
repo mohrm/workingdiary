@@ -38,7 +38,7 @@
     "@angular/cli": "20.1.6",
     "@angular/compiler-cli": "20.1.7",
     "@cucumber/cucumber": "12.1.0",
-    "@playwright/test": "1.54.2",
+    "@playwright/test": "1.55.0",
     "@types/jasmine": "5.1.9",
     "angular-eslint": "20.1.1",
     "eslint": "9.33.0",
