@@ -59,6 +59,7 @@ When('I log out', async ({ page }) => {
 Then('I see that section {string} has start time {string} and end time {string}', async ({ page }, sectionIndex: string, start: string, end: string) => {
   // Step: Then I see that section "0" has start time "08:00" and end time "09:00"
   // From: features/app.feature:27:5
-
-  expect(await page.getByTestId('section-'+sectionIndex)).toContainText(start + " - " + end)
+  const sec = page.getByTestId('section-'+sectionIndex)
+  await sec.waitFor()
+  expect(sec).toContainText(start + " - " + end)
 });
