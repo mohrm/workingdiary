@@ -1,0 +1,1 @@
+export type WorkLocation = 'HOME' | 'OFFICE' | 'UNKNOWN'

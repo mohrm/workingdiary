@@ -2,6 +2,7 @@ import { Component, model } from '@angular/core';
 import { Section } from '../../../model/Section';
 import { MatIconModule } from '@angular/material/icon';
 import { Time } from '../../../model/Time';
+import { WorkLocation } from '../../../model/WorkLocation';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -34,7 +35,7 @@ export class AbschnittComponent {
   finishEdit() {
     const newStart = new Time(this.startHour(), this.startMinute())
     const newEnd = new Time(this.endHour(), this.endMinute())
-    this.section.set(new Section(newStart, newEnd));
+    this.section.set(new Section(newStart, newEnd, 'UNKNOWN'));
     this.isEdit.set(false);
   }
 }

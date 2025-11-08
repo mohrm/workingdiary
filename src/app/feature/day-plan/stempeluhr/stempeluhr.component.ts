@@ -2,6 +2,7 @@ import { Component, inject, Inject, input, model, OnChanges, OnInit, output, Sim
 import { MatButtonModule } from '@angular/material/button';
 import { Time } from '../../../model/Time';
 import { Section } from '../../../model/Section';
+import { WorkLocation } from '../../../model/WorkLocation';
 import { PersistenceServiceService } from '../../../persistence-service.service';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
@@ -63,7 +64,7 @@ export class StempeluhrComponent implements OnInit, OnChanges {
 ausstempeln(): void {
   const startTime = this.startTime();
   if (startTime) {
-    this.stempelEreignis.emit(new Section(startTime, Time.now()));
+    this.stempelEreignis.emit(new Section(startTime, Time.now(), 'UNKNOWN'));
   }
   this.startTime.update(startTime => {
     if (startTime) {
