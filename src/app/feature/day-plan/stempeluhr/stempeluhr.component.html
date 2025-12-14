@@ -1,18 +1,70 @@
 
-Eingestempelt um:
+
     @if (!this.startTime()) { 
         <i>noch nicht eingestempelt</i>
     } @else {
         @if (isEdit()) {
-            <input type="number" min="0" max="23" [(ngModel)]="hour"/>:
-            <input type="number" min="0" max="59" [(ngModel)]="minute"/> <mat-icon matListItemIcon (click)="finishEdit()">check</mat-icon><mat-icon matListItemIcon (click)="abortEdit()">close</mat-icon>
-        } @else {
-            <div data-testid="login-time">{{ this.startTime()?.formattedString() }}<mat-icon matListItemIcon (click)="setEditable()">edit</mat-icon></div>
-        }
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                <div>
+                    <mat-form-field>
+                        <mat-label>Eingestempelt um</mat-label>
+                        <div style="display: flex; flex-direction: row; align-items: center">
+                            <div style="flex: 0 0 auto; text-align: left"><input matInput type="number" min="0" max="23" [(ngModel)]="hour"/></div>
+                            <div style="flex: 1 1 auto; text-align: center">:</div>
+                            <div style="flex: 0 0 auto; text-align: left"><input matInput type="number" min="0" max="59" [(ngModel)]="minute"/></div>
+                            <div style="flex: 1 1 auto; text-align: right">Uhr</div>
+                        </div>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field>
+                        <mat-label>Arbeitsort</mat-label>
+                        <mat-select [formControl]="workLocation">
+                            <mat-option [value]="'HOME'">Zuhause</mat-option>
+                            <mat-option [value]="'OFFICE'">Büro</mat-option>
+                            <mat-option [value]="'UNKNOWN'">Sonstiges</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-icon matListItemIcon (click)="finishEdit()">check</mat-icon><mat-icon matListItemIcon (click)="abortEdit()">close</mat-icon>
+                </div>
+            </div>
+        }@else {
+  <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+    <div>
+      <mat-form-field>
+        <div matLabel>Eingestempelt um</div>
+        <div style="display: flex; flex-direction: row; align-items: center">
+          <div style="flex: 0 0 auto; text-align: left">{{ hour() }}</div>
+          <div style="flex: 1 1 auto; text-align: center">:</div>
+          <div style="flex: 0 0 auto; text-align: left">{{ minute() }}</div>
+          <div style="flex: 1 1 auto; text-align: right">Uhr</div>
+        </div>
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field>
+        <mat-label>Arbeitsort</mat-label>
+        <div matText>{{ getWorkLocationLabel(workLocation.value) }}</div>
+      </mat-form-field>
+      <mat-icon matListItemIcon (click)="setEditable()">edit</mat-icon>
+    </div>
+  </div>
+}
     }
 <p></p>
 @if (!this.startTime()) {
     <button mat-button (click)="einstempeln()" data-testid="log-button"><mat-icon>login</mat-icon>Einstempeln</button>
 } @else {
     <button mat-button (click)="ausstempeln()" data-testid="log-button"><mat-icon>logout</mat-icon>Ausstempeln</button>
+}
+
+@if (!this.startTime()) {
+    <mat-form-field>
+    <mat-label>Arbeitsort</mat-label>
+    <mat-select [formControl]="workLocation">
+        <mat-option [value]="'HOME'">Zuhause</mat-option>
+        <mat-option [value]="'OFFICE'">Büro</mat-option>
+        <mat-option [value]="'UNKNOWN'">Sonstiges</mat-option>
+    </mat-select>
+    </mat-form-field>
 }

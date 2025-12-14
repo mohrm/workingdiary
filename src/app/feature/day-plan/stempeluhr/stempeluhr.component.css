@@ -1,0 +1,15 @@
+mat-form-field div {
+  font: inherit;
+  padding: 6px 0;
+}
+
+.mat-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 4px;
+  display: block;
+}
+.field-content {
+  font-size: 16px;
+  padding: 6px 0;
+}
