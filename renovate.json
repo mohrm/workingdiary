@@ -3,14 +3,14 @@
   "extends": [
     "config:recommended"
   ],
-  "baseBranchPatterns": [
-    "dep_updates"
-  ],
   "packageRules": [
     {
       "matchManagers": ["npm"],
       "matchDepTypes": ["dependencies", "devDependencies", "optionalDependencies"],
-      "rangeStrategy": "pin"
+      "rangeStrategy": "pin",
+      "matchConfidence": "high",
+      "minimumReleaseAge": "3 days",
+      "automerge": "true"
     }
   ]
 }
