@@ -3,14 +3,27 @@
   "extends": [
     "config:recommended"
   ],
-  "baseBranchPatterns": [
-    "dep_updates"
-  ],
   "packageRules": [
     {
-      "matchManagers": ["npm"],
-      "matchDepTypes": ["dependencies", "devDependencies", "optionalDependencies"],
-      "rangeStrategy": "pin"
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "dependencies",
+        "devDependencies",
+        "optionalDependencies"
+      ],
+      "rangeStrategy": "pin",
+      "minimumReleaseAge": "3 days",
+      "automerge": true
+    },
+    {
+      "groupName": "Angular",
+      "groupSlug": "angular",
+      "matchPackageNames": [
+        "@angular/**"
+      ],
+      "rangeStrategy": "replace"
     }
   ]
 }
