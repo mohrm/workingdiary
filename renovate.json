@@ -21,8 +21,9 @@
       "groupName": "Angular",
       "groupSlug": "angular",
       "matchPackageNames": [
-        "/^@angular//"
-      ]
+        "/^@angular/"
+      ],
+      "rangeStrategy": "replace"
     }
   ]
 }
