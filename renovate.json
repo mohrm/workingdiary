@@ -10,6 +10,11 @@
       "rangeStrategy": "pin",
       "minimumReleaseAge": "3 days",
       "automerge": "true"
+    },
+    {
+      "matchPackagePatterns": "^@angular/",
+      "groupName": "Angular",
+      "groupSlug": "angular"
     }
   ]
 }
