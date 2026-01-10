@@ -5,16 +5,25 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["npm"],
-      "matchDepTypes": ["dependencies", "devDependencies", "optionalDependencies"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "dependencies",
+        "devDependencies",
+        "optionalDependencies"
+      ],
       "rangeStrategy": "pin",
       "minimumReleaseAge": "3 days",
-      "automerge": "true"
+      "automerge": true
     },
     {
-      "matchPackagePatterns": "^@angular/",
       "groupName": "Angular",
-      "groupSlug": "angular"
+      "groupSlug": "angular",
+      "matchPackageNames": [
+        "@angular/**"
+      ],
+      "rangeStrategy": "replace"
     }
   ]
 }
