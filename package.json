@@ -34,8 +34,8 @@
     "zone.js": "0.16.0"
   },
   "devDependencies": {
-    "@angular/build": "21.0.6",
-    "@angular/cli": "21.0.6",
+    "@angular/build": "21.1.0",
+    "@angular/cli": "21.1.0",
     "@angular/compiler-cli": "21.1.0",
     "@cucumber/cucumber": "12.5.0",
     "@playwright/test": "1.57.0",
