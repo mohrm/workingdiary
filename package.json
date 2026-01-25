@@ -39,7 +39,7 @@
     "@angular/build": "21.1.1",
     "@angular/cli": "21.1.1",
     "@angular/compiler-cli": "21.1.1",
-    "@cucumber/cucumber": "12.5.0",
+    "@cucumber/cucumber": "12.6.0",
     "@playwright/test": "1.57.0",
     "@types/jest": "30.0.0",
     "angular-eslint": "21.1.0",
