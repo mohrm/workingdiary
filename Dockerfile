@@ -1,2 +1,2 @@
-FROM nginx:1.29.4-alpine
+FROM nginx:1.29.5-alpine
 COPY dist/workingdiary/browser /usr/share/nginx/html
