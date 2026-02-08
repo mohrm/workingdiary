@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.day-plan {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2vw, 32px);
+  width: 100%;
+}
+
+.day-plan__clock,
+.day-plan__list {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .day-plan {
+    gap: 16px;
+  }
+}
