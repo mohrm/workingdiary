@@ -13,28 +13,24 @@
             <tr>
                 <th mat-header-cell>Arbeitsort</th>
                 <th mat-header-cell>Gesamtdauer</th>
-                <th mat-header-cell>Industriezeit</th>
-                <th mat-header-cell>Industriezeit (gerundet)</th>
+                <th mat-header-cell>Industriezeit (exakt/gerundet)</th>
             </tr>
         </thead>
         <tbody align="center">
             <tr>
                 <td>Büro</td>
                 <td>{{ bueroDauer().formattedString()}}</td>
-                <td>{{ bueroDauer().industrial() | number: '1.2-2'}}</td>
-                <td>{{ bueroDauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
+                <td>{{ bueroDauer().industrial() | number: '1.2-2'}} / {{ bueroDauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
             </tr>
             <tr>
                 <td>mobil</td>
                 <td>{{ mobilDauer().formattedString()}}</td>
-                <td>{{ mobilDauer().industrial() | number: '1.2-2'}}</td>
-                <td>{{ mobilDauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
+                <td>{{ mobilDauer().industrial() | number: '1.2-2'}} / {{ mobilDauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
             </tr>
             <tr>
                 <td>Gesamt</td>
                 <td data-testid="fullduration">{{ gesamtdauer().formattedString()}}</td>
-                <td data-testid="fullduration-industry">{{ gesamtdauer().industrial() | number: '1.2-2'}}</td>
-                <td data-testid="fullduration-industry-rounded">{{ gesamtdauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
+                <td data-testid="fullduration-industry-combined">{{ gesamtdauer().industrial() | number: '1.2-2'}} / {{ gesamtdauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
             </tr>
         </tbody>
 

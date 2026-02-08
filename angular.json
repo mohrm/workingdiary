@@ -36,15 +36,16 @@
               "src/styles.scss"
             ],
             "scripts": [],
-            "fileReplacements": [
-              {
-                "replace": "src/environments/version.ts",
-                "with": "src/environments/version.prod.ts"
-              }
-            ]
+            "fileReplacements": []
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/version.ts",
+                  "with": "src/environments/version.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
