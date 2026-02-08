@@ -14,6 +14,7 @@ describe('DayPlanComponent', () => {
 
     fixture = TestBed.createComponent(DayPlan);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('day', '01.01.2024');
     fixture.detectChanges();
   });
 

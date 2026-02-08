@@ -14,6 +14,7 @@ describe('StempeluhrComponent', () => {
 
     fixture = TestBed.createComponent(StempeluhrComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('day', '01.01.2024');
     fixture.detectChanges();
   });
 
