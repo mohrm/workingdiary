@@ -18,7 +18,7 @@ export class AbschnittComponent {
   startMinute = model<number>(0);
   endHour = model<number>(0);
   endMinute = model<number>(0);
-  location = model<string>('Büro');
+  location = model<string>('nicht zugeordnet');
 
   setEditable() {
     this.isEdit.set(true);
@@ -26,7 +26,7 @@ export class AbschnittComponent {
     this.startMinute.set(this.section()?.startTime.minute);
     this.endHour.set(this.section()?.endTime.hour);
     this.endMinute.set(this.section()?.endTime.minute);
-    this.location.set(this.section()?.location ?? 'Büro');
+    this.location.set(this.section()?.location ?? 'nicht zugeordnet');
   }
 
   abortEdit() {
