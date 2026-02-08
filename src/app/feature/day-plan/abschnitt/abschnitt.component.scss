@@ -1,0 +1,36 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.abschnitt-edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.abschnitt-edit .time-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.abschnitt-edit input[type='number'] {
+  width: 3.5rem;
+}
+
+.abschnitt-edit select {
+  min-width: 6.5rem;
+}
+
+.abschnitt-edit .actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.abschnitt-edit .actions mat-icon {
+  cursor: pointer;
+}

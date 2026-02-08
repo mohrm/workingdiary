@@ -1,0 +1,10 @@
+:host ::ng-deep .abschnitt-item {
+  height: auto;
+  align-items: flex-start;
+}
+
+:host ::ng-deep .abschnitt-item .mdc-list-item__content {
+  overflow: visible;
+  white-space: normal;
+  align-items: flex-start;
+}
