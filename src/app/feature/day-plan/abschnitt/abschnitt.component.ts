@@ -18,6 +18,7 @@ export class AbschnittComponent {
   startMinute = model<number>(0);
   endHour = model<number>(0);
   endMinute = model<number>(0);
+  location = model<string>('Büro');
 
   setEditable() {
     this.isEdit.set(true);
@@ -25,6 +26,7 @@ export class AbschnittComponent {
     this.startMinute.set(this.section()?.startTime.minute);
     this.endHour.set(this.section()?.endTime.hour);
     this.endMinute.set(this.section()?.endTime.minute);
+    this.location.set(this.section()?.location ?? 'Büro');
   }
 
   abortEdit() {
@@ -34,7 +36,7 @@ export class AbschnittComponent {
   finishEdit() {
     const newStart = new Time(this.startHour(), this.startMinute())
     const newEnd = new Time(this.endHour(), this.endMinute())
-    this.section.set(new Section(newStart, newEnd));
+    this.section.set(new Section(newStart, newEnd, this.location()));
     this.isEdit.set(false);
   }
 }

@@ -11,6 +11,7 @@
     <table style="flex-grow: 0.2; flex-shrink: 0.2" mat-table class="mat-elevation-z8">
         <thead align="center">
             <tr>
+                <th mat-header-cell>Arbeitsort</th>
                 <th mat-header-cell>Gesamtdauer</th>
                 <th mat-header-cell>Industriezeit</th>
                 <th mat-header-cell>Industriezeit (gerundet)</th>
@@ -18,6 +19,19 @@
         </thead>
         <tbody align="center">
             <tr>
+                <td>Büro</td>
+                <td>{{ bueroDauer().formattedString()}}</td>
+                <td>{{ bueroDauer().industrial() | number: '1.2-2'}}</td>
+                <td>{{ bueroDauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
+            </tr>
+            <tr>
+                <td>mobil</td>
+                <td>{{ mobilDauer().formattedString()}}</td>
+                <td>{{ mobilDauer().industrial() | number: '1.2-2'}}</td>
+                <td>{{ mobilDauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
+            </tr>
+            <tr>
+                <td>Gesamt</td>
                 <td data-testid="fullduration">{{ gesamtdauer().formattedString()}}</td>
                 <td data-testid="fullduration-industry">{{ gesamtdauer().industrial() | number: '1.2-2'}}</td>
                 <td data-testid="fullduration-industry-rounded">{{ gesamtdauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>

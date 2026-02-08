@@ -3,14 +3,17 @@ import { Time } from './Time';
 export class Section {
   startTime: Time;
   endTime: Time;
+  location: string;
 
-  constructor(startTime: Time, endTime: Time) {
+  constructor(startTime: Time, endTime: Time, location: string = 'Büro') {
     this.startTime = startTime;
     this.endTime = endTime;
+    this.location = location;
   }
 
   formattedString(): string {
-    return this.startTime.formattedString() + " - " + this.endTime.formattedString();
+    const timeRange = this.startTime.formattedString() + " - " + this.endTime.formattedString();
+    return `${timeRange} (${this.location})`;
   }
 
   durationInMinutes(): number {
@@ -18,10 +21,10 @@ export class Section {
   }
 
   toJSON(): any {
-    return {startTime: this.startTime, endTime: this.endTime}
+    return {startTime: this.startTime, endTime: this.endTime, location: this.location}
   }
 
-  static fromJSON(s: {startTime: any, endTime: any}): Section {
-    return new Section(Time.fromJSON(s.startTime), Time.fromJSON(s.endTime));
+  static fromJSON(s: {startTime: any, endTime: any, location?: string}): Section {
+    return new Section(Time.fromJSON(s.startTime), Time.fromJSON(s.endTime), s.location ?? 'Büro');
   }
 }
