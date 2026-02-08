@@ -1,3 +1,29 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.abschnitt-liste {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 16px;
+}
+
+.abschnitt-liste__sections {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.abschnitt-liste__summary {
+  flex: 0 0 auto;
+}
+
 :host ::ng-deep .abschnitt-item {
   height: auto;
   align-items: flex-start;

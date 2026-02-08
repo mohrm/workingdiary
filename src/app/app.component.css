@@ -1,6 +1,14 @@
+.app-root,
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .app-main {
   display: flex;
   flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
 }
 
@@ -8,7 +16,14 @@
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 2vw, 32px);
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
+}
+
+.app-content > day-plan {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .app-navigation__row {
@@ -26,7 +41,9 @@
 }
 
 .app-footer {
+  flex: 0 0 auto;
   width: 100%;
+  margin-top: auto;
 }
 
 .app-footer__row {
