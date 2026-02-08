@@ -3,7 +3,10 @@
     <input type="number" min="0" max="59" [(ngModel)]="startMinute"/> -
     <input type="number" min="0" max="23" [(ngModel)]="endHour"/>:
     <input type="number" min="0" max="59" [(ngModel)]="endMinute"/>
-    <input type="text" placeholder="Arbeitsort" [(ngModel)]="location"/>
+    <select [(ngModel)]="location">
+        <option value="Büro">Büro</option>
+        <option value="mobil">mobil</option>
+    </select>
     <mat-icon matListItemIcon (click)="finishEdit()">check</mat-icon><mat-icon matListItemIcon (click)="abortEdit()">close</mat-icon>
 } @else {
     {{ section().formattedString() }} <mat-icon matListItemIcon (click)="setEditable()">edit</mat-icon>

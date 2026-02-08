@@ -5,7 +5,7 @@ export class Section {
   endTime: Time;
   location: string;
 
-  constructor(startTime: Time, endTime: Time, location: string = '') {
+  constructor(startTime: Time, endTime: Time, location: string = 'Büro') {
     this.startTime = startTime;
     this.endTime = endTime;
     this.location = location;
@@ -13,10 +13,7 @@ export class Section {
 
   formattedString(): string {
     const timeRange = this.startTime.formattedString() + " - " + this.endTime.formattedString();
-    if (this.location) {
-      return `${timeRange} (${this.location})`;
-    }
-    return timeRange;
+    return `${timeRange} (${this.location})`;
   }
 
   durationInMinutes(): number {
@@ -28,6 +25,6 @@ export class Section {
   }
 
   static fromJSON(s: {startTime: any, endTime: any, location?: string}): Section {
-    return new Section(Time.fromJSON(s.startTime), Time.fromJSON(s.endTime), s.location ?? '');
+    return new Section(Time.fromJSON(s.startTime), Time.fromJSON(s.endTime), s.location ?? 'Büro');
   }
 }

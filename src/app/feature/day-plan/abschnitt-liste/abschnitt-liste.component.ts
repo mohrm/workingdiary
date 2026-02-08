@@ -59,15 +59,32 @@ export class AbschnittListeComponent implements OnInit, OnChanges {
     this.persistence.saveSections(this.day(), this.abschnitte())
   }
 
-  gesamtdauer = computed<Time>(() => {
+  private sumMinutes(location?: string): number {
     const abschnitte = this.abschnitte();
-    if (abschnitte) {
-      let sumMinutes = abschnitte.map(s => s.durationInMinutes()).reduce((prev,cur) => prev+cur, 0)
-      const hours = Math.floor(sumMinutes / 60);
-      const minutes = sumMinutes - 60 * hours;
-      return new Time(hours, minutes);
-    } else {
-      return new Time(0, 0);
+    if (!abschnitte) {
+      return 0;
     }
+    return abschnitte
+      .filter(section => !location || section.location === location)
+      .map(section => section.durationInMinutes())
+      .reduce((prev, cur) => prev + cur, 0);
+  }
+
+  private toTime(minutes: number): Time {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes - 60 * hours;
+    return new Time(hours, remainingMinutes);
+  }
+
+  gesamtdauer = computed<Time>(() => {
+    return this.toTime(this.sumMinutes());
+  })
+
+  bueroDauer = computed<Time>(() => {
+    return this.toTime(this.sumMinutes('Büro'));
+  })
+
+  mobilDauer = computed<Time>(() => {
+    return this.toTime(this.sumMinutes('mobil'));
   })
 }
