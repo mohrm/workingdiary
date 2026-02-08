@@ -34,6 +34,9 @@ jobs:
           npm i
           npm run prebuild
           npm run build:ci
+      - name: run jest tests
+        run: |
+          npm test -- --ci
       - name: prepare e2e tests
         run: |
           npm run e2e-prepare:ci
@@ -126,5 +129,4 @@ jobs:
           
           
       
-
 
