@@ -8,12 +8,19 @@
   flex-direction: column;
   gap: clamp(16px, 2vw, 32px);
   width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .day-plan__clock,
 .day-plan__list {
   flex: 1 1 auto;
   width: 100%;
+  min-height: 0;
+}
+
+.day-plan__clock {
+  flex: 0 0 auto;
 }
 
 @media (max-width: 600px) {

@@ -46,5 +46,3 @@ Thumbs.db
 
 build/
 test-results/
-
-src/environments/version.prod.ts

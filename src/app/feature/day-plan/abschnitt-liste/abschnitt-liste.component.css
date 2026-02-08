@@ -1,3 +1,27 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.abschnitt-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.abschnitt-liste__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.abschnitt-liste__summary {
+  flex: 0 0 auto;
+}
+
 :host ::ng-deep .abschnitt-item {
   height: auto;
   align-items: flex-start;
@@ -8,4 +32,10 @@
   white-space: normal;
   align-items: flex-start;
   width: 100%;
+}
+
+@media (max-width: 600px) {
+  .abschnitt-liste {
+    gap: 12px;
+  }
 }
