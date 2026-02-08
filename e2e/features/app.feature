@@ -26,3 +26,12 @@ Feature: Day plan page
     When I log out
     Then I see that section "0" has start time "08:00" and end time "09:00"
     Then I see that section "1" has start time "09:30" and end time "12:00"
+
+  Scenario: Section editor inputs are fully visible on mobile
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    And the viewport is mobile
+    When I open the day plan for today
+    And I log in
+    And I log out
+    And I open the editor for section "0"
+    Then the section editor inputs are fully visible

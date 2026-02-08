@@ -6,7 +6,7 @@
 .abschnitt-edit {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
@@ -19,19 +19,27 @@
 }
 
 .abschnitt-edit input[type='number'] {
-  width: 2.2rem;
+  width: 3rem;
+  padding: 4px 6px;
+  line-height: 1.2;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .abschnitt-edit .actions {
   display: flex;
   flex-direction: row;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
 .abschnitt-edit select {
-  flex: 0 0 auto;
+  flex: 1 1 6.5rem;
   min-width: 6.5rem;
+  padding: 4px 6px;
+  line-height: 1.2;
+  box-sizing: border-box;
 }
 
 .abschnitt-edit .icon-actions {
@@ -39,8 +47,24 @@
   align-items: center;
   gap: 6px;
   justify-content: flex-start;
+  flex: 0 0 auto;
 }
 
 .abschnitt-edit .actions mat-icon {
   cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .abschnitt-edit {
+    align-items: flex-start;
+  }
+
+  .abschnitt-edit .time-inputs,
+  .abschnitt-edit .actions {
+    width: 100%;
+  }
+
+  .abschnitt-edit .actions {
+    justify-content: space-between;
+  }
 }
