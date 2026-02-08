@@ -1,5 +1,9 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
   width: 100%;
 }
 
@@ -7,13 +11,24 @@
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 2vw, 32px);
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
 }
 
 .day-plan__clock,
 .day-plan__list {
-  flex: 1 1 auto;
   width: 100%;
+}
+
+.day-plan__clock {
+  flex: 0 0 auto;
+  min-height: 140px;
+}
+
+.day-plan__list {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 @media (max-width: 600px) {
