@@ -5,35 +5,33 @@
 
 .abschnitt-edit {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 8px;
 }
 
 .abschnitt-edit .time-inputs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 4px;
-  width: 100%;
 }
 
 .abschnitt-edit input[type='number'] {
-  width: 2.4rem;
+  width: 2.2rem;
 }
 
 .abschnitt-edit .actions {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
 }
 
 .abschnitt-edit select {
-  flex: 1 1 auto;
-  min-width: 0;
-  width: 100%;
+  flex: 0 0 auto;
+  min-width: 6.5rem;
 }
 
 .abschnitt-edit .icon-actions {
@@ -45,27 +43,4 @@
 
 .abschnitt-edit .actions mat-icon {
   cursor: pointer;
-}
-
-@media (min-width: 480px) {
-  .abschnitt-edit {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .abschnitt-edit .time-inputs {
-    width: auto;
-  }
-
-  .abschnitt-edit .actions {
-    flex-direction: row;
-    align-items: center;
-    width: auto;
-  }
-
-  .abschnitt-edit select {
-    min-width: 6.5rem;
-    flex: 0 0 auto;
-    width: auto;
-  }
 }
