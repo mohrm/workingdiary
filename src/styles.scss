@@ -15,8 +15,11 @@ html {
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
   margin: 0;
-  padding: 30px;
+  padding: clamp(12px, 1.5vw, 24px);
   height: 100%;
+  min-height: 100vh;
+  font-size: clamp(16px, 1vw + 12px, 22px);
+  line-height: 1.5;
 
   @include mat.theme((
     color: (
@@ -33,5 +36,3 @@ body {
 th {
   padding: 20px
 }
-
-
