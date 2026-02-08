@@ -1,37 +1,14 @@
-.app-root,
-:host {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
 .app-main {
   display: flex;
   flex: 1 1 auto;
-  min-height: 0;
   width: 100%;
-  height: 100%;
 }
 
 .app-content {
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 2vw, 32px);
-  flex: 1 1 auto;
-  min-height: 0;
   width: 100%;
-  height: 100%;
-}
-
-.app-content > day-plan {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.app-navigation {
-  margin-top: auto;
-  padding: 8px 0 4px;
 }
 
 .app-navigation__row {
@@ -49,9 +26,7 @@
 }
 
 .app-footer {
-  flex: 0 0 auto;
   width: 100%;
-  margin-top: auto;
 }
 
 .app-footer__row {
