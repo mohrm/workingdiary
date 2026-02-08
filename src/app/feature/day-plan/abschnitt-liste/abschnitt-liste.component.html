@@ -1,7 +1,7 @@
 <div style="display: flex; flex-direction: column;">
     <mat-list style="flex-grow: 0.8; flex-shrink: 0.8">
         @for (abschnitt of abschnitte(); track $index) {
-          <mat-list-item>
+          <mat-list-item class="abschnitt-item">
             <app-abschnitt [attr.data-testid]="'section-'+$index" [section]="abschnitt" (sectionChange)="aendereAbschnitt($index, $event)"/>
             <mat-icon matListItemIcon (click)="entferneAbschnitt($index)">delete</mat-icon>
           </mat-list-item>
