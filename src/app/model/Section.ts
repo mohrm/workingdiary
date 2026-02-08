@@ -5,7 +5,7 @@ export class Section {
   endTime: Time;
   location: string;
 
-  constructor(startTime: Time, endTime: Time, location: string = 'Büro') {
+  constructor(startTime: Time, endTime: Time, location: string = 'nicht zugeordnet') {
     this.startTime = startTime;
     this.endTime = endTime;
     this.location = location;
@@ -25,6 +25,6 @@ export class Section {
   }
 
   static fromJSON(s: {startTime: any, endTime: any, location?: string}): Section {
-    return new Section(Time.fromJSON(s.startTime), Time.fromJSON(s.endTime), s.location ?? 'Büro');
+    return new Section(Time.fromJSON(s.startTime), Time.fromJSON(s.endTime), s.location ?? 'nicht zugeordnet');
   }
 }
