@@ -1,18 +1,30 @@
 
-Eingestempelt um:
-    @if (!this.startTime()) { 
-        <i>noch nicht eingestempelt</i>
-    } @else {
-        @if (isEdit()) {
-            <input type="number" min="0" max="23" [(ngModel)]="hour"/>:
-            <input type="number" min="0" max="59" [(ngModel)]="minute"/> <mat-icon matListItemIcon (click)="finishEdit()">check</mat-icon><mat-icon matListItemIcon (click)="abortEdit()">close</mat-icon>
+<div class="stempeluhr">
+    <div class="stempeluhr__row">
+        <span class="stempeluhr__label">Eingestempelt um:</span>
+        <div class="stempeluhr__value">
+            @if (!this.startTime()) { 
+                <i>noch nicht eingestempelt</i>
+            } @else {
+                @if (isEdit()) {
+                    <span class="stempeluhr__time-inputs">
+                        <input type="number" min="0" max="23" [(ngModel)]="hour"/>:
+                        <input type="number" min="0" max="59" [(ngModel)]="minute"/>
+                        <mat-icon matListItemIcon (click)="finishEdit()">check</mat-icon>
+                        <mat-icon matListItemIcon (click)="abortEdit()">close</mat-icon>
+                    </span>
+                } @else {
+                    <span class="stempeluhr__time-display" data-testid="login-time">{{ this.startTime()?.formattedString() }}<mat-icon matListItemIcon (click)="setEditable()">edit</mat-icon></span>
+                }
+            }
+        </div>
+    </div>
+    <div class="stempeluhr__actions">
+        <span class="stempeluhr__label-placeholder" aria-hidden="true"></span>
+        @if (!this.startTime()) {
+            <button mat-button (click)="einstempeln()" data-testid="log-button"><mat-icon>login</mat-icon>Einstempeln</button>
         } @else {
-            <div data-testid="login-time">{{ this.startTime()?.formattedString() }}<mat-icon matListItemIcon (click)="setEditable()">edit</mat-icon></div>
+            <button mat-button (click)="ausstempeln()" data-testid="log-button"><mat-icon>logout</mat-icon>Ausstempeln</button>
         }
-    }
-<p></p>
-@if (!this.startTime()) {
-    <button mat-button (click)="einstempeln()" data-testid="log-button"><mat-icon>login</mat-icon>Einstempeln</button>
-} @else {
-    <button mat-button (click)="ausstempeln()" data-testid="log-button"><mat-icon>logout</mat-icon>Ausstempeln</button>
-}
+    </div>
+</div>

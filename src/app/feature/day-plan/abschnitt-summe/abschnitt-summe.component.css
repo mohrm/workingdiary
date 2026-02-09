@@ -1,0 +1,24 @@
+.abschnitt-summe {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.abschnitt-summe th,
+.abschnitt-summe td {
+  padding: clamp(6px, 1.2vw, 12px);
+}
+
+.abschnitt-summe__nowrap {
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .abschnitt-summe {
+    font-size: 0.9rem;
+  }
+
+  .abschnitt-summe th,
+  .abschnitt-summe td {
+    padding: 6px;
+  }
+}

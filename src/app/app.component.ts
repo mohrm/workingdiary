@@ -1,14 +1,14 @@
 import { Component, computed, inject, input, model, ModelSignal, OnInit, output, OutputEmitterRef } from '@angular/core';
-import { Section } from './model/Section';
 import { DayPlan } from './feature/day-plan/day-plan';
 import { ActivatedRoute, Params, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PersistenceServiceService } from './persistence-service.service';
 import { VersionService } from './version.service';
 import { DownloadPlansComponent } from './feature/download-plans/download-plans.component';
+import { AbschnittSummeComponent } from './feature/day-plan/abschnitt-summe/abschnitt-summe.component';
 
 @Component({
   selector: 'app-root',
-  imports: [DayPlan, RouterLink, DownloadPlansComponent],
+  imports: [DayPlan, RouterLink, DownloadPlansComponent, AbschnittSummeComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

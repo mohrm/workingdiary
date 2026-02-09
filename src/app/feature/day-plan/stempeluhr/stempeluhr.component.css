@@ -1,0 +1,65 @@
+.stempeluhr {
+  --stempeluhr-label-width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.stempeluhr__row {
+  display: grid;
+  grid-template-columns: var(--stempeluhr-label-width) 1fr;
+  column-gap: 8px;
+  align-items: baseline;
+  width: 100%;
+}
+
+.stempeluhr__label {
+  font-weight: 500;
+}
+
+.stempeluhr__value {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.stempeluhr__time-inputs {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.stempeluhr__actions {
+  display: grid;
+  grid-template-columns: var(--stempeluhr-label-width) 1fr;
+  column-gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.stempeluhr__label-placeholder {
+  width: 100%;
+}
+
+.stempeluhr__actions button {
+  padding-left: 0;
+  justify-self: start;
+}
+
+.stempeluhr__time-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.stempeluhr__value mat-icon {
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  .stempeluhr {
+    --stempeluhr-label-width: 140px;
+  }
+}

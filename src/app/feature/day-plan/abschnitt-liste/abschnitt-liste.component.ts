@@ -1,16 +1,14 @@
-import { Component, computed, EventEmitter, inject, input, model, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, input, model, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Section } from '../../../model/Section';
-import { Time } from '../../../model/Time';
 import { PersistenceServiceService } from '../../../persistence-service.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
-import { DecimalPipe } from '@angular/common';
 import { AbschnittComponent } from '../abschnitt/abschnitt.component';
 
 @Component({
   selector: 'app-abschnitt-liste',
-  imports: [MatButtonModule, MatIconModule, DecimalPipe, MatListModule, AbschnittComponent],
+  imports: [MatButtonModule, MatIconModule, MatListModule, AbschnittComponent],
   templateUrl: './abschnitt-liste.component.html',
   styleUrl: './abschnitt-liste.component.css'
 })
@@ -59,32 +57,4 @@ export class AbschnittListeComponent implements OnInit, OnChanges {
     this.persistence.saveSections(this.day(), this.abschnitte())
   }
 
-  private sumMinutes(location?: string): number {
-    const abschnitte = this.abschnitte();
-    if (!abschnitte) {
-      return 0;
-    }
-    return abschnitte
-      .filter(section => !location || section.location === location)
-      .map(section => section.durationInMinutes())
-      .reduce((prev, cur) => prev + cur, 0);
-  }
-
-  private toTime(minutes: number): Time {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes - 60 * hours;
-    return new Time(hours, remainingMinutes);
-  }
-
-  gesamtdauer = computed<Time>(() => {
-    return this.toTime(this.sumMinutes());
-  })
-
-  bueroDauer = computed<Time>(() => {
-    return this.toTime(this.sumMinutes('Büro'));
-  })
-
-  mobilDauer = computed<Time>(() => {
-    return this.toTime(this.sumMinutes('mobil'));
-  })
 }

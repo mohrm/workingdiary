@@ -4,6 +4,12 @@ html {
   height: 100%;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 // Customize the entire app. Change :root to your selector if you want to scope the styles.
 :root {
   @include mat.table-overrides((
@@ -18,6 +24,8 @@ body {
   padding: clamp(12px, 1.5vw, 24px);
   height: 100%;
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   font-size: clamp(16px, 1vw + 12px, 22px);
   line-height: 1.5;
 
@@ -30,6 +38,13 @@ body {
     typography: Roboto,
     density: 0,
   ));
+}
+
+@media (max-width: 480px) {
+  body {
+    overflow: hidden;
+    padding: 12px;
+  }
 }
 
 

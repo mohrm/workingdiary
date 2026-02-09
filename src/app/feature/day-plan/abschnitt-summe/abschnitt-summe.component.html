@@ -1,0 +1,26 @@
+<table class="abschnitt-summe">
+    <thead align="center">
+        <tr>
+            <th>Arbeitsort</th>
+            <th>Gesamtdauer</th>
+            <th class="abschnitt-summe__nowrap">Industriezeit (exakt/gerundet)</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr>
+            <td>Büro</td>
+            <td>{{ bueroDauer().formattedString()}}</td>
+            <td>{{ bueroDauer().industrial() | number: '1.2-2'}} / {{ bueroDauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
+        </tr>
+        <tr>
+            <td>mobil</td>
+            <td>{{ mobilDauer().formattedString()}}</td>
+            <td>{{ mobilDauer().industrial() | number: '1.2-2'}} / {{ mobilDauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
+        </tr>
+        <tr>
+            <td>Gesamt</td>
+            <td data-testid="fullduration">{{ gesamtdauer().formattedString()}}</td>
+            <td data-testid="fullduration-industry-combined">{{ gesamtdauer().industrial() | number: '1.2-2'}} / {{ gesamtdauer().industrialQuarterPrecision() | number: '1.2-2'}}</td>
+        </tr>
+    </tbody>
+</table>
