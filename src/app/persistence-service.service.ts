@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import { Time } from './model/Time';
 import { Section } from './model/Section';
 import moment, { Moment } from 'moment';
@@ -8,6 +9,9 @@ import moment, { Moment } from 'moment';
 })
 export class PersistenceServiceService {
   constructor() { }
+
+  private sectionsChanged = new Subject<{ day: string; sections?: Section[] }>();
+  readonly sectionsChanged$ = this.sectionsChanged.asObservable();
 
   private initPlans(): any {
     const emptyPlans = {};
@@ -64,6 +68,7 @@ export class PersistenceServiceService {
     const plans = this.loadDayPlan(day);
     plans[day]['sections'] = sections;
     localStorage.setItem("plans", JSON.stringify(plans));
+    this.sectionsChanged.next({ day, sections });
   }
 
   public loadSections(day: string): Section[]|undefined {

@@ -1,6 +1,9 @@
-<main class="app-main">
-    <div class="app-content">
+<div class="app-shell">
+    <main class="app-main">
         <day-plan [day]="day()"/>
+    </main>
+    <div class="app-bottom">
+        <app-abschnitt-summe class="app-summary" [day]="day()"></app-abschnitt-summe>
         <section class="app-navigation">
             <div class="app-navigation__row">
                 <a class="app-navigation__link" routerLink="" [queryParams]="previousDay()">Zurück</a>
@@ -8,20 +11,19 @@
                 <a class="app-navigation__link" routerLink="" [queryParams]="nextDay()">Vor</a>
             </div>
         </section>
+        <footer class="app-footer">
+            <div class="app-footer__row">
+                <div class="app-footer__spacer"></div>
+                <div class="app-footer__title">Versionsinformation</div>
+                <div class="app-footer__meta">
+                    <div>{{ commitTimestamp() }}</div>
+                    <div><a [href]="urlOfLastCommit()">{{ commitHash() }}</a></div>
+                </div>
+                <div class="app-footer__spacer"></div>
+                <div class="app-footer__actions">
+                    <app-download-plans></app-download-plans>
+                </div>
+            </div>
+        </footer>
     </div>
-</main>
-<p></p>
-<footer class="app-footer">
-    <div class="app-footer__row">
-        <div class="app-footer__spacer"></div>
-        <div class="app-footer__title">Versionsinformation</div>
-        <div class="app-footer__meta">
-            <div>{{ commitTimestamp() }}</div>
-            <div><a [href]="urlOfLastCommit()">{{ commitHash() }}</a></div>
-        </div>
-        <div class="app-footer__spacer"></div>
-        <div class="app-footer__actions">
-            <app-download-plans></app-download-plans>
-        </div>
-    </div>
-</footer>
+</div>

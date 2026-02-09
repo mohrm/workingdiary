@@ -1,11 +1,43 @@
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+.abschnitt-liste {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.abschnitt-liste__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-right: 4px;
+  padding-bottom: 6px;
+}
+
+@media (max-width: 480px) {
+  .abschnitt-liste__list {
+    min-height: 36vh;
+  }
+}
+
 :host ::ng-deep .abschnitt-item {
   height: auto;
+  min-height: unset;
   align-items: flex-start;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  overflow: visible;
 }
 
 :host ::ng-deep .abschnitt-item .mdc-list-item__content {
   overflow: visible;
   white-space: normal;
-  align-items: flex-start;
+  align-items: stretch;
   width: 100%;
 }
