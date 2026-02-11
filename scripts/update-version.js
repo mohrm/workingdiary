@@ -3,7 +3,7 @@ const execSync = require("child_process").execSync;
 
 const version = require("../package.json").version;
 const commitHash = execSync("git rev-parse --short HEAD").toString().trim();
-const commitTimestamp = execSync("git show --no-patch --format=%ci").toString().trim();
+const commitTimestamp = execSync('TZ="Europe/Berlin" git show --no-patch --format=%ci').toString().trim();
 
 const content = `export const version = '${version}';
 export const commitTimestamp = '${commitTimestamp}';
