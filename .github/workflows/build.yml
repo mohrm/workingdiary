@@ -44,12 +44,12 @@ jobs:
         run: |
           npm run e2e:ci
       - name: upload e2e test report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-test-report
           path: build/e2e
       - name: store build artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: build-artifact
           path: |
@@ -72,7 +72,7 @@ jobs:
 
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: build-artifact
       - name: Log in to the Container registry
