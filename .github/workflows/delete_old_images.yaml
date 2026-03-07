@@ -22,7 +22,8 @@ jobs:
           
           # --- Ihre individuelle Retention Policy ---
           # Auf welche Images soll die Regel angewendet werden? (Wildcards erlaubt) [citation:1][citation:8]
-          image-names: "workingdiary" 
+          image-names: "workingdiary"
+          image-tags: "!main, !latest"
           
           # Nur Images löschen, die älter als 30 Tage sind [citation:1][citation:8]
           cut-off: 1w  # 4 Wochen, alternativ "30d" oder "one month ago UTC" [citation:1]
@@ -32,9 +33,6 @@ jobs:
           
           # Welcher Zeitstempel soll für den Vergleich genutzt werden? [citation:1][citation:8]
           timestamp-to-use: updated_at
-          
-          # Optional: Nur Images ohne bestimmte Tags löschen (z.B. 'latest' schützen) [citation:1][citation:4]
-          skip-tags: latest, main
           
           # --- Empfehlung: Erst einmal im Trockenlauf testen ---
           dry-run: true # Auf 'true' setzen, um zu sehen, was gelöscht würde [citation:1][citation:5][citation:8]
