@@ -14,7 +14,7 @@ jobs:
       packages: write # Wichtig für das Löschen mit GITHUB_TOKEN
     steps:
       - name: Cleanup old images
-        uses: snok/container-retention-policy@v3.0.0 # Auf eine spezifische Version festlegen [citation:8]
+        uses: snok/container-retention-policy@v3.0.1 # Auf eine spezifische Version festlegen [citation:8]
         with:
           # Kontotyp: "user" für persönliche Konten, bei Organisationen den Namen angeben [citation:1][citation:8]
           account: user # ODER z.B. account: my-org-name
