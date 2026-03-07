@@ -1,0 +1,40 @@
+name: Clean up old GHCR images
+
+on:
+  schedule:
+    # * ist ein Sonderzeichen in YAML, daher in Anführungszeichen
+    - cron: '0 2 * * 0'  # Jeden Sonntag um 02:00 Uhr UTC
+  workflow_dispatch: # Ermöglicht manuelles Ausführen
+
+jobs:
+  cleanup:
+    name: Delete old container images
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write # Wichtig für das Löschen mit GITHUB_TOKEN
+    steps:
+      - name: Cleanup old images
+        uses: snok/container-retention-policy@v3.0.0 # Auf eine spezifische Version festlegen [citation:8]
+        with:
+          # Kontotyp: "user" für persönliche Konten, bei Organisationen den Namen angeben [citation:1][citation:8]
+          account: user # ODER z.B. account: my-org-name
+          token: ${{ secrets.GITHUB_TOKEN }} # ODER ${{ secrets.PAT }}
+          
+          # --- Ihre individuelle Retention Policy ---
+          # Auf welche Images soll die Regel angewendet werden? (Wildcards erlaubt) [citation:1][citation:8]
+          image-names: "workingdiary" 
+          
+          # Nur Images löschen, die älter als 30 Tage sind [citation:1][citation:8]
+          cut-off: 1w  # 4 Wochen, alternativ "30d" oder "one month ago UTC" [citation:1]
+          
+          # Behalte immer mindestens die 5 neuesten getaggten Images [citation:8]
+          keep-n-most-recent: 5
+          
+          # Welcher Zeitstempel soll für den Vergleich genutzt werden? [citation:1][citation:8]
+          timestamp-to-use: updated_at
+          
+          # Optional: Nur Images ohne bestimmte Tags löschen (z.B. 'latest' schützen) [citation:1][citation:4]
+          skip-tags: latest, main
+          
+          # --- Empfehlung: Erst einmal im Trockenlauf testen ---
+          dry-run: true # Auf 'true' setzen, um zu sehen, was gelöscht würde [citation:1][citation:5][citation:8]
