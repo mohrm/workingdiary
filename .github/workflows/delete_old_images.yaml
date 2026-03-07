@@ -35,4 +35,4 @@ jobs:
           timestamp-to-use: updated_at
           
           # --- Empfehlung: Erst einmal im Trockenlauf testen ---
-          dry-run: true # Auf 'true' setzen, um zu sehen, was gelöscht würde [citation:1][citation:5][citation:8]
+          dry-run: false # Auf 'true' setzen, um zu sehen, was gelöscht würde [citation:1][citation:5][citation:8]
