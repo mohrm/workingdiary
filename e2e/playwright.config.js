@@ -8,7 +8,7 @@ import { defineBddConfig } from 'playwright-bdd';
  */
 module.exports = {
   webServer: {
-    command: 'ng serve -c production',
+    command: 'npm run start -- --configuration production',
     port: 4200,
     timeout: 120 * 1000,
     reuseExistingServer: true,
