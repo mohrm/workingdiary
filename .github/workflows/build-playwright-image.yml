@@ -1,0 +1,64 @@
+name: Build Playwright CI image
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  build-playwright-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository_owner }}/workingdiary-playwright-ci
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Resolve Playwright and Node versions
+        id: versions
+        run: |
+          PLAYWRIGHT_VERSION=$(node -p "const lock=require('./package-lock.json'); lock.packages?.['node_modules/@playwright/test']?.version || lock.packages?.['node_modules/playwright']?.version || ''")
+          if [ -z "$PLAYWRIGHT_VERSION" ]; then
+            echo "Could not resolve Playwright version from package-lock.json" >&2
+            exit 1
+          fi
+
+          NODE_MAJOR=$(tr -d '[:space:]' < .nvmrc | cut -d. -f1)
+          if [ -z "$NODE_MAJOR" ]; then
+            echo "Could not resolve Node major from .nvmrc" >&2
+            exit 1
+          fi
+
+          echo "playwright_version=$PLAYWRIGHT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "node_major=$NODE_MAJOR" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract docker metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=playwright-${{ steps.versions.outputs.playwright_version }}-node-${{ steps.versions.outputs.node_major }}
+
+      - name: Build and push Playwright CI image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: .github/docker/playwright-ci.Dockerfile
+          push: true
+          build-args: |
+            PLAYWRIGHT_VERSION=${{ steps.versions.outputs.playwright_version }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
