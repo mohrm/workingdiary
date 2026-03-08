@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Time } from './model/Time';
 import { Section } from './model/Section';
-import moment, { Moment } from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -83,16 +82,19 @@ export class PersistenceServiceService {
 
   public previousDay(day: string): string {
     const plans = this.loadPlans();
-    const daysBefore : Moment[] = new Array();
-    const mDay = moment(day, 'DD.MM.YYYY')
+    const mDay = this.parseGermanDate(day)
+
+    const daysBefore : Date[] = [];
+
     for (const pDay in plans) {
-      const d = moment(pDay, 'DD.MM.YYYY')
-      if (d.isBefore(mDay)) {
-        daysBefore.push(d)
+      const d = this.parseGermanDate(pDay)
+      if (d < mDay) {
+        daysBefore.push(d);
       }
     }
     if (daysBefore.length > 0) {
-      return moment.max(daysBefore).toDate().toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit", year: "numeric"});
+      const maxDate = new Date(Math.max(...daysBefore.map(d => d.getTime())))
+      return this.formatGermanDate(maxDate)
     } else {
       return day;
     }
@@ -101,18 +103,32 @@ export class PersistenceServiceService {
 
   public nextDay(day: string): string {
     const plans = this.loadPlans();
-    const daysAfter : Moment[] = new Array();
-    const mDay = moment(day, 'DD.MM.YYYY')
+    const mDay = this.parseGermanDate(day)
+    const daysAfter : Date[] = [];
     for (const pDay in plans) {
-      const d = moment(pDay, 'DD.MM.YYYY')
-      if (d.isAfter(mDay)) {
+      const d = this.parseGermanDate(pDay)
+      if (d > mDay) {
         daysAfter.push(d)
       }
     }
     if (daysAfter.length > 0) {
-      return moment.min(daysAfter).toDate().toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit", year: "numeric"});
+      const minDate = new Date(Math.min(...daysAfter.map(d => d.getTime())));
+      return this.formatGermanDate(minDate)
     } else {
       return day;
     }
   }
+
+  private parseGermanDate(dateStr: string): Date {
+    const [day, month, year] = dateStr.split('.').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  private formatGermanDate(date: Date): string {
+    return date.toLocaleDateString("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+}
 }
