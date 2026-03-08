@@ -1,17 +1,8 @@
-import 'jest-preset-angular/setup-env/zone';
-import { getTestBed } from '@angular/core/testing';
-import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting
-} from '@angular/platform-browser-dynamic/testing';
+import { setupZonelessTestEnv } from 'jest-preset-angular/setup-env/zoneless';
 
-getTestBed().initTestEnvironment(
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting(),
-  {
-    teardown: { destroyAfterEach: true }
-  }
-);
+setupZonelessTestEnv({
+  teardown: { destroyAfterEach: true }
+});
 
 if (!globalThis.URL.createObjectURL) {
   globalThis.URL.createObjectURL = () => 'blob:jest-mock';
