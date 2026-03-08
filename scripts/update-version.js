@@ -1,9 +1,22 @@
 const fs = require("fs");
-const execSync = require("child_process").execSync;
+const execFileSync = require("child_process").execFileSync;
 
 const version = require("../package.json").version;
-const commitHash = execSync("git rev-parse --short HEAD").toString().trim();
-const commitTimestamp = execSync('TZ="Europe/Berlin" git show --no-patch --format=%ci').toString().trim();
+const getGitValue = (command, fallback) => {
+  try {
+    return execFileSync("git", command).toString().trim();
+  } catch {
+    return fallback;
+  }
+};
+
+const commitHash = process.env.GIT_COMMIT_HASH || getGitValue(["rev-parse", "--short", "HEAD"], "unknown");
+const commitTimestamp =
+  process.env.GIT_COMMIT_TIMESTAMP ||
+  getGitValue(
+    ["show", "--no-patch", "--date=format-local:%Y-%m-%d %H:%M:%S %z", "--format=%cd"],
+    new Date().toISOString()
+  );
 
 const content = `export const version = '${version}';
 export const commitTimestamp = '${commitTimestamp}';
