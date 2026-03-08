@@ -55,6 +55,7 @@ jobs:
           path: |
             dist
             ./Dockerfile
+            ./package.json
             ./nginx.default.conf.template
   create-image:
     if: github.event_name == 'push'
