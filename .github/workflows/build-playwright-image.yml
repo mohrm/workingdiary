@@ -59,6 +59,7 @@ jobs:
           file: .github/docker/playwright-ci.Dockerfile
           push: true
           build-args: |
+            NODE_VERSION=${{ steps.versions.outputs.node_major }}
             PLAYWRIGHT_VERSION=${{ steps.versions.outputs.playwright_version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
