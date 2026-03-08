@@ -1,5 +1,4 @@
-FROM node:24-bookworm-slim
-
+FROM ubuntu-latest
 ARG PLAYWRIGHT_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
