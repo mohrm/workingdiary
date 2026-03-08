@@ -30,10 +30,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - name: npm install and npm run CI commands
-        run: |
-          npm i
-          npm run prebuild
-          npm run build:ci
+        run: ./scripts/ci-install-and-build.sh
       - name: run jest tests
         run: |
           npm test -- --ci
@@ -131,4 +128,3 @@ jobs:
           
           
       
-
