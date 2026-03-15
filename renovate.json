@@ -18,12 +18,22 @@
       "automerge": true
     },
     {
-      "groupName": "Angular",
-      "groupSlug": "angular",
-      "matchPackageNames": [
-        "@angular/**"
+      "description": "Angular-Ökosystem als eine PR aktualisieren, um Versionsdrift zu vermeiden",
+      "groupName": "Angular ecosystem",
+      "groupSlug": "angular-ecosystem",
+      "matchManagers": [
+        "npm"
       ],
-      "rangeStrategy": "replace"
+      "rangeStrategy": "replace",
+      "separateMajorMinor": false,
+      "separateMinorPatch": false,
+      "automerge": false,
+      "matchPackageNames": [
+        "/^@angular\\//",
+        "/^@angular-eslint\\//",
+        "angular-eslint",
+        "jest-preset-angular"
+      ]
     },
     {
       "description": "Kein Upgrade auf eslint 10+ anbieten",
