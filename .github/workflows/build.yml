@@ -3,6 +3,7 @@ name: Angular CI
 permissions:
   contents: read
   packages: read
+  pull-requests: write
 
 on:
   push:
@@ -35,9 +36,9 @@ jobs:
       
       - name: npm install and npm run CI commands
         run: ./scripts/ci-install-and-build.sh
-      - name: run jest tests
+      - name: run unit test coverage
         run: |
-          npm test -- --ci
+          npm run test:coverage -- --ci --coverageReporters=lcov --coverageReporters=html --coverageReporters=text-summary --coverageReporters=json-summary
       - name: ensure Playwright browser is available
         run: |
           if ! node -e "const fs=require('fs'); const { chromium } = require('playwright'); const p=chromium.executablePath(); console.log('Chromium executable:', p); if(!fs.existsSync(p)) process.exit(1);"; then
@@ -47,14 +48,36 @@ jobs:
       - name: prepare e2e tests
         run: |
           npx bddgen -c e2e/playwright.config.js
-      - name: execute e2e tests
+      - name: execute e2e tests with coverage
         run: |
-          npm run e2e:ci
+          E2E_COVERAGE=true npm run e2e:ci
+      - name: generate e2e coverage report
+        run: |
+          node scripts/generate-e2e-coverage.mjs
+      - name: append coverage summary to GitHub Step Summary
+        run: |
+          {
+            echo "## Unit Test Coverage"
+            cat coverage/coverage-summary.json | node -e "const fs = require('fs'); const data = JSON.parse(fs.readFileSync(0, 'utf8')); const t = data.total; console.log(`- Statements: ${t.statements.pct}% (${t.statements.covered}/${t.statements.total})`); console.log(`- Branches: ${t.branches.pct}% (${t.branches.covered}/${t.branches.total})`); console.log(`- Functions: ${t.functions.pct}% (${t.functions.covered}/${t.functions.total})`); console.log(`- Lines: ${t.lines.pct}% (${t.lines.covered}/${t.lines.total})`);"
+            echo
+            echo "## E2E Coverage"
+            cat build/e2e-coverage/report/summary.md
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: upload e2e test report
         uses: actions/upload-artifact@v7
         with:
           name: e2e-test-report
           path: build/e2e
+      - name: upload unit coverage report
+        uses: actions/upload-artifact@v7
+        with:
+          name: unit-test-coverage
+          path: coverage
+      - name: upload e2e coverage report
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-test-coverage
+          path: build/e2e-coverage/report
       - name: store build artifact
         uses: actions/upload-artifact@v7
         with:
