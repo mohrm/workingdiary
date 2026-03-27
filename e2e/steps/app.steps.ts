@@ -1,8 +1,35 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { AppPagePO } from '../page-objects/app.po';
 
-const { Given, When, Then } = createBdd();
+const { Given, When, Then, Before, After } = createBdd();
+
+const collectCoverage = process.env.E2E_COVERAGE === 'true';
+const rawCoverageDir = path.resolve(process.cwd(), 'build/e2e-coverage/raw');
+
+Before(async ({ page }) => {
+  if (!collectCoverage) {
+    return;
+  }
+
+  await page.coverage.startJSCoverage({
+    resetOnNavigation: false,
+  });
+});
+
+After(async ({ page }) => {
+  if (!collectCoverage) {
+    return;
+  }
+
+  const coverage = await page.coverage.stopJSCoverage();
+  await mkdir(rawCoverageDir, { recursive: true });
+
+  const targetFile = path.join(rawCoverageDir, `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.json`);
+  await writeFile(targetFile, JSON.stringify(coverage));
+});
 
 
 Given('I open the home page', async ({ page }) => {

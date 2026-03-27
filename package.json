@@ -18,7 +18,9 @@
     "e2e-prepare:ci": "npx playwright install --with-deps && npx bddgen -c e2e/playwright.config.js",
     "e2e:ci": "npx playwright test -c e2e/playwright.config.js",
     "lint": "ng lint",
-    "lint:fix": "ng lint --fix"
+    "lint:fix": "ng lint --fix",
+    "e2e:coverage": "E2E_COVERAGE=true npm run e2e && node scripts/generate-e2e-coverage.mjs",
+    "coverage:ci": "npm run test:coverage -- --ci --coverageReporters=lcov --coverageReporters=html --coverageReporters=text-summary --coverageReporters=json-summary && npm run e2e:coverage"
   },
   "private": true,
   "dependencies": {
@@ -49,6 +51,7 @@
     "jest-environment-jsdom": "30.3.0",
     "jest-preset-angular": "16.1.1",
     "karma-coverage": "2.2.1",
+    "monocart-coverage-reports": "^2.12.9",
     "npm-run-all2": "8.0.4",
     "playwright-bdd": "8.4.2",
     "typescript": "5.9.3",
