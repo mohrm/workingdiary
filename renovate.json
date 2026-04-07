@@ -31,6 +31,13 @@
         "eslint"
       ],
       "allowedVersions": "<10"
+    },
+    {
+      "description": "Kein Upgrade auf TypeScript 6+ anbieten (bis Angular 21 kompatibel ist)",
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<6"
     }
   ]
 }
