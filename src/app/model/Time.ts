@@ -1,9 +1,14 @@
+export interface TimeJson {
+  hour: number;
+  minute: number;
+}
+
 export class Time {
   hour: number;
   minute: number;
 
   static now(): Time {
-    let now = new Date();
+    const now = new Date();
     return new Time(now.getHours(), now.getMinutes());
   }
   constructor(hour: number, minute: number) {
@@ -27,11 +32,11 @@ export class Time {
     return this.hour.toString().padStart(2, "0") + ":" + this.minute.toString().padStart(2, "0");
   }
 
-  toJSON(): any {
+  toJSON(): TimeJson {
     return {hour: this.hour, minute: this.minute};
   }
 
-  static fromJSON(s: {hour: number, minute: number}): Time {
+  static fromJSON(s: TimeJson): Time {
     return new Time(s.hour, s.minute);
   }
 }

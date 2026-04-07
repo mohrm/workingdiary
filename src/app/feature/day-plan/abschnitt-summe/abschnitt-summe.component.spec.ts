@@ -10,7 +10,8 @@ class MockPersistenceService {
   private changes = new Subject<{ day: string; sections?: Section[] }>();
   readonly sectionsChanged$ = this.changes.asObservable();
 
-  loadSections(_day: string): Section[] {
+  loadSections(day: string): Section[] {
+    void day;
     return this.sections;
   }
 

@@ -38,16 +38,17 @@ export class AbschnittListeComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    void changes;
     this.abschnitte.set(this.persistence.loadSections(this.day()))
   }
 
   entferneAbschnitt(index: number): void {
-    this.abschnitte.update(alteAbschnitte => alteAbschnitte?.filter((v,i,a) => i !== index));
+    this.abschnitte.update(alteAbschnitte => alteAbschnitte?.filter((_, i) => i !== index));
     this.persistence.saveSections(this.day(), this.abschnitte())
   }
 
   aendereAbschnitt(index: number, newSection: Section) {
-    this.abschnitte.update(alteAbschnitte => alteAbschnitte?.map((v,i,a) => {
+    this.abschnitte.update(alteAbschnitte => alteAbschnitte?.map((v, i) => {
       if (i == index) {
         return newSection;
       } else {

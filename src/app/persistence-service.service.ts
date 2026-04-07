@@ -1,40 +1,43 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { Time } from './model/Time';
-import { Section } from './model/Section';
+import { Time, TimeJson } from './model/Time';
+import { Section, SectionJson } from './model/Section';
+
+interface DayPlan {
+  startTime?: TimeJson;
+  sections?: SectionJson[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class PersistenceServiceService {
-  constructor() { }
-
   private sectionsChanged = new Subject<{ day: string; sections?: Section[] }>();
   readonly sectionsChanged$ = this.sectionsChanged.asObservable();
 
-  private initPlans(): any {
-    const emptyPlans = {};
+  private initPlans(): Record<string, DayPlan> {
+    const emptyPlans: Record<string, DayPlan> = {};
     localStorage.setItem("plans", JSON.stringify(emptyPlans))
     return emptyPlans;
   }
 
-  public loadPlans(): any {
+  public loadPlans(): Record<string, DayPlan> {
     const sPlans = localStorage.getItem("plans");
     if (sPlans) {
-      return JSON.parse(sPlans)
+      return JSON.parse(sPlans) as Record<string, DayPlan>
     } else {
       return this.initPlans();
     }
   }
 
-  private initDay(plans: any, day: string): any {
-    const emptyDayPlan = {};
+  private initDay(plans: Record<string, DayPlan>, day: string): DayPlan {
+    const emptyDayPlan: DayPlan = {};
     plans[day] = emptyDayPlan;
     localStorage.setItem("plans", JSON.stringify(plans))
     return emptyDayPlan;
   }
 
-  private loadDayPlan(day: string): any {
+  private loadDayPlan(day: string): Record<string, DayPlan> {
     const plans = this.loadPlans();
     const dayPlan = plans[day];
     if (!dayPlan) {
@@ -74,7 +77,7 @@ export class PersistenceServiceService {
     const plans = this.loadDayPlan(day);
     const sections = plans[day]['sections'];
     if (sections) {
-      return sections.map((v:any,i:number,a:any[]) => Section.fromJSON(v));
+      return sections.map(v => Section.fromJSON(v));
     } else {
       return undefined;
     }

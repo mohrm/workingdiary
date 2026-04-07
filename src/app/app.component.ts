@@ -1,6 +1,6 @@
-import { Component, computed, inject, input, model, ModelSignal, OnInit, output, OutputEmitterRef } from '@angular/core';
+import { Component, computed, inject, model, OnInit } from '@angular/core';
 import { DayPlan } from './feature/day-plan/day-plan';
-import { ActivatedRoute, Params, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 import { PersistenceServiceService } from './persistence-service.service';
 import { VersionService } from './version.service';
 import { DownloadPlansComponent } from './feature/download-plans/download-plans.component';
@@ -15,12 +15,10 @@ import { AbschnittSummeComponent } from './feature/day-plan/abschnitt-summe/absc
 export class AppComponent implements OnInit {
 
   day = model.required<string>();
+  route = inject(ActivatedRoute);
 
   persistence = inject(PersistenceServiceService)
   version = inject(VersionService)
-
-
-  constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {

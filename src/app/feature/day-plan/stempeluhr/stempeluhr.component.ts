@@ -1,4 +1,4 @@
-import { Component, inject, Inject, input, model, OnChanges, OnInit, output, SimpleChanges } from '@angular/core';
+import { Component, inject, input, model, OnChanges, OnInit, output, SimpleChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Time } from '../../../model/Time';
 import { Section } from '../../../model/Section';
@@ -26,6 +26,7 @@ export class StempeluhrComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    void changes;
     this.startTime.set(this.persistence.loadStartTime(this.day()));
   }
 
