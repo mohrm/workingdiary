@@ -50,6 +50,8 @@ async function get(x) {
 
 ## Boundaries
 - ✅ **Always:** Implement changes in `src/` (and in `e2e/` when needed), run relevant tests, follow existing patterns used in `*.spec.ts` files, and apply naming conventions.
+- ✅ **Always:** When you change behavior or logic, add or update automated tests so coverage does not decrease compared to the previous baseline. Ideally, improve coverage with each change.
+- ✅ **Always:** If coverage improves after your change, raise coverage thresholds to match the new measured coverage values.
 - ⚠️ **Ask first:** Adding new runtime dependencies, major changes to the build/test pipeline (`angular.json`, CI scripts), or updates to PWA/service-worker configuration.
 - 🚫 **Never:** Commit secrets or API keys, edit files in `node_modules/`, or commit generated build artifacts (`dist/`).
 
