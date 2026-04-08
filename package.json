@@ -1,9 +1,6 @@
 {
   "name": "workingdiary",
   "version": "0.0.0",
-  "engines": {
-    "node": "24"
-  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
