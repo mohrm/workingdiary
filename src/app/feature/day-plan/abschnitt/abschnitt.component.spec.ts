@@ -12,7 +12,7 @@ describe('AbschnittComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AbschnittComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AbschnittComponent);
     component = fixture.componentInstance;
@@ -25,5 +25,38 @@ describe('AbschnittComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('enters edit mode and pre-populates fields', () => {
+    component.setEditable();
+
+    expect(component.isEdit()).toBe(true);
+    expect(component.startHour()).toBe(9);
+    expect(component.startMinute()).toBe(0);
+    expect(component.endHour()).toBe(10);
+    expect(component.endMinute()).toBe(0);
+    expect(component.location()).toBe('Büro');
+  });
+
+  it('resets edit mode on abort', () => {
+    component.setEditable();
+
+    component.abortEdit();
+
+    expect(component.isEdit()).toBe(false);
+  });
+
+  it('saves edited section values', () => {
+    component.setEditable();
+    component.startHour.set(8);
+    component.startMinute.set(30);
+    component.endHour.set(11);
+    component.endMinute.set(45);
+    component.location.set('Homeoffice');
+
+    component.finishEdit();
+
+    expect(component.isEdit()).toBe(false);
+    expect(component.section()).toEqual(new Section(new Time(8, 30), new Time(11, 45), 'Homeoffice'));
   });
 });

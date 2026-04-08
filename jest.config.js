@@ -15,10 +15,10 @@ export default {
   coverageReporters: ['text-summary', 'lcov', 'json-summary', 'cobertura'],
   coverageThreshold: {
     global: {
-      branches: 40,
-      functions: 63.41,
-      lines: 71.27,
-      statements: 71.08,
+      branches: 86.66,
+      functions: 98.78,
+      lines: 96,
+      statements: 96.25,
     },
   },
 };
