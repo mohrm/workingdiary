@@ -80,9 +80,9 @@ jobs:
         if: steps.precheck.outputs.should_run == 'true'
         run: npx ng version
 
-      - name: Run ng update
+      - name: Run weekly ng update script
         if: steps.precheck.outputs.should_run == 'true'
-        run: npx ng update
+        run: bash ./scripts/run-weekly-ng-update.sh
 
       - name: Check for changes
         if: steps.precheck.outputs.should_run == 'true'
