@@ -17,13 +17,13 @@ jobs:
   ng-update:
     runs-on: ubuntu-latest
     env:
-      GH_WORKFLOW_TOKEN: ${{ secrets.PAT }}
+      GH_WORKFLOW_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Verify workflow token
         run: |
           if [[ -z "${GH_WORKFLOW_TOKEN}" ]]; then
-            echo "Fehler: Secret PAT ist nicht gesetzt. Bitte Personal Access Token mit Repo-Rechten als Secret 'PAT' hinterlegen."
+            echo "Fehler: Secret GITHUB_TOKEN ist nicht gesetzt."
             exit 1
           fi
 
