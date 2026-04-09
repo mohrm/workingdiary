@@ -80,9 +80,13 @@ jobs:
         if: steps.precheck.outputs.should_run == 'true'
         run: npx ng version
 
-      - name: Run ng update
+      - name: Check available updates
         if: steps.precheck.outputs.should_run == 'true'
-        run: npx ng update
+        run: npx ng update --all --next=false --verbose
+
+      - name: Run ng update (apply)
+        if: steps.precheck.outputs.should_run == 'true'
+        run: npx ng update --all --force --allow-dirty --verbose
 
       - name: Check for changes
         if: steps.precheck.outputs.should_run == 'true'
