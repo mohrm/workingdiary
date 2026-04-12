@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EventEmitter } from '@angular/core';
 
 import { StempeluhrComponent } from './stempeluhr.component';
 import { PersistenceServiceService } from '../../../persistence-service.service';
