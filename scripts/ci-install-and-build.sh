@@ -8,4 +8,5 @@ unset npm_config_http_proxy npm_config_https_proxy
 
 npm i
 npm run prebuild
+npm run lint
 npm run build:ci
