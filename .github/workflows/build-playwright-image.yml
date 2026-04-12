@@ -51,6 +51,10 @@ jobs:
           tags: |
             type=raw,value=latest
             type=raw,value=playwright-${{ steps.versions.outputs.playwright_version }}-node-${{ steps.versions.outputs.node_major }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver: containerd
       - name: Build and push Playwright CI image
         uses: docker/build-push-action@v7
         with:
