@@ -1,4 +1,4 @@
-FROM nginx:1.29.8-alpine
+FROM nginx:1.30.0-alpine
 
 COPY dist/workingdiary/browser /usr/share/nginx/html
 COPY package.json /tmp/package.json
