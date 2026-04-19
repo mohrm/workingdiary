@@ -9,6 +9,8 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  repository_dispatch:
+    types: [run-angular-ci]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -32,7 +34,10 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v6
-      
+
+      - name: Debug repository_dispatch payload
+        run: echo '${{ toJson(github.event.client_payload) }}'
+
       - name: npm install and npm run CI commands
         run: ./scripts/ci-install-and-build.sh
       - name: run jest tests
