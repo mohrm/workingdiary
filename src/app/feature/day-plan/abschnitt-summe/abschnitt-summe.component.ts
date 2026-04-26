@@ -9,7 +9,7 @@ import { PersistenceServiceService } from '../../../persistence-service.service'
   selector: 'app-abschnitt-summe',
   imports: [DecimalPipe],
   templateUrl: './abschnitt-summe.component.html',
-  styleUrl: './abschnitt-summe.component.css'
+  styleUrl: './abschnitt-summe.component.scss'
 })
 export class AbschnittSummeComponent implements OnInit, OnChanges, OnDestroy {
   day = input.required<string>();

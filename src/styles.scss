@@ -1,4 +1,6 @@
 @use '@angular/material' as mat;
+@use 'variables' as vars;
+@use 'mixins';
 
 html {
   height: 100%;
@@ -10,7 +12,6 @@ html {
   box-sizing: border-box;
 }
 
-// Customize the entire app. Change :root to your selector if you want to scope the styles.
 :root {
   @include mat.table-overrides((
     background-color: orange,
@@ -19,15 +20,13 @@ html {
 }
 
 body {
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: vars.$font-family-base;
   margin: 0;
-  padding: clamp(12px, 1.5vw, 24px);
+  padding: vars.$gap-page;
   height: 100%;
-  min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
-  font-size: clamp(16px, 1vw + 12px, 22px);
-  line-height: 1.5;
+  @include mixins.fill-viewport-height;
+  font-size: vars.$font-size-base;
+  line-height: vars.$line-height-base;
 
   @include mat.theme((
     color: (
@@ -40,14 +39,13 @@ body {
   ));
 }
 
-@media (max-width: 480px) {
+@include mixins.mobile {
   body {
     overflow: hidden;
-    padding: 12px;
+    padding: vars.$spacing-xl;
   }
 }
 
-
 th {
-  padding: 20px
+  padding: 20px;
 }

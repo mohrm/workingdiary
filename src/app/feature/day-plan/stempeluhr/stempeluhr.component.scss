@@ -1,0 +1,55 @@
+@use '../../../../variables' as vars;
+@use '../../../../mixins';
+
+.stempeluhr {
+  --stempeluhr-label-width: #{vars.$stempeluhr-label-width};
+  @include mixins.flex-column(vars.$spacing-md, flex-start);
+  width: 100%;
+}
+
+.stempeluhr__row {
+  @include mixins.grid-label-content(var(--stempeluhr-label-width));
+}
+
+.stempeluhr__label {
+  font-weight: vars.$font-weight-medium;
+}
+
+.stempeluhr__value {
+  @include mixins.flex-row(vars.$spacing-xs, null, baseline);
+}
+
+.stempeluhr__time-inputs {
+  display: inline-flex;
+  align-items: baseline;
+  gap: vars.$spacing-xs;
+}
+
+.stempeluhr__actions {
+  @include mixins.grid-label-content(var(--stempeluhr-label-width), center);
+}
+
+.stempeluhr__label-placeholder {
+  width: 100%;
+}
+
+.stempeluhr__actions button {
+  padding-left: 0;
+  justify-self: start;
+}
+
+.stempeluhr__time-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: vars.$spacing-xs;
+}
+
+.stempeluhr__value mat-icon {
+  line-height: 1;
+}
+
+@include mixins.mobile {
+  .stempeluhr {
+    --stempeluhr-label-width: #{vars.$stempeluhr-label-width-mobile};
+  }
+}

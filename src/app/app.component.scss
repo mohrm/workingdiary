@@ -1,27 +1,24 @@
+@use '../variables' as vars;
+@use '../mixins';
+
 .app-shell {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
+  @include mixins.flex-column(vars.$gap-medium);
+  @include mixins.fill-viewport-height;
   width: 100%;
-  gap: clamp(12px, 2vw, 24px);
 }
 
 .app-main {
   display: flex;
-  flex: 1 1 auto;
+  @include mixins.flex-fill;
   width: 100%;
   min-height: 0;
 }
 
 .app-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(12px, 1.6vw, 20px);
+  @include mixins.flex-column(vars.$gap-small);
   width: 100%;
   flex: 0 0 auto;
-  max-height: 38vh;
+  max-height: vars.$app-bottom-max-height;
 }
 
 .app-summary {
@@ -29,17 +26,16 @@
 }
 
 .app-navigation__row {
-  display: flex;
-  align-items: center;
+  @include mixins.flex-row(null, null, center);
 }
 
 .app-navigation__link {
   flex: 0 0 auto;
-  font-weight: 500;
+  font-weight: vars.$font-weight-medium;
 }
 
 .app-navigation__spacer {
-  flex: 1 1 auto;
+  @include mixins.flex-spacer;
 }
 
 .app-footer {
@@ -47,20 +43,17 @@
 }
 
 .app-footer__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
+  @include mixins.flex-row(16px, wrap, center);
 }
 
 .app-footer__spacer {
-  flex: 1 1 120px;
+  @include mixins.flex-spacer(120px);
 }
 
 .app-footer__title {
   flex: 0 0 auto;
   text-align: center;
-  font-weight: 600;
+  font-weight: vars.$font-weight-semibold;
 }
 
 .app-footer__meta {
@@ -71,9 +64,9 @@
   flex: 0 1 220px;
 }
 
-@media (max-width: 600px) {
+@include mixins.tablet {
   .app-shell {
-    gap: 12px;
+    gap: vars.$spacing-xl;
   }
 
   .app-footer__row {
@@ -86,13 +79,13 @@
   }
 }
 
-@media (max-width: 480px) {
+@include mixins.mobile {
   .app-shell {
     height: 100dvh;
     height: 100svh;
   }
 
   .app-bottom {
-    max-height: 42vh;
+    max-height: vars.$app-bottom-max-height-mobile;
   }
 }
