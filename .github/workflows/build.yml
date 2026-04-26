@@ -6,9 +6,9 @@ permissions:
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   repository_dispatch:
     types: [run-angular-ci]
 
@@ -34,6 +34,8 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.ref || github.ref }}
 
       - name: Debug repository_dispatch payload
         run: echo '${{ toJson(github.event.client_payload) }}'
@@ -82,7 +84,6 @@ jobs:
       packages: write
       attestations: write
       id-token: write
-
 
     steps:
       - name: Download build artifact
@@ -139,7 +140,3 @@ jobs:
           docker-compose up -d workingdiary && \
           docker image prune -a -f
           EOF
-    
-          
-          
-      
