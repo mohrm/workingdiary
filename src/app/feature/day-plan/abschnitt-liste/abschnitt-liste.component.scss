@@ -1,3 +1,6 @@
+@use '../../../../variables' as vars;
+@use '../../../../mixins';
+
 :host {
   display: block;
   height: 100%;
@@ -5,22 +8,21 @@
 }
 
 .abschnitt-liste {
-  display: flex;
-  flex-direction: column;
+  @include mixins.flex-column;
   height: 100%;
   min-height: 0;
 }
 
 .abschnitt-liste__list {
-  flex: 1 1 auto;
+  @include mixins.flex-fill;
   min-height: 0;
   overflow-y: auto;
   scrollbar-gutter: stable;
-  padding-right: 4px;
-  padding-bottom: 6px;
+  padding-right: vars.$spacing-xs;
+  padding-bottom: vars.$spacing-sm;
 }
 
-@media (max-width: 480px) {
+@include mixins.mobile {
   .abschnitt-liste__list {
     min-height: 36vh;
   }
@@ -30,8 +32,8 @@
   height: auto;
   min-height: unset;
   align-items: flex-start;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: vars.$spacing-lg;
+  padding-bottom: vars.$spacing-lg;
   overflow: visible;
 }
 

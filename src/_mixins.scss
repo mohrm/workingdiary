@@ -1,0 +1,91 @@
+@use 'variables' as vars;
+
+@mixin mobile {
+  @media (max-width: vars.$bp-mobile) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: vars.$bp-tablet) {
+    @content;
+  }
+}
+
+@mixin flex-column($gap: null, $align: null) {
+  display: flex;
+  flex-direction: column;
+
+  @if $gap != null {
+    gap: $gap;
+  }
+
+  @if $align != null {
+    align-items: $align;
+  }
+}
+
+@mixin flex-row($gap: null, $wrap: null, $align: null, $justify: null) {
+  display: flex;
+  flex-direction: row;
+
+  @if $gap != null {
+    gap: $gap;
+  }
+
+  @if $wrap != null {
+    flex-wrap: $wrap;
+  }
+
+  @if $align != null {
+    align-items: $align;
+  }
+
+  @if $justify != null {
+    justify-content: $justify;
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin grid-label-content($label-width, $align: baseline, $column-gap: vars.$spacing-md) {
+  display: grid;
+  grid-template-columns: $label-width 1fr;
+  column-gap: $column-gap;
+  align-items: $align;
+  width: 100%;
+}
+
+@mixin form-input-compact($width: 3rem) {
+  width: $width;
+  padding: vars.$spacing-xs vars.$spacing-sm;
+  line-height: 1.2;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+@mixin form-select-responsive($basis: 6.5rem) {
+  flex: 1 1 $basis;
+  min-width: $basis;
+  padding: vars.$spacing-xs vars.$spacing-sm;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+@mixin flex-fill {
+  flex: 1 1 auto;
+}
+
+@mixin flex-spacer($basis: auto) {
+  flex: 1 1 $basis;
+}
+
+@mixin fill-viewport-height {
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+}

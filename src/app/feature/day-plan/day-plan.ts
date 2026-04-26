@@ -7,7 +7,7 @@ import { AbschnittListeComponent } from "./abschnitt-liste/abschnitt-liste.compo
   selector: 'app-day-plan',
   imports: [StempeluhrComponent, AbschnittListeComponent],
   templateUrl: './day-plan.html',
-  styleUrl: './day-plan.css'
+  styleUrl: './day-plan.scss'
 })
 export class DayPlan {
 

@@ -10,7 +10,7 @@ import { AbschnittSummeComponent } from './feature/day-plan/abschnitt-summe/absc
   selector: 'app-root',
   imports: [DayPlan, RouterLink, DownloadPlansComponent, AbschnittSummeComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
 

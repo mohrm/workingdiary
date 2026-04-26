@@ -1,0 +1,25 @@
+$spacing-xs: 4px;
+$spacing-sm: 6px;
+$spacing-md: 8px;
+$spacing-lg: 10px;
+$spacing-xl: 12px;
+
+$gap-small: clamp(12px, 1.6vw, 20px);
+$gap-medium: clamp(12px, 2vw, 24px);
+$gap-page: clamp(12px, 1.5vw, 24px);
+
+$bp-mobile: 480px;
+$bp-tablet: 600px;
+
+$font-family-base: Roboto, 'Helvetica Neue', sans-serif;
+$font-size-base: clamp(16px, 1vw + 12px, 22px);
+$font-size-mobile: 0.9rem;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$line-height-base: 1.5;
+
+$stempeluhr-label-width: 160px;
+$stempeluhr-label-width-mobile: 140px;
+$app-bottom-max-height: 38vh;
+$app-bottom-max-height-mobile: 42vh;
+$padding-table-responsive: clamp(6px, 1.2vw, 12px);

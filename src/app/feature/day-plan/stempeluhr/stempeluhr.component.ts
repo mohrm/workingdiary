@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-stempeluhr',
   imports: [MatButtonModule,MatIconModule,FormsModule],
   templateUrl: './stempeluhr.component.html',
-  styleUrl: './stempeluhr.component.css'
+  styleUrl: './stempeluhr.component.scss'
 })
 export class StempeluhrComponent implements OnInit, OnChanges {
   persistence = inject(PersistenceServiceService)

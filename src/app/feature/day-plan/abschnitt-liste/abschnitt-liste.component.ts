@@ -10,7 +10,7 @@ import { AbschnittComponent } from '../abschnitt/abschnitt.component';
   selector: 'app-abschnitt-liste',
   imports: [MatButtonModule, MatIconModule, MatListModule, AbschnittComponent],
   templateUrl: './abschnitt-liste.component.html',
-  styleUrl: './abschnitt-liste.component.css'
+  styleUrl: './abschnitt-liste.component.scss'
 })
 export class AbschnittListeComponent implements OnInit, OnChanges {
 
