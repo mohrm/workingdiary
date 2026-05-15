@@ -44,7 +44,7 @@
     "jest": "30.4.2",
     "jest-environment-jsdom": "30.4.1",
     "jest-preset-angular": "16.1.5",
-    "playwright-bdd": "8.5.0",
+    "playwright-bdd": "8.5.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.59.3"
   }
