@@ -137,6 +137,6 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} <<EOF
           cd docker
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main && \
-          docker-compose up -d workingdiary && \
+          docker compose up -d workingdiary && \
           docker image prune -a -f
           EOF
