@@ -34,8 +34,8 @@
     "@angular/compiler": "21.2.12"
   },
   "devDependencies": {
-    "@angular/build": "21.2.10",
-    "@angular/cli": "21.2.10",
+    "@angular/build": "21.2.11",
+    "@angular/cli": "21.2.11",
     "@angular/compiler-cli": "21.2.12",
     "@playwright/test": "1.60.0",
     "@types/jest": "30.0.0",
