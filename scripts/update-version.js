@@ -24,4 +24,7 @@ export const commitHash = '${commitHash}';
 export const urlOfLastCommit = 'https://github.com/mohrm/workingdiary/commit/${commitHash}';
 `;
 
+console.log(`content: ${content}`);
+
+
 fs.writeFileSync("./src/environments/version.prod.ts", content);
