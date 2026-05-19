@@ -5,7 +5,8 @@ const version = require("../package.json").version;
 const getGitValue = (command, fallback) => {
   try {
     return execFileSync("git", command).toString().trim();
-  } catch {
+  } catch (e) {
+    console.log(e);
     return fallback;
   }
 };
