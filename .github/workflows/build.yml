@@ -37,6 +37,8 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.ref || github.ref }}
+      - name: Mark repo as safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Debug repository_dispatch payload
         run: echo '${{ toJson(github.event.client_payload) }}'
