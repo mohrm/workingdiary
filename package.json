@@ -46,6 +46,6 @@
     "jest-preset-angular": "16.1.5",
     "playwright-bdd": "8.5.1",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.59.4"
+    "typescript-eslint": "8.60.0"
   }
 }
