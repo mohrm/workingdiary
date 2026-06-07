@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, input, model, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, input, model, OnChanges, OnInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { Section } from '../../../model/Section';
 import { PersistenceServiceService } from '../../../persistence-service.service';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,7 @@ import { AbschnittComponent } from '../abschnitt/abschnitt.component';
   selector: 'app-abschnitt-liste',
   imports: [MatButtonModule, MatIconModule, MatListModule, AbschnittComponent],
   templateUrl: './abschnitt-liste.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './abschnitt-liste.component.scss'
 })
 export class AbschnittListeComponent implements OnInit, OnChanges {

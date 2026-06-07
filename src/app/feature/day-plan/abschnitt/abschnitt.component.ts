@@ -1,4 +1,4 @@
-import { Component, model } from '@angular/core';
+import { Component, model, ChangeDetectionStrategy } from '@angular/core';
 import { Section } from '../../../model/Section';
 import { MatIconModule } from '@angular/material/icon';
 import { Time } from '../../../model/Time';
@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-abschnitt',
   imports: [MatIconModule, FormsModule],
   templateUrl: './abschnitt.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './abschnitt.component.scss'
 })
 export class AbschnittComponent {

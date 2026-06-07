@@ -1,4 +1,4 @@
-import { Component, inject, input, model, OnChanges, OnInit, output, SimpleChanges } from '@angular/core';
+import { Component, inject, input, model, OnChanges, OnInit, output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Time } from '../../../model/Time';
 import { Section } from '../../../model/Section';
@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-stempeluhr',
   imports: [MatButtonModule,MatIconModule,FormsModule],
   templateUrl: './stempeluhr.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './stempeluhr.component.scss'
 })
 export class StempeluhrComponent implements OnInit, OnChanges {

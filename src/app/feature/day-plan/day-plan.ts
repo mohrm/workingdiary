@@ -1,4 +1,4 @@
-import { Component, EventEmitter, input } from '@angular/core';
+import { Component, EventEmitter, input, ChangeDetectionStrategy } from '@angular/core';
 import { Section } from '../../model/Section';
 import { StempeluhrComponent } from './stempeluhr/stempeluhr.component';
 import { AbschnittListeComponent } from "./abschnitt-liste/abschnitt-liste.component";
@@ -7,6 +7,7 @@ import { AbschnittListeComponent } from "./abschnitt-liste/abschnitt-liste.compo
   selector: 'app-day-plan',
   imports: [StempeluhrComponent, AbschnittListeComponent],
   templateUrl: './day-plan.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './day-plan.scss'
 })
 export class DayPlan {

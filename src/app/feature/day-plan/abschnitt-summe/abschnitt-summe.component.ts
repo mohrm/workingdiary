@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, inject, input, OnChanges, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, OnChanges, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Section } from '../../../model/Section';
 import { Time } from '../../../model/Time';
@@ -9,6 +9,7 @@ import { PersistenceServiceService } from '../../../persistence-service.service'
   selector: 'app-abschnitt-summe',
   imports: [DecimalPipe],
   templateUrl: './abschnitt-summe.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './abschnitt-summe.component.scss'
 })
 export class AbschnittSummeComponent implements OnInit, OnChanges, OnDestroy {
