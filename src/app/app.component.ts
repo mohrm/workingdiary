@@ -1,4 +1,4 @@
-import { Component, computed, inject, model, OnInit } from '@angular/core';
+import { Component, computed, inject, model, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DayPlan } from './feature/day-plan/day-plan';
 import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 import { PersistenceServiceService } from './persistence-service.service';
@@ -10,6 +10,7 @@ import { AbschnittSummeComponent } from './feature/day-plan/abschnitt-summe/absc
   selector: 'app-root',
   imports: [DayPlan, RouterLink, DownloadPlansComponent, AbschnittSummeComponent],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {

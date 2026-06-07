@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { PersistenceServiceService } from '../../persistence-service.service';
 
 @Component({
   selector: 'app-download-plans',
   imports: [],
   templateUrl: './download-plans.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './download-plans.component.scss'
 })
 export class DownloadPlansComponent {
