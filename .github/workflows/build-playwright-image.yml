@@ -16,7 +16,7 @@ jobs:
       IMAGE_NAME: ${{ github.repository_owner }}/workingdiary-playwright-ci
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Resolve Playwright and Node versions
         id: versions
