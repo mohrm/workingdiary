@@ -18,6 +18,16 @@
       "automerge": true
     },
     {
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<7.0.0",
+      "rangeStrategy": "pin"
+    },
+    {
       "groupName": "Angular",
       "groupSlug": "angular",
       "matchPackageNames": [
