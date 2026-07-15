@@ -1,43 +1,45 @@
 // @ts-check
-const eslint = require("@eslint/js");
-const tseslint = require("typescript-eslint");
-const angular = require("angular-eslint");
+const js = require("@eslint/js");
+const tsPlugin = require("@typescript-eslint/eslint-plugin");
+const tsParser = require("@typescript-eslint/parser");
+const ngPlugin = require("@angular-eslint/eslint-plugin");
+const ngTemplatePlugin = require("@angular-eslint/eslint-plugin-template");
 
-module.exports = tseslint.config(
+module.exports = [
   {
     files: ["**/*.ts"],
-    extends: [
-      eslint.configs.recommended,
-      ...tseslint.configs.recommended,
-      ...tseslint.configs.stylistic,
-      ...angular.configs.tsRecommended,
-    ],
-    processor: angular.processInlineTemplates,
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: ["./tsconfig.json", "./tsconfig.app.json"],
+        sourceType: "module",
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tsPlugin,
+      "@angular-eslint": ngPlugin,
+    },
     rules: {
+      // keep your existing Angular selector rules
       "@angular-eslint/directive-selector": [
         "error",
-        {
-          type: "attribute",
-          prefix: "app",
-          style: "camelCase",
-        },
+        { type: "attribute", prefix: "app", style: "camelCase" },
       ],
       "@angular-eslint/component-selector": [
         "error",
-        {
-          type: "element",
-          prefix: "app",
-          style: "kebab-case",
-        },
+        { type: "element", prefix: "app", style: "kebab-case" },
       ],
+      // include recommended TS rules if available
+      ...(tsPlugin.configs?.recommended?.rules || {}),
     },
   },
+
   {
     files: ["**/*.html"],
-    extends: [
-      ...angular.configs.templateRecommended,
-      ...angular.configs.templateAccessibility,
-    ],
-    rules: {},
-  }
-);
+    plugins: { "@angular-eslint/template": ngTemplatePlugin },
+    rules: {
+      ...(ngTemplatePlugin.configs?.recommended?.rules || {}),
+      ...(ngTemplatePlugin.configs?.accessibility?.rules || {}),
+    },
+  },
+];
