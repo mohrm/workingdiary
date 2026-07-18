@@ -51,13 +51,15 @@ describe('PersistenceService', () => {
     const day = '01.01.2024';
     const sections = [new Section(new Time(9, 0), new Time(10, 0), 'Büro')];
 
-    window.addEventListener(SECTIONS_CHANGED, (e) => {
+    function handler(e: Event) {
       const { day: emittedDay, sections: emittedSections } = (e as CustomEvent).detail;
+      window.removeEventListener(SECTIONS_CHANGED, handler);
       expect(emittedDay).toBe(day);
       expect(emittedSections).toEqual(sections);
       done();
-    });
+    }
 
+    window.addEventListener(SECTIONS_CHANGED, handler);
     persistence.saveSections(day, sections);
   });
 
