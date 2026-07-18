@@ -6,16 +6,16 @@ import { defineBddConfig } from 'playwright-bdd';
  *
  * @type {import('@playwright/test').PlaywrightTestConfig}
  */
-module.exports = {
+export default {
   webServer: {
-    command: 'npm run start -- --configuration production',
-    port: 4200,
+    command: 'npm run dev',
+    port: 5173,
     timeout: 120 * 1000,
     reuseExistingServer: true,
   },
   workers: 4,
   use: {
-    baseURL: 'http://localhost:4200/',
+    baseURL: 'http://localhost:5173/',
     browserName: 'chromium',
     headless: true,
     viewport: { width: 1920, height: 1080 },
