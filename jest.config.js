@@ -1,9 +1,15 @@
 export default {
-  preset: 'jest-preset-angular',
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {
+      useESM: true,
+    }],
+  },
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+  extensionsToTreatAsEsm: ['.ts'],
   testMatch: ['<rootDir>/src/**/*.spec.ts'],
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
   collectCoverage: true,
   collectCoverageFrom: [
     'src/**/*.ts',
