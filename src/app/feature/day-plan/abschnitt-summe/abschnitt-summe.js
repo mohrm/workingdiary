@@ -32,7 +32,8 @@ export function createAbschnittSumme(day) {
     const { gesamtdauer, bueroDauer, mobilDauer } = computeDurations();
 
     function formatIndustrial(time) {
-      return (time.industrial()).toFixed(2);
+      const value = typeof time === 'number' ? time : time.industrial();
+      return value.toFixed(2);
     }
 
     el.innerHTML = `
