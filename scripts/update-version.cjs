@@ -28,4 +28,4 @@ export const urlOfLastCommit = 'https://github.com/mohrm/workingdiary/commit/${c
 console.log(`content: ${content}`);
 
 
-fs.writeFileSync("./src/environments/version.prod.ts", content);
+fs.writeFileSync("./src/environments/version.ts", content);
