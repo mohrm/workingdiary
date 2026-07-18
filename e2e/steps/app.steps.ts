@@ -71,7 +71,7 @@ Then('I see that section {string} has start time {string} and end time {string}'
 When('I open the editor for section {string}', async ({ page }, sectionIndex: string) => {
   const section = page.getByTestId('section-'+sectionIndex);
   await section.waitFor();
-  const editIcon = section.locator('mat-icon', { hasText: 'edit' }).first();
+  const editIcon = section.locator('span.material-icons', { hasText: 'edit' }).first();
   await editIcon.click();
 });
 
