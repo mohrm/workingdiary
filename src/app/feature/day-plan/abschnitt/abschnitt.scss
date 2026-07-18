@@ -1,7 +1,7 @@
 @use '../../../../variables' as vars;
 @use '../../../../mixins';
 
-:host {
+.abschnitt-host {
   display: block;
   width: 100%;
 }
