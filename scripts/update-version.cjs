@@ -27,5 +27,5 @@ export const urlOfLastCommit = 'https://github.com/mohrm/workingdiary/commit/${c
 
 console.log(`content: ${content}`);
 
-
+fs.mkdirSync("./src/environments", { recursive: true });
 fs.writeFileSync("./src/environments/version.ts", content);
