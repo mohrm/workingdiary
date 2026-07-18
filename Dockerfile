@@ -1,6 +1,6 @@
 FROM nginx:1.31.3-alpine
 
-COPY dist/workingdiary/browser /usr/share/nginx/html
+COPY dist/ /usr/share/nginx/html
 COPY package.json /tmp/package.json
 COPY nginx.default.conf.template /tmp/default.conf.template
 
