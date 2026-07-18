@@ -12,10 +12,12 @@ export function createDayPlan(day, onAbschnitteChange) {
   function render() {
     el.innerHTML = `
       <header class="day-plan__header">
-        <h1 data-testid="dayplan-title">Tagesplan für den ${day}</h1>
+        <h1 data-testid="dayplan-title"></h1>
       </header>
       <div class="day-plan__clock" data-stempeluhr></div>
       <div class="day-plan__list" data-abschnitt-liste></div>`;
+
+    el.querySelector('[data-testid="dayplan-title"]').textContent = `Tagesplan für den ${day}`;
 
     stempeluhr = createStempeluhr(day, (section) => {
       if (stempelEreignisCallback) {
