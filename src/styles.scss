@@ -21,6 +21,63 @@ body {
   line-height: vars.$line-height-base;
 }
 
+th {
+  padding: 20px;
+}
+
+/* Material Design flat button replacement */
+.mat-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 500;
+  line-height: 1.5;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.mat-button:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.mat-button:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* Material Icons sizing */
+.material-icons {
+  font-size: 1.2em;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: default;
+}
+
+[data-action] {
+  cursor: pointer;
+}
+
+/* Material List replacement */
+.mat-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mat-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 0;
+}
+
 @include mixins.mobile {
   body {
     overflow: hidden;
