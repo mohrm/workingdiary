@@ -1,30 +1,24 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { Time, TimeJson } from './model/Time';
-import { Section, SectionJson } from './model/Section';
+import { Time, TimeJson } from '../model/Time';
+import { Section, SectionJson } from '../model/Section';
+
+export const SECTIONS_CHANGED = 'sectionsChanged';
 
 interface DayPlan {
   startTime?: TimeJson;
   sections?: SectionJson[];
 }
 
-@Injectable({
-  providedIn: 'root'
-})
-export class PersistenceServiceService {
-  private sectionsChanged = new Subject<{ day: string; sections?: Section[] }>();
-  readonly sectionsChanged$ = this.sectionsChanged.asObservable();
-
+class PersistenceService {
   private initPlans(): Record<string, DayPlan> {
     const emptyPlans: Record<string, DayPlan> = {};
-    localStorage.setItem("plans", JSON.stringify(emptyPlans))
+    localStorage.setItem('plans', JSON.stringify(emptyPlans));
     return emptyPlans;
   }
 
-  public loadPlans(): Record<string, DayPlan> {
-    const sPlans = localStorage.getItem("plans");
+  loadPlans(): Record<string, DayPlan> {
+    const sPlans = localStorage.getItem('plans');
     if (sPlans) {
-      return JSON.parse(sPlans) as Record<string, DayPlan>
+      return JSON.parse(sPlans) as Record<string, DayPlan>;
     } else {
       return this.initPlans();
     }
@@ -33,7 +27,7 @@ export class PersistenceServiceService {
   private initDay(plans: Record<string, DayPlan>, day: string): DayPlan {
     const emptyDayPlan: DayPlan = {};
     plans[day] = emptyDayPlan;
-    localStorage.setItem("plans", JSON.stringify(plans))
+    localStorage.setItem('plans', JSON.stringify(plans));
     return emptyDayPlan;
   }
 
@@ -46,34 +40,34 @@ export class PersistenceServiceService {
     return plans;
   }
 
-  public saveStartTime(day: string, startTime?: Time) {
+  saveStartTime(day: string, startTime?: Time) {
     const plans = this.loadDayPlan(day);
     if (startTime) {
       plans[day]['startTime'] = startTime;
     } else {
       plans[day]['startTime'] = undefined;
     }
-    localStorage.setItem("plans", JSON.stringify(plans));
+    localStorage.setItem('plans', JSON.stringify(plans));
   }
 
-  public loadStartTime(day: string): Time|undefined {
+  loadStartTime(day: string): Time | undefined {
     const plans = this.loadDayPlan(day);
     const startTime = plans[day]['startTime'];
     if (startTime) {
-      return new Time(startTime['hour'], startTime['minute'])
+      return new Time(startTime['hour'], startTime['minute']);
     } else {
       return undefined;
     }
   }
 
-  public saveSections(day: string, sections?: Section[]) {
+  saveSections(day: string, sections?: Section[]) {
     const plans = this.loadDayPlan(day);
     plans[day]['sections'] = sections;
-    localStorage.setItem("plans", JSON.stringify(plans));
-    this.sectionsChanged.next({ day, sections });
+    localStorage.setItem('plans', JSON.stringify(plans));
+    window.dispatchEvent(new CustomEvent(SECTIONS_CHANGED, { detail: { day, sections } }));
   }
 
-  public loadSections(day: string): Section[]|undefined {
+  loadSections(day: string): Section[] | undefined {
     const plans = this.loadDayPlan(day);
     const sections = plans[day]['sections'];
     if (sections) {
@@ -83,40 +77,39 @@ export class PersistenceServiceService {
     }
   }
 
-  public previousDay(day: string): string {
+  previousDay(day: string): string {
     const plans = this.loadPlans();
-    const mDay = this.parseGermanDate(day)
+    const mDay = this.parseGermanDate(day);
 
-    const daysBefore : Date[] = [];
+    const daysBefore: Date[] = [];
 
     for (const pDay in plans) {
-      const d = this.parseGermanDate(pDay)
+      const d = this.parseGermanDate(pDay);
       if (d < mDay) {
         daysBefore.push(d);
       }
     }
     if (daysBefore.length > 0) {
-      const maxDate = new Date(Math.max(...daysBefore.map(d => d.getTime())))
-      return this.formatGermanDate(maxDate)
+      const maxDate = new Date(Math.max(...daysBefore.map(d => d.getTime())));
+      return this.formatGermanDate(maxDate);
     } else {
       return day;
     }
   }
 
-
-  public nextDay(day: string): string {
+  nextDay(day: string): string {
     const plans = this.loadPlans();
-    const mDay = this.parseGermanDate(day)
-    const daysAfter : Date[] = [];
+    const mDay = this.parseGermanDate(day);
+    const daysAfter: Date[] = [];
     for (const pDay in plans) {
-      const d = this.parseGermanDate(pDay)
+      const d = this.parseGermanDate(pDay);
       if (d > mDay) {
-        daysAfter.push(d)
+        daysAfter.push(d);
       }
     }
     if (daysAfter.length > 0) {
       const minDate = new Date(Math.min(...daysAfter.map(d => d.getTime())));
-      return this.formatGermanDate(minDate)
+      return this.formatGermanDate(minDate);
     } else {
       return day;
     }
@@ -128,10 +121,12 @@ export class PersistenceServiceService {
   }
 
   private formatGermanDate(date: Date): string {
-    return date.toLocaleDateString("de-DE", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric"
+    return date.toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     });
+  }
 }
-}
+
+export const persistence = new PersistenceService();
