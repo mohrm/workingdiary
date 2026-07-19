@@ -27,7 +27,7 @@ export class Section {
   }
 
   toJSON(): SectionJson {
-    return {startTime: this.startTime, endTime: this.endTime, location: this.location}
+    return {startTime: this.startTime.toJSON(), endTime: this.endTime.toJSON(), location: this.location}
   }
 
   static fromJSON(s: SectionJson): Section {
