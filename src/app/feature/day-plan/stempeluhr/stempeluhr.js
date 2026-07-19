@@ -39,7 +39,7 @@ export function createStempeluhr(day, onStempelEreignis) {
         <div class="stempeluhr__actions">
           <span class="stempeluhr__label-placeholder" aria-hidden="true"></span>
           <button class="mat-button" data-testid="log-button">
-            <span>${!startTime ? icon('login') : icon('logout')}</span>
+            <span data-action>${!startTime ? icon('login') : icon('logout')}</span>
             ${!startTime ? 'Einstempeln' : 'Ausstempeln'}
           </button>
         </div>
