@@ -156,15 +156,15 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const DIST_RESOLVED = path.resolve(DIST);
-  function safePath(url) {
-    const filePath = path.resolve(path.join(DIST_RESOLVED, url === '/' ? '/index.html' : url));
-    if (filePath !== DIST_RESOLVED && !filePath.startsWith(DIST_RESOLVED + path.sep)) return null;
-    return filePath;
+  const url = req.url === '/' ? '/index.html' : req.url;
+  if (url.includes('..')) {
+    res.writeHead(403);
+    res.end('Forbidden');
+    return;
   }
-
-  const filePath = safePath(req.url);
-  if (!filePath) {
+  const DIST_RESOLVED = path.resolve(DIST) + path.sep;
+  const filePath = path.resolve(DIST + url);
+  if (!filePath.startsWith(DIST_RESOLVED)) {
     res.writeHead(403);
     res.end('Forbidden');
     return;

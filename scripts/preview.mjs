@@ -1,9 +1,9 @@
 import { createServer } from 'http';
 import { readFile } from 'fs';
-import { extname, resolve, join, sep } from 'path';
+import { extname, resolve } from 'path';
 
 const PORT = process.env.PORT || 5173;
-const DIST = resolve('dist');
+const DIST = resolve('dist') + '/';
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -16,15 +16,16 @@ const MIME_TYPES = {
   '.map': 'application/json',
 };
 
-function safePath(url) {
-  const filePath = resolve(join(DIST, url === '/' ? '/index.html' : url));
-  if (filePath !== DIST && !filePath.startsWith(DIST + sep)) return null;
-  return filePath;
-}
-
 createServer((req, res) => {
-  const filePath = safePath(req.url);
-  if (!filePath) {
+  const url = req.url === '/' ? '/index.html' : req.url;
+  if (url.includes('..')) {
+    res.writeHead(403);
+    res.end('Forbidden');
+    return;
+  }
+  const filePath = resolve('dist' + url);
+
+  if (!filePath.startsWith(DIST)) {
     res.writeHead(403);
     res.end('Forbidden');
     return;
