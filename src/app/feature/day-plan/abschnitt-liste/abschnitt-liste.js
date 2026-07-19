@@ -1,5 +1,6 @@
 import { persistence } from '../../../services/persistence.js';
 import { createAbschnitt } from '../abschnitt/abschnitt.js';
+import { icon } from '../../icons.js';
 
 export function createAbschnittListe(day, stempelCallback) {
   const el = document.createElement('div');
@@ -46,7 +47,7 @@ export function createAbschnittListe(day, stempelCallback) {
               (_abschnitt, i) => `
             <li class="mat-list-item abschnitt-item" data-index="${i}" data-testid="section-${i}">
               <div class="abschnitt-cell" data-section-index="${i}"></div>
-              <span class="material-icons" data-action="delete" data-index="${i}">delete</span>
+              <span data-action="delete" data-index="${i}">${icon('delete')}</span>
             </li>
           `,
             )

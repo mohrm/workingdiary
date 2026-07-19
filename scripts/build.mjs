@@ -82,8 +82,6 @@ const html = `<!doctype html>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <meta name="theme-color" content="#1976d2">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="/assets/${cssFile}">
