@@ -8,6 +8,7 @@
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
     "preview": "node scripts/preview.mjs",
+    "prebuild": "node scripts/update-version.cjs",
     "pretest": "node scripts/update-version.cjs",
     "test": "sh scripts/run-tests.sh $(find src -name '*.spec.ts')",
     "test:watch": "node --import tsx --import ./test-setup.ts --experimental-test-coverage --watch --test $(find src -name '*.spec.ts')",
