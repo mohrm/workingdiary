@@ -44,10 +44,6 @@
   gap: vars.$spacing-xs;
 }
 
-.stempeluhr__value .material-icons {
-  line-height: 1;
-}
-
 @include mixins.mobile {
   .stempeluhr {
     --stempeluhr-label-width: #{vars.$stempeluhr-label-width-mobile};

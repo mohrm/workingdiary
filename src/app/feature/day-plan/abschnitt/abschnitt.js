@@ -1,5 +1,6 @@
 import { Section } from '../../../model/Section.js';
 import { Time } from '../../../model/Time.js';
+import { icon } from '../../icons.js';
 
 export function createAbschnitt(
   section,
@@ -34,15 +35,15 @@ export function createAbschnitt(
               <option value="mobil" ${location === 'mobil' ? 'selected' : ''}>mobil</option>
             </select>
             <div class="icon-actions">
-              <span class="material-icons" data-action="finish">check</span>
-              <span class="material-icons" data-action="abort">close</span>
+              <span data-action="finish">${icon('check')}</span>
+              <span data-action="abort">${icon('close')}</span>
             </div>
           </div>
         </div>`;
     } else {
       el.innerHTML = `
         ${section ? section.formattedString() : ''}
-        <span class="material-icons" data-action="edit">edit</span>`;
+        <span data-action="edit">${icon('edit')}</span>`;
     }
     bindEvents();
   }

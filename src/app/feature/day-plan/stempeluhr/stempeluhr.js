@@ -1,6 +1,7 @@
 import { Section } from '../../../model/Section.js';
 import { Time } from '../../../model/Time.js';
 import { persistence } from '../../../services/persistence.js';
+import { icon } from '../../icons.js';
 
 export function createStempeluhr(day, onStempelEreignis) {
   const el = document.createElement('div');
@@ -25,12 +26,12 @@ export function createStempeluhr(day, onStempelEreignis) {
                      <input type="number" min="0" max="23" value="${hour}" data-hour />
                      :
                      <input type="number" min="0" max="59" value="${minute}" data-minute />
-                     <span class="material-icons" data-action="finish">check</span>
-                     <span class="material-icons" data-action="abort">close</span>
+                     <span data-action="finish">${icon('check')}</span>
+                     <span data-action="abort">${icon('close')}</span>
                    </span>`
                   : `<span class="stempeluhr__time-display" data-testid="login-time">
                      ${startTime.formattedString()}
-                     <span class="material-icons" data-action="edit">edit</span>
+                     <span data-action="edit">${icon('edit')}</span>
                    </span>`
             }
           </div>
@@ -38,7 +39,7 @@ export function createStempeluhr(day, onStempelEreignis) {
         <div class="stempeluhr__actions">
           <span class="stempeluhr__label-placeholder" aria-hidden="true"></span>
           <button class="mat-button" data-testid="log-button">
-            <span class="material-icons">${!startTime ? 'login' : 'logout'}</span>
+            <span>${!startTime ? icon('login') : icon('logout')}</span>
             ${!startTime ? 'Einstempeln' : 'Ausstempeln'}
           </button>
         </div>

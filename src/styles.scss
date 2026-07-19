@@ -52,16 +52,12 @@ th {
   background: rgba(0, 0, 0, 0.08);
 }
 
-/* Material Icons sizing – match Angular Material default (24px fixed) */
-.material-icons {
-  font-size: 24px;
-  line-height: 1;
-  vertical-align: middle;
-  cursor: default;
-}
-
 [data-action] {
   cursor: pointer;
+}
+
+svg {
+  display: block;
 }
 
 /* Material List replacement */
