@@ -35,7 +35,7 @@ async function build() {
 
   await esbuild.build({
     entryPoints: ['src/main.ts'],
-    outdir: 'dist/assets',
+    outdir: `${DIST}/assets`,
     entryNames: '[name]',
     format: 'esm',
     bundle: true,
