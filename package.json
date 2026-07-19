@@ -12,12 +12,15 @@
     "pretest": "node scripts/update-version.cjs",
     "test": "sh scripts/run-tests.sh $(find src -name '*.spec.ts')",
     "test:watch": "node --import tsx --import ./test-setup.ts --experimental-test-coverage --watch --test $(find src -name '*.spec.ts')",
+    "lint": "biome check",
+    "format": "biome check --write",
     "e2e": "npx bddgen -c e2e/playwright.config.js && npx playwright test -c e2e/playwright.config.js",
     "e2e-prepare:ci": "npx playwright install --with-deps && npx bddgen -c e2e/playwright.config.js",
     "e2e:ci": "npx playwright test -c e2e/playwright.config.js"
   },
   "devDependencies": {
-    "@eslint/js": "10.0.1",
+    "@biomejs/biome": "2.5.4",
+    "@biomejs/biome": "2.5.4",
     "@playwright/test": "1.61.1",
     "@types/node": "24.13.3",
     "playwright-bdd": "9.2.0",

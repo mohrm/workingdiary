@@ -1,8 +1,8 @@
-import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { persistence, SECTIONS_CHANGED } from './services/persistence';
+import { beforeEach, describe, it } from 'node:test';
 import { Section } from './model/Section';
 import { Time } from './model/Time';
+import { persistence, SECTIONS_CHANGED } from './services/persistence';
 
 describe('PersistenceService', () => {
   beforeEach(() => {
@@ -55,7 +55,9 @@ describe('PersistenceService', () => {
 
     await new Promise<void>((resolve) => {
       function handler(e: Event) {
-        const { day: emittedDay, sections: emittedSections } = (e as CustomEvent).detail;
+        const { day: emittedDay, sections: emittedSections } = (
+          e as CustomEvent
+        ).detail;
         window.removeEventListener(SECTIONS_CHANGED, handler);
         assert.strictEqual(emittedDay, day);
         assert.deepEqual(emittedSections, sections);

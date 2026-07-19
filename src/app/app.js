@@ -1,8 +1,12 @@
-import { persistence } from './services/persistence.js';
-import { getCommitTimestamp, getCommitHash, getUrlOfLastCommit } from './services/version.js';
-import { createDayPlan } from './feature/day-plan/day-plan.js';
 import { createAbschnittSumme } from './feature/day-plan/abschnitt-summe/abschnitt-summe.js';
+import { createDayPlan } from './feature/day-plan/day-plan.js';
 import { createDownloadPlans } from './feature/download-plans/download-plans.js';
+import { persistence } from './services/persistence.js';
+import {
+  getCommitHash,
+  getCommitTimestamp,
+  getUrlOfLastCommit,
+} from './services/version.js';
 
 function today() {
   return new Date().toLocaleDateString('de-DE', {
@@ -61,8 +65,12 @@ export function createApp() {
     downloadPlans = createDownloadPlans();
 
     el.querySelector('[data-dayplan]').appendChild(dayPlan.element);
-    el.querySelector('[data-abschnitt-summe]').appendChild(abschnittSumme.element);
-    el.querySelector('[data-download-plans]').appendChild(downloadPlans.element);
+    el.querySelector('[data-abschnitt-summe]').appendChild(
+      abschnittSumme.element,
+    );
+    el.querySelector('[data-download-plans]').appendChild(
+      downloadPlans.element,
+    );
 
     bindNavigation();
   }
