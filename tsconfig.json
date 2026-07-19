@@ -10,7 +10,7 @@
     "noFallthroughCasesInSwitch": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "types": ["node", "jest"]
+    "types": ["node", "node"]
   },
   "include": ["src/**/*.ts", "vite.config.ts"],
   "exclude": ["node_modules", "dist"]

@@ -19,7 +19,7 @@ const lines = parseFloat(match[1]);
 const branches = parseFloat(match[2]);
 const functions = parseFloat(match[3]);
 
-const THRESHOLDS = { lines: 96, branches: 86.66, functions: 98.78 };
+const THRESHOLDS = { lines: 100, branches: 98.92, functions: 100 };
 const errors = [];
 
 if (lines < THRESHOLDS.lines) {

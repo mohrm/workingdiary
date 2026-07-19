@@ -1,15 +1,17 @@
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
 import { getVersion, getCommitTimestamp, getCommitHash, getUrlOfLastCommit } from './services/version';
 import { commitHash, commitTimestamp, urlOfLastCommit } from '../environments/version';
 
 describe('VersionService', () => {
   it('returns full version text', () => {
-    expect(getVersion()).toContain(commitTimestamp);
-    expect(getVersion()).toContain(commitHash);
+    assert.ok(getVersion().includes(commitTimestamp));
+    assert.ok(getVersion().includes(commitHash));
   });
 
   it('returns commit metadata fields', () => {
-    expect(getCommitTimestamp()).toBe(commitTimestamp);
-    expect(getCommitHash()).toBe(commitHash);
-    expect(getUrlOfLastCommit()).toBe(urlOfLastCommit);
+    assert.strictEqual(getCommitTimestamp(), commitTimestamp);
+    assert.strictEqual(getCommitHash(), commitHash);
+    assert.strictEqual(getUrlOfLastCommit(), urlOfLastCommit);
   });
 });
