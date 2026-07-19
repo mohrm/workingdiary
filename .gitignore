@@ -47,6 +47,9 @@ Thumbs.db
 MEMORY.md
 *.har
 
+# Dev server build output (separate from production dist/)
+.dev-dist
+
 # Local build metadata
 /version.json
 

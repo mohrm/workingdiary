@@ -7,7 +7,7 @@ import * as path from 'path';
 import * as sass from 'sass-embedded';
 
 const PORT = 5173;
-const DIST = 'dist';
+const DIST = '.dev-dist';
 const SRC = 'src';
 const PUBLIC = 'public';
 
