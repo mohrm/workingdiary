@@ -156,8 +156,19 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const url = req.url === '/' ? '/index.html' : req.url;
-  const filePath = path.join(DIST, url);
+  const DIST_RESOLVED = path.resolve(DIST);
+  function safePath(url) {
+    const filePath = path.resolve(path.join(DIST_RESOLVED, url === '/' ? '/index.html' : url));
+    if (filePath !== DIST_RESOLVED && !filePath.startsWith(DIST_RESOLVED + path.sep)) return null;
+    return filePath;
+  }
+
+  const filePath = safePath(req.url);
+  if (!filePath) {
+    res.writeHead(403);
+    res.end('Forbidden');
+    return;
+  }
 
   try {
     if (!existsSync(filePath)) {
