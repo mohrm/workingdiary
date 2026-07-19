@@ -11,7 +11,7 @@ You are an expert frontend developer for this project.
 - Your output: Vanilla JS components, SCSS styles, TypeScript models/services, and matching unit and E2E tests that help catch bugs early and keep the codebase maintainable.
 
 ## Project knowledge
-- **Tech Stack:** Vite 8.1.x, TypeScript 6.0.x, Jest 30.4 + ts-jest 29.4, Playwright 1.61 + playwright-bdd 9.2, sass-embedded, vite-plugin-pwa.
+- **Tech Stack:** Vite 8.1.x, TypeScript 6.0.x, Node built-in test runner (node:test + node:assert) + tsx 4.23, Playwright 1.61 + playwright-bdd 9.2, sass-embedded, vite-plugin-pwa.
 - **No framework:** The app uses Vanilla JS (ES modules), no Angular, no React, no RxJS, no Signals.
 - **Components:** Each feature is a factory function that returns `{ element, update, destroy? }` — see existing files in `src/app/feature/`.
 - **File Structure:**
@@ -22,12 +22,13 @@ You are an expert frontend developer for this project.
     - `feature/` – Feature modules as Vanilla JS (`.js` + `.scss` per component)
   - `src/styles.scss` – Global styles (Material Design button/icon/list replacements)
   - `e2e/` – End-to-end tests with Playwright-BDD (features, steps, page objects, config)
-  - `scripts/` – Build/CI helper scripts (for example, version updates before build)
+  - `scripts/` – Build/CI helper scripts (`update-version.cjs`, `run-tests.sh`, `check-coverage.mjs`)
+  - `test-setup.ts` – Test environment setup (localStorage mock, EventTarget window)
 
 ## Tools you can use
 - **Dev server:** `npm run dev` (starts Vite on port 5173)
 - **Build:** `npm run build` (Vite production build)
-- **Unit tests:** `npm test` (Jest, collects coverage automatically)
+- **Unit tests:** `npm test` (Node built-in test runner via tsx, collects coverage automatically via --experimental-test-coverage, validates thresholds via scripts/check-coverage.mjs)
 - **E2E tests:** `npm run e2e` (Playwright-BDD, starts Vite internally)
 - **Lint:** `npx eslint .` (ESLint with `@eslint/js`; no npm script currently)
 
@@ -42,14 +43,25 @@ Follow these rules for all code you write:
 - Filenames: kebab-case (`abschnitt-summe.js`, `persistence.service.ts`)
 
 **Code style:**
-- `.ts` files: model classes, services, and tests (Jest with ts-jest)
+- `.ts` files: model classes, services, and tests (Node test runner with node:test + node:assert/strict)
 - `.js` files: component factory functions (Vanilla JS, no TypeScript in components)
 - `.scss` files: styles per component, imported in `main.ts`
 - No comments in production code unless the intent is unclear
 
-**Coverage thresholds (jest.config.js):**
-- Statements: ≥96.25% | Branches: ≥86.66% | Functions: ≥98.78% | Lines: ≥96%
+**Coverage thresholds (scripts/check-coverage.mjs):**
+- Lines: ≥100% | Branches: ≥98.92% | Functions: ≥100%
 - Never lower thresholds. If coverage drops, add tests to restore it.
+- Thresholds are verified during `npm test` via `scripts/check-coverage.mjs`.
+
+**Test conventions:**
+- Spec files use `import { describe, it, beforeEach, mock } from 'node:test'`
+- Assertions use `import assert from 'node:assert/strict'`
+- Use `assert.strictEqual(a, b)` for equality (replaces `expect(a).toBe(b)`)
+- Use `assert.deepEqual(a, b)` for deep equality (replaces `expect(a).toEqual(b)`)
+- Use `assert.ok(condition)` for boolean checks (replaces `expect(a).toBeTruthy()`)
+- Use `mock.method(obj, 'method', impl)` for spies (replaces `jest.spyOn`)
+- Use `mock.restoreAll()` to clean up mocks after the test
+- For async operations with callbacks, wrap in `new Promise<void>(resolve => { ... })`
 
 ## Boundaries
 - ✅ **Always:** Implement changes in `src/` (and in `e2e/` when needed), run relevant tests, follow existing patterns, and apply naming conventions.
