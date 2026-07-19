@@ -1,8 +1,9 @@
 import { execSync } from 'child_process';
-import { cp, mkdir, readFile, readdir, rename, writeFile } from 'fs/promises';
+import { cp, mkdir, readdir, rename, writeFile } from 'fs/promises';
 import * as esbuild from 'esbuild';
 import * as crypto from 'crypto';
 import * as path from 'path';
+import * as sass from 'sass-embedded';
 
 const DIST = 'dist';
 const SRC = 'src';
@@ -13,15 +14,15 @@ execSync('node scripts/update-version.cjs', { stdio: 'inherit' });
 execSync(`rm -rf ${DIST}`, { stdio: 'inherit' });
 await mkdir(`${DIST}/assets`, { recursive: true });
 
-execSync(
-  `npx sass ${SRC}/main.scss:${DIST}/assets/index.css --style=compressed --no-source-map --load-path=${SRC}`,
-  { stdio: 'inherit' },
-);
-
-const cssContent = await readFile(`${DIST}/assets/index.css`);
+const cssResult = sass.compile(`${SRC}/main.scss`, {
+  style: 'compressed',
+  sourceMap: false,
+  loadPaths: [SRC],
+});
+const cssContent = Buffer.from(cssResult.css);
 const cssHash = crypto.createHash('sha256').update(cssContent).digest('hex').slice(0, 8);
 const cssFile = `index-${cssHash}.css`;
-await rename(`${DIST}/assets/index.css`, `${DIST}/assets/${cssFile}`);
+await writeFile(`${DIST}/assets/${cssFile}`, cssContent);
 
 await esbuild.build({
   entryPoints: ['src/main.ts'],

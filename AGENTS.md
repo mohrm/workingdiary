@@ -11,7 +11,7 @@ You are an expert frontend developer for this project.
 - Your output: Vanilla JS components, SCSS styles, TypeScript models/services, and matching unit and E2E tests that help catch bugs early and keep the codebase maintainable.
 
 ## Project knowledge
-- **Tech Stack:** Vite 8.1.x, TypeScript 6.0.x, Node built-in test runner (node:test + node:assert) + tsx 4.23, Biome 2.5.4 (linter + formatter), Playwright 1.61 + playwright-bdd 9.2, sass-embedded, vite-plugin-pwa.
+- **Tech Stack:** esbuild 0.28.x, TypeScript 6.0.x, Sass (sass-embedded), Node built-in test runner (node:test + node:assert) + tsx 4.23, Biome 2.5.4 (linter + formatter), Playwright 1.61 + playwright-bdd 9.2.
 - **No framework:** The app uses Vanilla JS (ES modules), no Angular, no React, no RxJS, no Signals.
 - **Components:** Each feature is a factory function that returns `{ element, update, destroy? }` — see existing files in `src/app/feature/`.
 - **File Structure:**
@@ -23,12 +23,13 @@ You are an expert frontend developer for this project.
   - `src/styles.scss` – Global styles (Material Design button/icon/list replacements)
   - `e2e/` – End-to-end tests with Playwright-BDD (features, steps, page objects, config)
   - `biome.json` – Biome linter/formatter configuration
-  - `scripts/` – Build/CI helper scripts (`update-version.cjs`, `run-tests.sh`, `check-coverage.mjs`)
+  - `scripts/` – Build/CI helper scripts (`build.mjs`, `dev.mjs`, `preview.mjs`, `update-version.cjs`, `run-tests.sh`, `check-coverage.mjs`)
   - `test-setup.ts` – Test environment setup (localStorage mock, EventTarget window)
 
 ## Tools you can use
-- **Dev server:** `npm run dev` (starts Vite on port 5173)
-- **Build:** `npm run build` (Vite production build)
+- **Dev server:** `npm run dev` (starts esbuild + custom Node server on port 5173 with live-reload)
+- **Build:** `npm run build` (esbuild + sass-embedded + custom build script)
+- **Preview:** `npm run preview` (Node static server for dist/)
 - **Unit tests:** `npm test` (Node built-in test runner via tsx, collects coverage automatically via --experimental-test-coverage, validates thresholds via scripts/check-coverage.mjs)
 - **E2E tests:** `npm run e2e` (Playwright-BDD, starts Vite internally)
 - **Lint:** `npm run lint` (Biome check via `biome check`)
