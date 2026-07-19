@@ -39,6 +39,8 @@ export function createDayPlan(day, _onAbschnitteChange) {
 
   function update(newDay) {
     day = newDay;
+    el.querySelector('[data-testid="dayplan-title"]').textContent =
+      `Tagesplan für den ${day}`;
     stempeluhr?.update(newDay);
     abschnittListe?.update(newDay);
   }
