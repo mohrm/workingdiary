@@ -1,6 +1,6 @@
 import { persistence } from '../../../services/persistence.js';
-import { createAbschnitt } from '../abschnitt/abschnitt.js';
 import { icon } from '../../icons.js';
+import { createAbschnitt } from '../abschnitt/abschnitt.js';
 
 export function createAbschnittListe(day, stempelCallback) {
   const el = document.createElement('div');
