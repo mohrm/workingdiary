@@ -29,11 +29,15 @@ export class Time {
   }
 
   formattedString(): string {
-    return this.hour.toString().padStart(2, "0") + ":" + this.minute.toString().padStart(2, "0");
+    return (
+      this.hour.toString().padStart(2, '0') +
+      ':' +
+      this.minute.toString().padStart(2, '0')
+    );
   }
 
   toJSON(): TimeJson {
-    return {hour: this.hour, minute: this.minute};
+    return { hour: this.hour, minute: this.minute };
   }
 
   static fromJSON(s: TimeJson): Time {

@@ -26,36 +26,42 @@ export function createAbschnittListe(day, stempelCallback) {
   }
 
   function aendereAbschnitt(index, newSection) {
-    abschnitte = abschnitte.map((v, i) => i === index ? newSection : v);
+    abschnitte = abschnitte.map((v, i) => (i === index ? newSection : v));
     persistence.saveSections(day, abschnitte);
     editIndex = -1;
     render();
   }
 
   function render() {
-    itemControllers.forEach(c => c.element.remove());
+    itemControllers.forEach((c) => {
+      c.element.remove();
+    });
     itemControllers = [];
 
     el.innerHTML = `
       <div class="abschnitt-liste">
         <ul class="abschnitt-liste__list mat-list">
-          ${abschnitte.map((abschnitt, i) => `
+          ${abschnitte
+            .map(
+              (_abschnitt, i) => `
             <li class="mat-list-item abschnitt-item" data-index="${i}" data-testid="section-${i}">
               <div class="abschnitt-cell" data-section-index="${i}"></div>
               <span class="material-icons" data-action="delete" data-index="${i}">delete</span>
             </li>
-          `).join('')}
+          `,
+            )
+            .join('')}
         </ul>
       </div>`;
 
-    el.querySelectorAll('[data-action="delete"]').forEach(btn => {
+    el.querySelectorAll('[data-action="delete"]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        entferneAbschnitt(parseInt(btn.dataset.index));
+        entferneAbschnitt(parseInt(btn.dataset.index, 10));
       });
     });
 
-    el.querySelectorAll('[data-section-index]').forEach(cell => {
-      const index = parseInt(cell.dataset.sectionIndex);
+    el.querySelectorAll('[data-section-index]').forEach((cell) => {
+      const index = parseInt(cell.dataset.sectionIndex, 10);
       const abschnitt = abschnitte[index];
       const isEditing = index === editIndex;
       const controller = createAbschnitt(
@@ -66,7 +72,7 @@ export function createAbschnittListe(day, stempelCallback) {
           if (!editing) editIndex = -1;
           else editIndex = index;
           render();
-        }
+        },
       );
       cell.appendChild(controller.element);
       itemControllers.push(controller);

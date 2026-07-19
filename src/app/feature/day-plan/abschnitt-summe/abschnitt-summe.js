@@ -1,5 +1,8 @@
 import { Time } from '../../../model/Time.js';
-import { persistence, SECTIONS_CHANGED } from '../../../services/persistence.js';
+import {
+  persistence,
+  SECTIONS_CHANGED,
+} from '../../../services/persistence.js';
 
 export function createAbschnittSumme(day) {
   const el = document.createElement('div');
@@ -9,8 +12,8 @@ export function createAbschnittSumme(day) {
 
   function sumMinutes(location) {
     return abschnitte
-      .filter(section => !location || section.location === location)
-      .map(section => section.durationInMinutes())
+      .filter((section) => !location || section.location === location)
+      .map((section) => section.durationInMinutes())
       .reduce((prev, cur) => prev + cur, 0);
   }
 

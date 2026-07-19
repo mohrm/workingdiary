@@ -1,7 +1,16 @@
-import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { getVersion, getCommitTimestamp, getCommitHash, getUrlOfLastCommit } from './services/version';
-import { commitHash, commitTimestamp, urlOfLastCommit } from '../environments/version';
+import { describe, it } from 'node:test';
+import {
+  commitHash,
+  commitTimestamp,
+  urlOfLastCommit,
+} from '../environments/version';
+import {
+  getCommitHash,
+  getCommitTimestamp,
+  getUrlOfLastCommit,
+  getVersion,
+} from './services/version';
 
 describe('VersionService', () => {
   it('returns full version text', () => {

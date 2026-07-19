@@ -13,11 +13,16 @@ export function createDownloadPlans() {
     const now = new Date();
     const pad = (num) => num.toString().padStart(2, '0');
     const timestamp =
-      now.getFullYear() + '-' +
-      pad(now.getMonth() + 1) + '-' +
-      pad(now.getDate()) + '_' +
-      pad(now.getHours()) + '-' +
-      pad(now.getMinutes()) + '-' +
+      now.getFullYear() +
+      '-' +
+      pad(now.getMonth() + 1) +
+      '-' +
+      pad(now.getDate()) +
+      '_' +
+      pad(now.getHours()) +
+      '-' +
+      pad(now.getMinutes()) +
+      '-' +
       pad(now.getSeconds());
     const filename = `dayplans_${timestamp}.json`;
 

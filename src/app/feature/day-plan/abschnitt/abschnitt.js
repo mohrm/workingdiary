@@ -1,7 +1,12 @@
 import { Section } from '../../../model/Section.js';
 import { Time } from '../../../model/Time.js';
 
-export function createAbschnitt(section, onSectionChange, isEdit, onIsEditChange) {
+export function createAbschnitt(
+  section,
+  onSectionChange,
+  isEdit,
+  onIsEditChange,
+) {
   const el = document.createElement('div');
   el.className = 'abschnitt-host';
 
@@ -45,39 +50,51 @@ export function createAbschnitt(section, onSectionChange, isEdit, onIsEditChange
   function bindEvents() {
     if (isEdit) {
       el.querySelector('[data-start-hour]')?.addEventListener('input', (e) => {
-        startHour = parseInt(e.target.value) || 0;
+        startHour = parseInt(e.target.value, 10) || 0;
       });
-      el.querySelector('[data-start-minute]')?.addEventListener('input', (e) => {
-        startMinute = parseInt(e.target.value) || 0;
-      });
+      el.querySelector('[data-start-minute]')?.addEventListener(
+        'input',
+        (e) => {
+          startMinute = parseInt(e.target.value, 10) || 0;
+        },
+      );
       el.querySelector('[data-end-hour]')?.addEventListener('input', (e) => {
-        endHour = parseInt(e.target.value) || 0;
+        endHour = parseInt(e.target.value, 10) || 0;
       });
       el.querySelector('[data-end-minute]')?.addEventListener('input', (e) => {
-        endMinute = parseInt(e.target.value) || 0;
+        endMinute = parseInt(e.target.value, 10) || 0;
       });
       el.querySelector('[data-location]')?.addEventListener('change', (e) => {
         location = e.target.value;
       });
-      el.querySelector('[data-action="finish"]')?.addEventListener('click', () => {
-        const newStart = new Time(startHour, startMinute);
-        const newEnd = new Time(endHour, endMinute);
-        const newSection = new Section(newStart, newEnd, location);
-        if (onSectionChange) onSectionChange(newSection);
-        if (onIsEditChange) onIsEditChange(false);
-      });
-      el.querySelector('[data-action="abort"]')?.addEventListener('click', () => {
-        if (onIsEditChange) onIsEditChange(false);
-      });
+      el.querySelector('[data-action="finish"]')?.addEventListener(
+        'click',
+        () => {
+          const newStart = new Time(startHour, startMinute);
+          const newEnd = new Time(endHour, endMinute);
+          const newSection = new Section(newStart, newEnd, location);
+          if (onSectionChange) onSectionChange(newSection);
+          if (onIsEditChange) onIsEditChange(false);
+        },
+      );
+      el.querySelector('[data-action="abort"]')?.addEventListener(
+        'click',
+        () => {
+          if (onIsEditChange) onIsEditChange(false);
+        },
+      );
     } else {
-      el.querySelector('[data-action="edit"]')?.addEventListener('click', () => {
-        startHour = section?.startTime?.hour ?? 0;
-        startMinute = section?.startTime?.minute ?? 0;
-        endHour = section?.endTime?.hour ?? 0;
-        endMinute = section?.endTime?.minute ?? 0;
-        location = section?.location ?? 'nicht zugeordnet';
-        if (onIsEditChange) onIsEditChange(true);
-      });
+      el.querySelector('[data-action="edit"]')?.addEventListener(
+        'click',
+        () => {
+          startHour = section?.startTime?.hour ?? 0;
+          startMinute = section?.startTime?.minute ?? 0;
+          endHour = section?.endTime?.hour ?? 0;
+          endMinute = section?.endTime?.minute ?? 0;
+          location = section?.location ?? 'nicht zugeordnet';
+          if (onIsEditChange) onIsEditChange(true);
+        },
+      );
     }
   }
 

@@ -1,4 +1,8 @@
-import { commitTimestamp, commitHash, urlOfLastCommit } from '../../environments/version';
+import {
+  commitHash,
+  commitTimestamp,
+  urlOfLastCommit,
+} from '../../environments/version';
 
 export function getVersion(): string {
   return `Zuletzt geändert: ${commitTimestamp}, commit: ${commitHash}`;

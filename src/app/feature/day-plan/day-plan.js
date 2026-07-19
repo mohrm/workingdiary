@@ -1,7 +1,7 @@
-import { createStempeluhr } from './stempeluhr/stempeluhr.js';
 import { createAbschnittListe } from './abschnitt-liste/abschnitt-liste.js';
+import { createStempeluhr } from './stempeluhr/stempeluhr.js';
 
-export function createDayPlan(day, onAbschnitteChange) {
+export function createDayPlan(day, _onAbschnitteChange) {
   const el = document.createElement('section');
   el.className = 'day-plan';
 
@@ -17,7 +17,8 @@ export function createDayPlan(day, onAbschnitteChange) {
       <div class="day-plan__clock" data-stempeluhr></div>
       <div class="day-plan__list" data-abschnitt-liste></div>`;
 
-    el.querySelector('[data-testid="dayplan-title"]').textContent = `Tagesplan für den ${day}`;
+    el.querySelector('[data-testid="dayplan-title"]').textContent =
+      `Tagesplan für den ${day}`;
 
     stempeluhr = createStempeluhr(day, (section) => {
       if (stempelEreignisCallback) {
@@ -31,7 +32,9 @@ export function createDayPlan(day, onAbschnitteChange) {
     });
 
     el.querySelector('[data-stempeluhr]').appendChild(stempeluhr.element);
-    el.querySelector('[data-abschnitt-liste]').appendChild(abschnittListe.element);
+    el.querySelector('[data-abschnitt-liste]').appendChild(
+      abschnittListe.element,
+    );
   }
 
   function update(newDay) {

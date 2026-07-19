@@ -1,5 +1,5 @@
-import { describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
+import { describe, it, mock } from 'node:test';
 import { Time } from './Time';
 
 describe('Time', () => {
@@ -32,6 +32,7 @@ describe('Time', () => {
 
   it('creates current time with now()', () => {
     const fixedDate = new Date(2026, 3, 8, 14, 22);
+    // biome-ignore lint/complexity/useArrowFunction: needs function for constructor-like mock
     mock.method(global, 'Date', function () {
       return fixedDate;
     });

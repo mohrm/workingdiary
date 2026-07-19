@@ -1,4 +1,4 @@
-import { Time, TimeJson } from './Time';
+import { Time, type TimeJson } from './Time';
 
 export interface SectionJson {
   startTime: TimeJson;
@@ -18,7 +18,7 @@ export class Section {
   }
 
   formattedString(): string {
-    const timeRange = this.startTime.formattedString() + " - " + this.endTime.formattedString();
+    const timeRange = `${this.startTime.formattedString()} - ${this.endTime.formattedString()}`;
     return `${timeRange} (${this.location})`;
   }
 
@@ -27,10 +27,18 @@ export class Section {
   }
 
   toJSON(): SectionJson {
-    return {startTime: this.startTime.toJSON(), endTime: this.endTime.toJSON(), location: this.location}
+    return {
+      startTime: this.startTime.toJSON(),
+      endTime: this.endTime.toJSON(),
+      location: this.location,
+    };
   }
 
   static fromJSON(s: SectionJson): Section {
-    return new Section(Time.fromJSON(s.startTime), Time.fromJSON(s.endTime), s.location ?? 'nicht zugeordnet');
+    return new Section(
+      Time.fromJSON(s.startTime),
+      Time.fromJSON(s.endTime),
+      s.location ?? 'nicht zugeordnet',
+    );
   }
 }

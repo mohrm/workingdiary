@@ -1,5 +1,5 @@
-import { Time, TimeJson } from '../model/Time';
-import { Section, SectionJson } from '../model/Section';
+import { Section, type SectionJson } from '../model/Section';
+import { Time, type TimeJson } from '../model/Time';
 
 export const SECTIONS_CHANGED = 'sectionsChanged';
 
@@ -43,18 +43,18 @@ class PersistenceService {
   saveStartTime(day: string, startTime?: Time) {
     const plans = this.loadDayPlan(day);
     if (startTime) {
-      plans[day]['startTime'] = startTime;
+      plans[day].startTime = startTime;
     } else {
-      plans[day]['startTime'] = undefined;
+      plans[day].startTime = undefined;
     }
     localStorage.setItem('plans', JSON.stringify(plans));
   }
 
   loadStartTime(day: string): Time | undefined {
     const plans = this.loadDayPlan(day);
-    const startTime = plans[day]['startTime'];
+    const startTime = plans[day].startTime;
     if (startTime) {
-      return new Time(startTime['hour'], startTime['minute']);
+      return new Time(startTime.hour, startTime.minute);
     } else {
       return undefined;
     }
@@ -62,16 +62,18 @@ class PersistenceService {
 
   saveSections(day: string, sections?: Section[]) {
     const plans = this.loadDayPlan(day);
-    plans[day]['sections'] = sections;
+    plans[day].sections = sections;
     localStorage.setItem('plans', JSON.stringify(plans));
-    window.dispatchEvent(new CustomEvent(SECTIONS_CHANGED, { detail: { day, sections } }));
+    window.dispatchEvent(
+      new CustomEvent(SECTIONS_CHANGED, { detail: { day, sections } }),
+    );
   }
 
   loadSections(day: string): Section[] | undefined {
     const plans = this.loadDayPlan(day);
-    const sections = plans[day]['sections'];
+    const sections = plans[day].sections;
     if (sections) {
-      return sections.map(v => Section.fromJSON(v));
+      return sections.map((v) => Section.fromJSON(v));
     } else {
       return undefined;
     }
@@ -90,7 +92,7 @@ class PersistenceService {
       }
     }
     if (daysBefore.length > 0) {
-      const maxDate = new Date(Math.max(...daysBefore.map(d => d.getTime())));
+      const maxDate = new Date(Math.max(...daysBefore.map((d) => d.getTime())));
       return this.formatGermanDate(maxDate);
     } else {
       return day;
@@ -108,7 +110,7 @@ class PersistenceService {
       }
     }
     if (daysAfter.length > 0) {
-      const minDate = new Date(Math.min(...daysAfter.map(d => d.getTime())));
+      const minDate = new Date(Math.min(...daysAfter.map((d) => d.getTime())));
       return this.formatGermanDate(minDate);
     } else {
       return day;
