@@ -20,7 +20,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.4",
-    "@biomejs/biome": "2.5.4",
     "@playwright/test": "1.61.1",
     "@types/node": "24.13.3",
     "esbuild": "0.28.1",
