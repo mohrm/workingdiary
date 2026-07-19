@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
@@ -40,10 +41,26 @@ describe('Service Worker', () => {
     assert.ok(sw.includes('self.clientsClaim()'));
   });
 
-  it('contains a cache key derived from CSS hash', () => {
+  it('contains a cache key derived from all asset filenames', () => {
     assert.ok(
       /PRECACHE='workingdiary-v[a-f0-9]{8}'/.test(sw),
       'cache key must contain 8-char hex hash',
     );
+  });
+
+  it('cache key changes when any asset file changes, not just CSS', () => {
+    const keyMatch = sw.match(/PRECACHE='([^']+)'/);
+    assert.ok(keyMatch);
+    const actualKey = keyMatch[1];
+
+    const urlsMatch = sw.match(/PRECACHE_URLS=\[(.*?)\]/);
+    assert.ok(urlsMatch);
+    const urls = JSON.parse(`[${urlsMatch[1]}]`) as string[];
+    assert.ok(urls.length > 0);
+
+    const sorted = [...urls].sort();
+    const expectedKey = `workingdiary-v${createHash('sha256').update(sorted.join('|')).digest('hex').slice(0, 8)}`;
+
+    assert.strictEqual(actualKey, expectedKey);
   });
 });

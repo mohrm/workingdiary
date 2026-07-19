@@ -111,7 +111,11 @@ async function scanDir(dir, prefix) {
 }
 
 const precacheFiles = await scanDir(DIST);
-const cacheKey = `workingdiary-v${cssHash}`;
+const urlsHash = crypto.createHash('sha256')
+  .update(precacheFiles.sort().join('|'))
+  .digest('hex')
+  .slice(0, 8);
+const cacheKey = `workingdiary-v${urlsHash}`;
 
 const sw = `const PRECACHE='${cacheKey}';const PRECACHE_URLS=${JSON.stringify(precacheFiles)};
 self.addEventListener('install',e=>{e.waitUntil(caches.open(PRECACHE).then(c=>c.addAll(PRECACHE_URLS)));self.skipWaiting()});
