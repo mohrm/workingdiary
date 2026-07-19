@@ -47,19 +47,12 @@ export function createAbschnittListe(day, stempelCallback) {
               (_abschnitt, i) => `
             <li class="mat-list-item abschnitt-item" data-index="${i}" data-testid="section-${i}">
               <div class="abschnitt-cell" data-section-index="${i}"></div>
-              <span data-action="delete" data-index="${i}">${icon('delete')}</span>
             </li>
           `,
             )
             .join('')}
         </ul>
       </div>`;
-
-    el.querySelectorAll('[data-action="delete"]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        entferneAbschnitt(parseInt(btn.dataset.index, 10));
-      });
-    });
 
     el.querySelectorAll('[data-section-index]').forEach((cell) => {
       const index = parseInt(cell.dataset.sectionIndex, 10);
@@ -76,6 +69,16 @@ export function createAbschnittListe(day, stempelCallback) {
         },
       );
       cell.appendChild(controller.element);
+
+      const deleteBtn = document.createElement('span');
+      deleteBtn.setAttribute('data-action', 'delete');
+      deleteBtn.setAttribute('data-index', String(index));
+      deleteBtn.innerHTML = icon('delete');
+      deleteBtn.addEventListener('click', () => {
+        entferneAbschnitt(index);
+      });
+      cell.appendChild(deleteBtn);
+
       itemControllers.push(controller);
     });
   }
