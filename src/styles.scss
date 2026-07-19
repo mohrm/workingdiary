@@ -54,10 +54,9 @@ th {
 
 [data-action] {
   cursor: pointer;
-}
-
-svg {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
 }
 
 /* Material List replacement */
