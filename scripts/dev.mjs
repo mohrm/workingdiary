@@ -107,7 +107,7 @@ async function build() {
   const sw = `const PRECACHE='workingdiary-dev';const PRECACHE_URLS=${JSON.stringify(precacheFiles)};
 self.addEventListener('install',e=>{e.waitUntil(caches.open(PRECACHE).then(c=>c.addAll(PRECACHE_URLS)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(k=>k!==PRECACHE).map(k=>caches.delete(k)))));self.clientsClaim()});
-self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(caches.match('/'))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`;
+self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(caches.match('/index.html').then(r=>r||fetch(e.request)))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`;
   await writeFile(`${DIST}/sw.js`, `${sw}\n`);
 
   console.log(`Build complete (${Date.now() - start}ms)`);
