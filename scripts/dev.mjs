@@ -4,6 +4,7 @@ import { mkdir, readdir, writeFile, readFile } from 'fs/promises';
 import * as esbuild from 'esbuild';
 import * as http from 'http';
 import * as path from 'path';
+import * as sass from 'sass-embedded';
 
 const PORT = 5173;
 const DIST = 'dist';
@@ -21,10 +22,16 @@ async function build() {
   execSync(`rm -rf ${DIST}`, { stdio: 'inherit' });
   await mkdir(`${DIST}/assets`, { recursive: true });
 
-  execSync(
-    `npx sass ${SRC}/main.scss:${DIST}/assets/index.css --style=expanded --source-map --load-path=${SRC}`,
-    { stdio: 'inherit' },
-  );
+  const cssResult = sass.compile(`${SRC}/main.scss`, {
+    style: 'expanded',
+    sourceMap: true,
+    sourceMapIncludeSources: true,
+    loadPaths: [SRC],
+  });
+  await writeFile(`${DIST}/assets/index.css`, cssResult.css);
+  if (cssResult.sourceMap) {
+    await writeFile(`${DIST}/assets/index.css.map`, JSON.stringify(cssResult.sourceMap));
+  }
 
   await esbuild.build({
     entryPoints: ['src/main.ts'],
