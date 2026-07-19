@@ -12,6 +12,19 @@ server {
     gzip_vary on;
     gzip_proxied any;
 
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location = /sw.js {
+        add_header Cache-Control "no-cache";
+    }
+
+    location = /index.html {
+        add_header Cache-Control "no-cache";
+    }
+
     location = /info/version {
         default_type application/json;
         return 200 '{"version":"__APP_VERSION__"}';
