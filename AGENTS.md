@@ -53,7 +53,7 @@ Follow these rules for all code you write:
 - No comments in production code unless the intent is unclear
 
 **Coverage thresholds (scripts/check-coverage.mjs):**
-- Lines: ≥100% | Branches: ≥98.92% | Functions: ≥100%
+- Lines: ≥100% | Branches: ≥99.02% | Functions: ≥100%
 - Never lower thresholds. If coverage drops, add tests to restore it.
 - Thresholds are verified during `npm test` via `scripts/check-coverage.mjs`.
 
