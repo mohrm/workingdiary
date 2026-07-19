@@ -25,6 +25,7 @@ You are an expert frontend developer for this project.
   - `biome.json` – Biome linter/formatter configuration
   - `scripts/` – Build/CI helper scripts (`build.mjs`, `dev.mjs`, `preview.mjs`, `update-version.cjs`, `run-tests.sh`, `check-coverage.mjs`)
   - `test-setup.ts` – Test environment setup (localStorage mock, EventTarget window)
+- **PWA / Service Worker:** Komplett dependency-frei implementiert. Der SW wird beim Build in `scripts/build.mjs` (Zeile ~116–120) aus einem Template mit injiziertem Precache-Manifest generiert → `dist/sw.js`. Die `registerSW`-Logik ist inline im `<head>` von `dist/index.html` (via `<script>...</script>`, kein separater HTTP-Request). Das `manifest.webmanifest` wird als statisches JSON geschrieben. Der SW cached `PRECACHE_URLS` bei `install`, aktiviert via `skipWaiting` + `clientsClaim`, und served bei `fetch` Navigationen aus dem Root-Cache, sonst Cache-First mit Network-Fallback. Der Cache-Key (`PRECACHE`) enthält den CSS-Content-Hash für automatische Invalidierung.
 
 ## Tools you can use
 - **Dev server:** `npm run dev` (starts esbuild + custom Node server on port 5173 with live-reload)
