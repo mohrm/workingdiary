@@ -12,6 +12,7 @@
     "pretest": "node scripts/update-version.cjs",
     "test": "sh scripts/run-tests.sh $(find src -name '*.spec.ts')",
     "test:watch": "node --import tsx --import ./test-setup.ts --experimental-test-coverage --watch --test $(find src -name '*.spec.ts')",
+    "test:docker": "bash scripts/test-docker.sh",
     "lint": "biome check",
     "format": "biome check --write",
     "e2e": "npx bddgen -c e2e/playwright.config.js && npx playwright test -c e2e/playwright.config.js",
