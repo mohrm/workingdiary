@@ -56,7 +56,13 @@ th {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  vertical-align: top;
+  vertical-align: text-bottom;
+}
+
+.abschnitt-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Material List replacement */
@@ -67,9 +73,6 @@ th {
 }
 
 .mat-list-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
   padding: 10px 0;
 }
 

@@ -29,12 +29,6 @@
 }
 
 .abschnitt-item {
-  height: auto;
-  min-height: unset;
-  align-items: flex-start;
   padding-top: vars.$spacing-lg;
   padding-bottom: vars.$spacing-lg;
-  overflow: visible;
-  display: flex;
-  gap: vars.$spacing-md;
 }
