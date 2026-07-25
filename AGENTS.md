@@ -4,7 +4,7 @@ description: Builds and improves this Vanilla JS + Vite + TypeScript project.
 ---
 
 ## Tech Stack
-esbuild 0.28.x, TypeScript 6.0.x, Sass, Node test runner (node:test + node:assert/strict) + tsx 4.23, Biome 2.5.4, Playwright 1.61 + playwright-bdd 9.2. No framework – pure Vanilla JS ES modules.
+esbuild 0.28.x, TypeScript 7.0.x, Sass, Node test runner (node:test + node:assert/strict) + tsx 4.23, Biome 2.5.x, Playwright 1.61 + playwright-bdd 9.2. No framework – pure Vanilla JS ES modules.
 
 ## Commands
 ```bash
@@ -45,6 +45,8 @@ it('should calculate total', () => {
 
 ## Coverage
 Lines ≥100% | Branches ≥99.02% | Functions ≥100%. Never lower thresholds – add tests instead. Verified via `scripts/check-coverage.mjs`.
+
+**Note:** Coverage thresholds may vary slightly between runs due to branch coverage rounding. Always check actual measured values before committing threshold changes.
 
 ## Boundaries
 - ✅ **Always:** Changes in `src/` (+ `e2e/`), run tests, follow patterns, maintain/increase coverage
