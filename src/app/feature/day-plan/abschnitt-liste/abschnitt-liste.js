@@ -2,7 +2,7 @@ import { persistence } from '../../../services/persistence.js';
 import { icon } from '../../icons.js';
 import { createAbschnitt } from '../abschnitt/abschnitt.js';
 
-export function createAbschnittListe(day, stempelCallback) {
+export function createAbschnittListe(day, stempelCallback, onAbschnitteChange) {
   const el = document.createElement('div');
   el.className = 'abschnitt-liste-host';
 
@@ -10,9 +10,14 @@ export function createAbschnittListe(day, stempelCallback) {
   let itemControllers = [];
   let editIndex = -1;
 
+  function persistAbschnitte() {
+    persistence.saveSections(day, abschnitte);
+    onAbschnitteChange?.(abschnitte);
+  }
+
   function handleStempelEvent(section) {
     abschnitte = [...abschnitte, section];
-    persistence.saveSections(day, abschnitte);
+    persistAbschnitte();
     render();
   }
 
@@ -22,13 +27,13 @@ export function createAbschnittListe(day, stempelCallback) {
 
   function entferneAbschnitt(index) {
     abschnitte = abschnitte.filter((_, i) => i !== index);
-    persistence.saveSections(day, abschnitte);
+    persistAbschnitte();
     render();
   }
 
   function aendereAbschnitt(index, newSection) {
     abschnitte = abschnitte.map((v, i) => (i === index ? newSection : v));
-    persistence.saveSections(day, abschnitte);
+    persistAbschnitte();
     editIndex = -1;
     render();
   }

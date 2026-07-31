@@ -1,3 +1,4 @@
+import { LOCATIONS } from './locations';
 import { Time, type TimeJson } from './Time';
 
 export interface SectionJson {
@@ -11,7 +12,7 @@ export class Section {
   endTime: Time;
   location: string;
 
-  constructor(startTime: Time, endTime: Time, location = 'nicht zugeordnet') {
+  constructor(startTime: Time, endTime: Time, location = LOCATIONS.UNASSIGNED) {
     this.startTime = startTime;
     this.endTime = endTime;
     this.location = location;
@@ -38,7 +39,7 @@ export class Section {
     return new Section(
       Time.fromJSON(s.startTime),
       Time.fromJSON(s.endTime),
-      s.location ?? 'nicht zugeordnet',
+      s.location ?? LOCATIONS.UNASSIGNED,
     );
   }
 }

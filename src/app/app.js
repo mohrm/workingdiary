@@ -60,7 +60,7 @@ export function createApp() {
         </footer>
       </div>`;
 
-    dayPlan = createDayPlan(day);
+    dayPlan = createDayPlan(day, () => abschnittSumme?.update(day));
     abschnittSumme = createAbschnittSumme(day);
     downloadPlans = createDownloadPlans();
 

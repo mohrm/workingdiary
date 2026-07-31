@@ -20,10 +20,14 @@ export class Time {
     return 60 * this.hour + this.minute;
   }
 
+  // "Industriezeit": duration expressed as a decimal hour value (7:30 -> 7.5)
+  // instead of hours:minutes, as commonly used for time billing.
   industrial(): number {
     return this.inMinutes() / 60;
   }
 
+  // Same as industrial(), rounded to the nearest quarter hour (0.25 steps),
+  // since billing is typically done in 15-minute increments.
   industrialQuarterPrecision(): number {
     return Math.round(4 * this.industrial()) / 4;
   }

@@ -1,8 +1,6 @@
 import { Section, type SectionJson } from '../model/Section';
 import { Time, type TimeJson } from '../model/Time';
 
-export const SECTIONS_CHANGED = 'sectionsChanged';
-
 interface DayPlan {
   startTime?: TimeJson;
   sections?: SectionJson[];
@@ -64,9 +62,6 @@ class PersistenceService {
     const plans = this.loadDayPlan(day);
     plans[day].sections = sections;
     localStorage.setItem('plans', JSON.stringify(plans));
-    window.dispatchEvent(
-      new CustomEvent(SECTIONS_CHANGED, { detail: { day, sections } }),
-    );
   }
 
   loadSections(day: string): Section[] | undefined {
@@ -79,6 +74,8 @@ class PersistenceService {
     }
   }
 
+  // previousDay/nextDay jump to the closest day that actually has stored
+  // data, not to the calendar day ±1 — days without an entry are skipped.
   previousDay(day: string): string {
     const plans = this.loadPlans();
     const mDay = this.parseGermanDate(day);
