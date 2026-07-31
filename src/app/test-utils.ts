@@ -48,8 +48,7 @@ class FakeElement {
     const self = this;
     return new Proxy({} as Record<string, string>, {
       get(_, key: string) {
-        const attrName =
-          'data-' + key.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
+        const attrName = `data-${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`;
         return self._attrs.get(attrName) ?? '';
       },
     });
@@ -166,9 +165,7 @@ class FakeElement {
   private _parseHTML(html: string): FakeElement[] {
     const elements: FakeElement[] = [];
     const tagRegex = /<(\w+)([^>]*)>|<\/(\w+)>/g;
-    const attrRegex = /(\w+)=["']([^"']*)["']/g;
     const stack: FakeElement[] = [];
-    let lastIndex = 0;
 
     let match: RegExpExecArray | null = tagRegex.exec(html);
     while (match !== null) {
@@ -211,7 +208,6 @@ class FakeElement {
           stack.pop();
         }
       }
-      lastIndex = match.index + match[0].length;
       match = tagRegex.exec(html);
     }
 

@@ -239,7 +239,7 @@ async function watchDir(dir: string): Promise<void> {
   if (watchedDirs.has(dir)) return;
   watchedDirs.add(dir);
 
-  const handler = (event: WatchEventType, filename: string | null): void => {
+  const handler = (_event: WatchEventType, filename: string | null): void => {
     if (!filename) return;
     const fullPath = path.join(dir, filename);
     try {

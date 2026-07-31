@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import { createDayPlan } from './feature/day-plan/day-plan';
-import { installFakeDocument, resetFakeDocument } from './test-utils';
+import { installFakeDocument } from './test-utils';
 
 describe('DayPlan', () => {
   beforeEach(() => {

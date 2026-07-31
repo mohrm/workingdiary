@@ -3,7 +3,7 @@ import * as http from 'node:http';
 import { extname, resolve } from 'node:path';
 
 const PORT = Number(process.env.PORT) || 5173;
-const DIST = resolve('dist') + '/';
+const DIST = `${resolve('dist')}/`;
 
 const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html',
@@ -30,7 +30,7 @@ http
       res.end('Forbidden');
       return;
     }
-    const filePath = resolve('dist' + url);
+    const filePath = resolve(`dist${url}`);
 
     if (!filePath.startsWith(DIST)) {
       res.writeHead(403);

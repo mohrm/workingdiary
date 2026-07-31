@@ -1,17 +1,17 @@
 import { expect } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
-import { AppPagePO } from '../page-objects/app.po';
+import { hasElementWithText, navigateTo } from '../page-objects/app.po';
 
 const { Given, When, Then } = createBdd();
 
-Given('I open the home page', async ({ page }) => {});
+Given('I open the home page', async ({ page: _page }) => {});
 
-Then('I see {string} on the page', async ({ page }, theString) => {});
+Then('I see {string} on the page', async ({ page: _page }, _theString) => {});
 
 Given(
   "today's date is {string} and the current time is {string}",
   async ({ page }, day: string, time: string) => {
-    await page.clock.setFixedTime(day + 'T' + time);
+    await page.clock.setFixedTime(`${day}T${time}`);
   },
 );
 
@@ -20,17 +20,13 @@ Given('the viewport is mobile', async ({ page }) => {
 });
 
 When('I open the day plan for today', async ({ page }) => {
-  await AppPagePO.navigateTo(page, '/');
+  await navigateTo(page, '/');
 });
 
 Then(
   'I see {string} on the heading',
   async ({ page }, expectedHeadingText: string) => {
-    await AppPagePO.hasElementWithText(
-      page,
-      'dayplan-title',
-      expectedHeadingText,
-    );
+    await hasElementWithText(page, 'dayplan-title', expectedHeadingText);
   },
 );
 
@@ -41,7 +37,7 @@ When('I log in', async ({ page }) => {
 });
 
 Then('I see that the login time is {string}', async ({ page }, arg: string) => {
-  await AppPagePO.hasElementWithText(page, 'login-time', arg);
+  await hasElementWithText(page, 'login-time', arg);
   // Step: Then I see that the login time is "08:00"
   // From: features/app.feature:12:5
 });
@@ -51,7 +47,7 @@ Then(
   async ({ page }, arg: string) => {
     // Step: And the caption of the log button is "Ausstempeln"
     // From: features/app.feature:13:5
-    await AppPagePO.hasElementWithText(page, 'log-button', arg);
+    await hasElementWithText(page, 'log-button', arg);
   },
 );
 
@@ -60,7 +56,7 @@ Given(
   async ({ page }, day: string, time: string) => {
     // Step: And time moves forward to "2025-02-17" at "12:00:00"
     // From: features/app.feature:21:5
-    await page.clock.setFixedTime(day + 'T' + time);
+    await page.clock.setFixedTime(`${day}T${time}`);
   },
 );
 
@@ -75,16 +71,16 @@ Then(
   async ({ page }, sectionIndex: string, start: string, end: string) => {
     // Step: Then I see that section "0" has start time "08:00" and end time "09:00"
     // From: features/app.feature:27:5
-    const sec = page.getByTestId('section-' + sectionIndex);
+    const sec = page.getByTestId(`section-${sectionIndex}`);
     await sec.waitFor();
-    expect(sec).toContainText(start + ' - ' + end);
+    expect(sec).toContainText(`${start} - ${end}`);
   },
 );
 
 When(
   'I open the editor for section {string}',
   async ({ page }, sectionIndex: string) => {
-    const section = page.getByTestId('section-' + sectionIndex);
+    const section = page.getByTestId(`section-${sectionIndex}`);
     await section.waitFor();
     const editIcon = section.locator('[data-action="edit"]').first();
     await editIcon.click();
