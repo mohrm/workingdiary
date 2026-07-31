@@ -3,15 +3,21 @@ import { readFileSync } from 'node:fs';
 
 const filePath = process.argv[2];
 if (!filePath) {
-  console.error('Usage: node check-coverage.mjs <coverage-output-file>');
+  console.error(
+    'Usage: node --import tsx check-coverage.ts <coverage-output-file>',
+  );
   process.exit(1);
 }
 
 const content = readFileSync(filePath, 'utf-8');
-const match = content.match(/^\s*[^a-zA-Z]*all files\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)/m);
+const match = content.match(
+  /^\s*[^a-zA-Z]*all files\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)/m,
+);
 
 if (!match) {
-  console.error('Could not parse coverage report. Expected "all files" summary line.');
+  console.error(
+    'Could not parse coverage report. Expected "all files" summary line.',
+  );
   process.exit(1);
 }
 
@@ -37,4 +43,6 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`Coverage OK — lines: ${lines}%, branches: ${branches}%, functions: ${functions}%`);
+console.log(
+  `Coverage OK — lines: ${lines}%, branches: ${branches}%, functions: ${functions}%`,
+);

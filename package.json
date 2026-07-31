@@ -5,19 +5,20 @@
   "type": "module",
   "scripts": {
     "predev": "node scripts/update-version.cjs",
-    "dev": "node scripts/dev.mjs",
-    "build": "node scripts/build.mjs",
-    "preview": "node scripts/preview.mjs",
+    "dev": "node --import tsx scripts/dev.ts",
+    "build": "node --import tsx scripts/build.ts",
+    "preview": "node --import tsx scripts/preview.ts",
     "prebuild": "node scripts/update-version.cjs",
     "pretest": "node scripts/update-version.cjs",
     "test": "sh scripts/run-tests.sh $(find src -name '*.spec.ts')",
     "test:watch": "node --import tsx --import ./test-setup.ts --experimental-test-coverage --watch --test $(find src -name '*.spec.ts')",
     "test:docker": "bash scripts/test-docker.sh",
+    "typecheck": "tsc --noEmit",
     "lint": "biome check",
     "format": "biome check --write",
-    "e2e": "npx bddgen -c e2e/playwright.config.js && npx playwright test -c e2e/playwright.config.js",
-    "e2e-prepare:ci": "npx playwright install --with-deps && npx bddgen -c e2e/playwright.config.js",
-    "e2e:ci": "npx playwright test -c e2e/playwright.config.js"
+    "e2e": "npx bddgen -c e2e/playwright.config.ts && npx playwright test -c e2e/playwright.config.ts",
+    "e2e-prepare:ci": "npx playwright install --with-deps && npx bddgen -c e2e/playwright.config.ts",
+    "e2e:ci": "npx playwright test -c e2e/playwright.config.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.6",

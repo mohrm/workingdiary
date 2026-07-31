@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 

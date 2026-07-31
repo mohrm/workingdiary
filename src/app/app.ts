@@ -1,14 +1,21 @@
-import { createAbschnittSumme } from './feature/day-plan/abschnitt-summe/abschnitt-summe.js';
-import { createDayPlan } from './feature/day-plan/day-plan.js';
-import { createDownloadPlans } from './feature/download-plans/download-plans.js';
-import { persistence } from './services/persistence.js';
+import type { Component } from './component';
+import {
+  type AbschnittSummeComponent,
+  createAbschnittSumme,
+} from './feature/day-plan/abschnitt-summe/abschnitt-summe';
+import {
+  createDayPlan,
+  type DayPlanComponent,
+} from './feature/day-plan/day-plan';
+import { createDownloadPlans } from './feature/download-plans/download-plans';
+import { persistence } from './services/persistence';
 import {
   getCommitHash,
   getCommitTimestamp,
   getUrlOfLastCommit,
-} from './services/version.js';
+} from './services/version';
 
-function today() {
+function today(): string {
   return new Date().toLocaleDateString('de-DE', {
     day: '2-digit',
     month: '2-digit',
@@ -16,23 +23,27 @@ function today() {
   });
 }
 
-function getDayFromURL() {
+function getDayFromURL(): string {
   const params = new URLSearchParams(window.location.search);
   return params.get('day') ?? today();
 }
 
-function navigate(day) {
+function navigate(day: string): void {
   history.pushState({ day }, '', `/?day=${day}`);
 }
 
-export function createApp() {
+export interface AppComponent extends Component {
+  update: () => void;
+}
+
+export function createApp(): AppComponent {
   const el = document.createElement('div');
   el.className = 'app-shell';
 
   let day = getDayFromURL();
-  let dayPlan;
-  let abschnittSumme;
-  let downloadPlans;
+  let dayPlan: DayPlanComponent | undefined;
+  let abschnittSumme: AbschnittSummeComponent | undefined;
+  let downloadPlans: Component | undefined;
 
   function render() {
     el.innerHTML = `
@@ -64,11 +75,11 @@ export function createApp() {
     abschnittSumme = createAbschnittSumme(day);
     downloadPlans = createDownloadPlans();
 
-    el.querySelector('[data-dayplan]').appendChild(dayPlan.element);
-    el.querySelector('[data-abschnitt-summe]').appendChild(
+    el.querySelector('[data-dayplan]')!.appendChild(dayPlan.element);
+    el.querySelector('[data-abschnitt-summe]')!.appendChild(
       abschnittSumme.element,
     );
-    el.querySelector('[data-download-plans]').appendChild(
+    el.querySelector('[data-download-plans]')!.appendChild(
       downloadPlans.element,
     );
 
@@ -76,8 +87,8 @@ export function createApp() {
   }
 
   function bindNavigation() {
-    const prevLink = el.querySelector('[data-prev-link]');
-    const nextLink = el.querySelector('[data-next-link]');
+    const prevLink = el.querySelector<HTMLAnchorElement>('[data-prev-link]');
+    const nextLink = el.querySelector<HTMLAnchorElement>('[data-next-link]');
 
     prevLink?.addEventListener('click', (e) => {
       e.preventDefault();
@@ -101,8 +112,8 @@ export function createApp() {
   }
 
   function updateNavigationLinks() {
-    const prevLink = el.querySelector('[data-prev-link]');
-    const nextLink = el.querySelector('[data-next-link]');
+    const prevLink = el.querySelector<HTMLAnchorElement>('[data-prev-link]');
+    const nextLink = el.querySelector<HTMLAnchorElement>('[data-next-link]');
     if (prevLink) prevLink.href = `/?day=${persistence.previousDay(day)}`;
     if (nextLink) nextLink.href = `/?day=${persistence.nextDay(day)}`;
   }

@@ -1,8 +1,8 @@
-import { execSync } from 'child_process';
-import { cp, mkdir, readdir, rename, writeFile } from 'fs/promises';
+import { execSync } from 'node:child_process';
+import * as crypto from 'node:crypto';
+import { mkdir, readdir, writeFile } from 'node:fs/promises';
+import * as path from 'node:path';
 import * as esbuild from 'esbuild';
-import * as crypto from 'crypto';
-import * as path from 'path';
 import * as sass from 'sass-embedded';
 
 const DIST = 'dist';
@@ -20,7 +20,11 @@ const cssResult = sass.compile(`${SRC}/main.scss`, {
   loadPaths: [SRC],
 });
 const cssContent = Buffer.from(cssResult.css);
-const cssHash = crypto.createHash('sha256').update(cssContent).digest('hex').slice(0, 8);
+const cssHash = crypto
+  .createHash('sha256')
+  .update(cssContent)
+  .digest('hex')
+  .slice(0, 8);
 const cssFile = `index-${cssHash}.css`;
 await writeFile(`${DIST}/assets/${cssFile}`, cssContent);
 
@@ -33,23 +37,25 @@ await esbuild.build({
   minify: true,
   sourcemap: true,
   loader: { '.ts': 'ts' },
-  plugins: [{
-    name: 'ignore-scss',
-    setup(build) {
-      build.onResolve({ filter: /\.scss$/ }, args => ({
-        path: args.path,
-        namespace: 'scss-ignored',
-      }));
-      build.onLoad({ filter: /.*/, namespace: 'scss-ignored' }, () => ({
-        contents: '',
-        loader: 'js',
-      }));
+  plugins: [
+    {
+      name: 'ignore-scss',
+      setup(build) {
+        build.onResolve({ filter: /\.scss$/ }, (args) => ({
+          path: args.path,
+          namespace: 'scss-ignored',
+        }));
+        build.onLoad({ filter: /.*/, namespace: 'scss-ignored' }, () => ({
+          contents: '',
+          loader: 'js',
+        }));
+      },
     },
-  }],
+  ],
 });
 
 const assets = await readdir(`${DIST}/assets`);
-const jsFile = assets.find(f => f.endsWith('.js'));
+const jsFile = assets.find((f) => f.endsWith('.js'));
 
 execSync(`cp -r ${PUBLIC}/* ${DIST}/`, { stdio: 'inherit' });
 
@@ -70,7 +76,10 @@ const manifest = {
     { src: 'icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
   ],
 };
-await writeFile(`${DIST}/manifest.webmanifest`, JSON.stringify(manifest, null, 2));
+await writeFile(
+  `${DIST}/manifest.webmanifest`,
+  JSON.stringify(manifest, null, 2),
+);
 
 const inlineRegisterSw = `if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js',{scope:'/'})})}`;
 
@@ -95,14 +104,14 @@ const html = `<!doctype html>
 </html>`;
 await writeFile(`${DIST}/index.html`, html);
 
-async function scanDir(dir, prefix) {
+async function scanDir(dir: string, prefix?: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
-  const files = [];
+  const files: string[] = [];
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     const relPath = prefix ? `${prefix}/${entry.name}` : `/${entry.name}`;
     if (entry.isDirectory()) {
-      files.push(...await scanDir(fullPath, relPath));
+      files.push(...(await scanDir(fullPath, relPath)));
     } else if (!entry.name.endsWith('.map')) {
       files.push(relPath);
     }
@@ -111,7 +120,8 @@ async function scanDir(dir, prefix) {
 }
 
 const precacheFiles = await scanDir(DIST);
-const urlsHash = crypto.createHash('sha256')
+const urlsHash = crypto
+  .createHash('sha256')
   .update(precacheFiles.sort().join('|'))
   .digest('hex')
   .slice(0, 8);

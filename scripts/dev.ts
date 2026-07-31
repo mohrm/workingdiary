@@ -1,9 +1,9 @@
-import { execSync } from 'child_process';
-import { watch, existsSync, statSync } from 'fs';
-import { mkdir, readdir, writeFile, readFile } from 'fs/promises';
+import { execSync } from 'node:child_process';
+import { existsSync, statSync, type WatchEventType, watch } from 'node:fs';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import * as http from 'node:http';
+import * as path from 'node:path';
 import * as esbuild from 'esbuild';
-import * as http from 'http';
-import * as path from 'path';
 import * as sass from 'sass-embedded';
 
 const PORT = 5173;
@@ -11,9 +11,9 @@ const DIST = '.dev-dist';
 const SRC = 'src';
 const PUBLIC = 'public';
 
-const clients = [];
+const clients: http.ServerResponse[] = [];
 
-async function build() {
+async function build(): Promise<void> {
   console.log('\nRebuilding...');
   const start = Date.now();
 
@@ -30,7 +30,10 @@ async function build() {
   });
   await writeFile(`${DIST}/assets/index.css`, cssResult.css);
   if (cssResult.sourceMap) {
-    await writeFile(`${DIST}/assets/index.css.map`, JSON.stringify(cssResult.sourceMap));
+    await writeFile(
+      `${DIST}/assets/index.css.map`,
+      JSON.stringify(cssResult.sourceMap),
+    );
   }
 
   await esbuild.build({
@@ -42,19 +45,21 @@ async function build() {
     minify: false,
     sourcemap: true,
     loader: { '.ts': 'ts' },
-    plugins: [{
-      name: 'ignore-scss',
-      setup(build) {
-        build.onResolve({ filter: /\.scss$/ }, args => ({
-          path: args.path,
-          namespace: 'scss-ignored',
-        }));
-        build.onLoad({ filter: /.*/, namespace: 'scss-ignored' }, () => ({
-          contents: '',
-          loader: 'js',
-        }));
+    plugins: [
+      {
+        name: 'ignore-scss',
+        setup(build) {
+          build.onResolve({ filter: /\.scss$/ }, (args) => ({
+            path: args.path,
+            namespace: 'scss-ignored',
+          }));
+          build.onLoad({ filter: /.*/, namespace: 'scss-ignored' }, () => ({
+            contents: '',
+            loader: 'js',
+          }));
+        },
       },
-    }],
+    ],
   });
 
   execSync(`cp -r ${PUBLIC}/* ${DIST}/`, { stdio: 'inherit' });
@@ -76,7 +81,10 @@ async function build() {
       { src: 'icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
   };
-  await writeFile(`${DIST}/manifest.webmanifest`, JSON.stringify(manifest, null, 2));
+  await writeFile(
+    `${DIST}/manifest.webmanifest`,
+    JSON.stringify(manifest, null, 2),
+  );
 
   const registerSw = `if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js',{scope:'/'})})}`;
 
@@ -101,7 +109,14 @@ async function build() {
 </html>`;
   await writeFile(`${DIST}/index.html`, html);
 
-  const precacheFiles = ['/index.html', '/assets/main.js', '/assets/index.css', ...(await scanDirFiles(`${DIST}/icons`, '/icons')), '/favicon.ico', '/manifest.webmanifest'];
+  const precacheFiles = [
+    '/index.html',
+    '/assets/main.js',
+    '/assets/index.css',
+    ...(await scanDirFiles(`${DIST}/icons`, '/icons')),
+    '/favicon.ico',
+    '/manifest.webmanifest',
+  ];
   const sw = `const PRECACHE='workingdiary-dev';const PRECACHE_URLS=${JSON.stringify(precacheFiles)};
 self.addEventListener('install',e=>{e.waitUntil(caches.open(PRECACHE).then(c=>c.addAll(PRECACHE_URLS)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(k=>k!==PRECACHE).map(k=>caches.delete(k)))));self.clientsClaim()});
@@ -109,17 +124,21 @@ self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(
   await writeFile(`${DIST}/sw.js`, `${sw}\n`);
 
   console.log(`Build complete (${Date.now() - start}ms)`);
-  clients.forEach(client => client.write('data: reload\n\n'));
+  clients.forEach((client) => {
+    client.write('data: reload\n\n');
+  });
 }
 
-async function scanDirFiles(dir, prefix) {
-  const files = [];
+async function scanDirFiles(dir: string, prefix?: string): Promise<string[]> {
+  const files: string[] = [];
   try {
     const entries = await readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
       const relPath = prefix ? `${prefix}/${entry.name}` : `/${entry.name}`;
       if (entry.isDirectory()) {
-        files.push(...await scanDirFiles(path.join(dir, entry.name), relPath));
+        files.push(
+          ...(await scanDirFiles(path.join(dir, entry.name), relPath)),
+        );
       } else {
         files.push(relPath);
       }
@@ -128,7 +147,7 @@ async function scanDirFiles(dir, prefix) {
   return files;
 }
 
-const MIME_TYPES = {
+const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html',
   '.js': 'application/javascript',
   '.css': 'text/css',
@@ -139,81 +158,96 @@ const MIME_TYPES = {
   '.map': 'application/json',
 };
 
-const server = http.createServer((req, res) => {
-  if (req.url === '/__reload') {
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
-    });
-    clients.push(res);
-    req.on('close', () => {
-      const idx = clients.indexOf(res);
-      if (idx >= 0) clients.splice(idx, 1);
-    });
-    return;
-  }
-
-  const url = req.url === '/' ? '/index.html' : req.url;
-  if (url.includes('..')) {
-    res.writeHead(403);
-    res.end('Forbidden');
-    return;
-  }
-  const DIST_RESOLVED = path.resolve(DIST) + path.sep;
-  const filePath = path.resolve(DIST + url);
-  if (!filePath.startsWith(DIST_RESOLVED)) {
-    res.writeHead(403);
-    res.end('Forbidden');
-    return;
-  }
-
-  try {
-    if (!existsSync(filePath)) {
-      res.writeHead(404);
-      res.end('Not found');
+const server = http.createServer(
+  (req: http.IncomingMessage, res: http.ServerResponse) => {
+    if (req.url === '/__reload') {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      });
+      clients.push(res);
+      req.on('close', () => {
+        const idx = clients.indexOf(res);
+        if (idx >= 0) clients.splice(idx, 1);
+      });
       return;
     }
-    const content = readFile(filePath);
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-    if (ext === '.html') {
-      content.then(buf => {
-        const htmlContent = buf.toString();
-        const injected = htmlContent.replace('</body>', '<script>new EventSource("/__reload").onmessage=()=>location.reload()</script></body>');
-        res.writeHead(200, { 'Content-Type': contentType });
-        res.end(injected);
-      });
-    } else {
-      content.then(buf => {
-        res.writeHead(200, { 'Content-Type': contentType });
-        res.end(buf);
-      });
+    const reqUrl = req.url;
+    if (!reqUrl) {
+      res.writeHead(400);
+      res.end('Bad Request');
+      return;
     }
-  } catch {
-    res.writeHead(500);
-    res.end('Server error');
-  }
-});
+    const url = reqUrl === '/' ? '/index.html' : reqUrl;
+    if (url.includes('..')) {
+      res.writeHead(403);
+      res.end('Forbidden');
+      return;
+    }
+    const DIST_RESOLVED = path.resolve(DIST) + path.sep;
+    const filePath = path.resolve(DIST + url);
+    if (!filePath.startsWith(DIST_RESOLVED)) {
+      res.writeHead(403);
+      res.end('Forbidden');
+      return;
+    }
+
+    try {
+      if (!existsSync(filePath)) {
+        res.writeHead(404);
+        res.end('Not found');
+        return;
+      }
+      const content = readFile(filePath);
+      const ext = path.extname(filePath).toLowerCase();
+      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+      if (ext === '.html') {
+        content.then((buf) => {
+          const htmlContent = buf.toString();
+          const injected = htmlContent.replace(
+            '</body>',
+            '<script>new EventSource("/__reload").onmessage=()=>location.reload()</script></body>',
+          );
+          res.writeHead(200, { 'Content-Type': contentType });
+          res.end(injected);
+        });
+      } else {
+        content.then((buf) => {
+          res.writeHead(200, { 'Content-Type': contentType });
+          res.end(buf);
+        });
+      }
+    } catch {
+      res.writeHead(500);
+      res.end('Server error');
+    }
+  },
+);
 
 server.listen(PORT, () => {
   console.log(`Dev server: http://localhost:${PORT}/`);
   console.log('Watching src/ for changes...');
 });
 
-const watchedDirs = new Set();
-let buildTimeout;
+const watchedDirs = new Set<string>();
+let buildTimeout: NodeJS.Timeout | undefined;
 
-async function watchDir(dir) {
+async function watchDir(dir: string): Promise<void> {
   if (watchedDirs.has(dir)) return;
   watchedDirs.add(dir);
 
-  const handler = (event, filename) => {
+  const handler = (event: WatchEventType, filename: string | null): void => {
     if (!filename) return;
     const fullPath = path.join(dir, filename);
     try {
-      if (existsSync(fullPath) && statSync(fullPath).isDirectory() && !watchedDirs.has(fullPath)) {
+      if (
+        existsSync(fullPath) &&
+        statSync(fullPath).isDirectory() &&
+        !watchedDirs.has(fullPath)
+      ) {
         watchDir(fullPath);
       }
     } catch {}

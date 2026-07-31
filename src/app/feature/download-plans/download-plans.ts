@@ -1,17 +1,18 @@
-import { persistence } from '../../services/persistence.js';
+import type { Component } from '../../component';
+import { type DayPlan, persistence } from '../../services/persistence';
 
-export function createDownloadPlans() {
+export function createDownloadPlans(): Component {
   const el = document.createElement('div');
   el.className = 'download-plans';
 
   function render() {
-    const plans = persistence.loadPlans();
+    const plans: Record<string, DayPlan> = persistence.loadPlans();
     const stringifiedPlans = JSON.stringify(plans);
     const blob = new Blob([stringifiedPlans], { type: 'application/json' });
     const blobUrl = URL.createObjectURL(blob);
 
     const now = new Date();
-    const pad = (num) => num.toString().padStart(2, '0');
+    const pad = (num: number): string => num.toString().padStart(2, '0');
     const timestamp =
       now.getFullYear() +
       '-' +

@@ -1,10 +1,18 @@
-import { Section } from '../../../model/Section.js';
-import { Time } from '../../../model/Time.js';
-import { persistence } from '../../../services/persistence.js';
-import { bindActions } from '../../../util/bind-actions.js';
-import { icon } from '../../icons.js';
+import type { Component } from '../../../component';
+import { Section } from '../../../model/Section';
+import { Time } from '../../../model/Time';
+import { persistence } from '../../../services/persistence';
+import { bindActions } from '../../../util/bind-actions';
+import { icon } from '../../icons';
 
-export function createStempeluhr(day, onStempelEreignis) {
+export interface StempeluhrComponent extends Component {
+  update: (day: string) => void;
+}
+
+export function createStempeluhr(
+  day: string,
+  onStempelEreignis?: (section: Section) => void,
+): StempeluhrComponent {
   const el = document.createElement('div');
   el.className = 'stempeluhr-host';
 
@@ -13,7 +21,7 @@ export function createStempeluhr(day, onStempelEreignis) {
   let hour = startTime?.hour ?? 0;
   let minute = startTime?.minute ?? 0;
 
-  function renderStempelValue() {
+  function renderStempelValue(): string {
     if (!startTime) {
       return '<i>noch nicht eingestempelt</i>';
     }
@@ -52,16 +60,16 @@ export function createStempeluhr(day, onStempelEreignis) {
 
   function bindEvents() {
     if (isEdit) {
-      const hourInput = el.querySelector('[data-hour]');
-      const minuteInput = el.querySelector('[data-minute]');
+      const hourInput = el.querySelector<HTMLInputElement>('[data-hour]');
+      const minuteInput = el.querySelector<HTMLInputElement>('[data-minute]');
       if (hourInput) {
         hourInput.addEventListener('input', (e) => {
-          hour = parseInt(e.target.value, 10) || 0;
+          hour = parseInt((e.target as HTMLInputElement).value, 10) || 0;
         });
       }
       if (minuteInput) {
         minuteInput.addEventListener('input', (e) => {
-          minute = parseInt(e.target.value, 10) || 0;
+          minute = parseInt((e.target as HTMLInputElement).value, 10) || 0;
         });
       }
       bindActions(el, {
@@ -107,7 +115,7 @@ export function createStempeluhr(day, onStempelEreignis) {
     );
   }
 
-  function update(newDay) {
+  function update(newDay: string): void {
     day = newDay;
     startTime = persistence.loadStartTime(day);
     isEdit = false;

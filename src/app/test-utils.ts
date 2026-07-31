@@ -9,7 +9,8 @@ class FakeElement {
   private _innerHTML: string = '';
   private _textContent: string = '';
   private _attrs: Map<string, string> = new Map();
-  private _listeners: Map<string, Set<(...args: unknown[]) => void>> = new Map();
+  private _listeners: Map<string, Set<(...args: unknown[]) => void>> =
+    new Map();
   private _value: string = '';
 
   constructor(tag: string) {
@@ -33,11 +34,15 @@ class FakeElement {
 
   get textContent(): string {
     if (this.children.length === 0) return this._textContent;
-    return this.children.map(c => c.textContent).join('');
+    return this.children.map((c) => c.textContent).join('');
   }
 
-  set value(val: string) { this._value = val; }
-  get value(): string { return this._value; }
+  set value(val: string) {
+    this._value = val;
+  }
+  get value(): string {
+    return this._value;
+  }
 
   get dataset(): Record<string, string> {
     const self = this;
@@ -68,7 +73,7 @@ class FakeElement {
 
   remove(): void {
     if (this.parent) {
-      this.parent.children = this.parent.children.filter(c => c !== this);
+      this.parent.children = this.parent.children.filter((c) => c !== this);
     }
   }
 
@@ -77,7 +82,10 @@ class FakeElement {
     this._listeners.get(event)!.add(handler);
   }
 
-  removeEventListener(event: string, handler: (...args: unknown[]) => void): void {
+  removeEventListener(
+    event: string,
+    handler: (...args: unknown[]) => void,
+  ): void {
     this._listeners.get(event)?.delete(handler);
   }
 
@@ -182,7 +190,10 @@ class FakeElement {
         }
       } else if (match[3]) {
         const closeTag = match[3].toLowerCase();
-        if (stack.length > 0 && stack[stack.length - 1].tagName === closeTag.toUpperCase()) {
+        if (
+          stack.length > 0 &&
+          stack[stack.length - 1].tagName === closeTag.toUpperCase()
+        ) {
           stack.pop();
         }
       }
