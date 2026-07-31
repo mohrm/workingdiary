@@ -54,6 +54,9 @@ Lines ≥100% | Branches ≥99.02% | Functions ≥100%. Never lower thresholds �
 - ⚠️ **Ask first:** New dependencies, build/pipeline changes, PWA/SW changes
 - 🚫 **Never:** Commit secrets, edit `node_modules/`, commit `dist/`
 
+## Pre-existing Issues Found During Work
+If verification (lint, typecheck, tests, build) surfaces a problem that already existed before the current change — confirmed by checking it also fails on the base branch — do not fix it as a drive-by. File a GitHub issue describing it (what fails, where, how it was confirmed pre-existing) and reference it from the PR instead.
+
 ## PWA
 Service Worker generated in `scripts/build.ts` → `dist/sw.js`. Precache with CSS content-hash. `registerSW` inline in HTML head.
 
