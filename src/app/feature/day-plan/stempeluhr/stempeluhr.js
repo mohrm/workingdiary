@@ -1,6 +1,7 @@
 import { Section } from '../../../model/Section.js';
 import { Time } from '../../../model/Time.js';
 import { persistence } from '../../../services/persistence.js';
+import { bindActions } from '../../../util/bind-actions.js';
 import { icon } from '../../icons.js';
 
 export function createStempeluhr(day, onStempelEreignis) {
@@ -12,29 +13,31 @@ export function createStempeluhr(day, onStempelEreignis) {
   let hour = startTime?.hour ?? 0;
   let minute = startTime?.minute ?? 0;
 
+  function renderStempelValue() {
+    if (!startTime) {
+      return '<i>noch nicht eingestempelt</i>';
+    }
+    if (isEdit) {
+      return `<span class="stempeluhr__time-inputs">
+                 <input type="number" min="0" max="23" value="${hour}" data-hour />
+                 :
+                 <input type="number" min="0" max="59" value="${minute}" data-minute />
+                 <span data-action="finish">${icon('check')}</span>
+                 <span data-action="abort">${icon('close')}</span>
+               </span>`;
+    }
+    return `<span class="stempeluhr__time-display" data-testid="login-time">
+               ${startTime.formattedString()}
+               <span data-action="edit">${icon('edit')}</span>
+             </span>`;
+  }
+
   function render() {
     el.innerHTML = `
       <div class="stempeluhr">
         <div class="stempeluhr__row">
           <span class="stempeluhr__label">Eingestempelt um:</span>
-          <div class="stempeluhr__value">
-            ${
-              !startTime
-                ? '<i>noch nicht eingestempelt</i>'
-                : isEdit
-                  ? `<span class="stempeluhr__time-inputs">
-                     <input type="number" min="0" max="23" value="${hour}" data-hour />
-                     :
-                     <input type="number" min="0" max="59" value="${minute}" data-minute />
-                     <span data-action="finish">${icon('check')}</span>
-                     <span data-action="abort">${icon('close')}</span>
-                   </span>`
-                  : `<span class="stempeluhr__time-display" data-testid="login-time">
-                     ${startTime.formattedString()}
-                     <span data-action="edit">${icon('edit')}</span>
-                   </span>`
-            }
-          </div>
+          <div class="stempeluhr__value">${renderStempelValue()}</div>
         </div>
         <div class="stempeluhr__actions">
           <span class="stempeluhr__label-placeholder" aria-hidden="true"></span>
@@ -61,34 +64,29 @@ export function createStempeluhr(day, onStempelEreignis) {
           minute = parseInt(e.target.value, 10) || 0;
         });
       }
-      el.querySelector('[data-action="finish"]')?.addEventListener(
-        'click',
-        () => {
+      bindActions(el, {
+        finish: () => {
           startTime = new Time(hour, minute);
           isEdit = false;
           persistence.saveStartTime(day, startTime);
           render();
         },
-      );
-      el.querySelector('[data-action="abort"]')?.addEventListener(
-        'click',
-        () => {
+        abort: () => {
           isEdit = false;
           hour = startTime?.hour ?? 0;
           minute = startTime?.minute ?? 0;
           render();
         },
-      );
+      });
     } else {
-      el.querySelector('[data-action="edit"]')?.addEventListener(
-        'click',
-        () => {
+      bindActions(el, {
+        edit: () => {
           hour = startTime?.hour ?? 0;
           minute = startTime?.minute ?? 0;
           isEdit = true;
           render();
         },
-      );
+      });
     }
 
     el.querySelector('[data-testid="log-button"]')?.addEventListener(

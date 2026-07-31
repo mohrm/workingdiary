@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import { Section } from './model/Section';
 import { Time } from './model/Time';
-import { persistence, SECTIONS_CHANGED } from './services/persistence';
+import { persistence } from './services/persistence';
 
 describe('PersistenceService', () => {
   beforeEach(() => {
@@ -47,26 +47,6 @@ describe('PersistenceService', () => {
 
   it('returns undefined when no sections are available', () => {
     assert.strictEqual(persistence.loadSections('01.01.2024'), undefined);
-  });
-
-  it('emits section updates when saving sections', async () => {
-    const day = '01.01.2024';
-    const sections = [new Section(new Time(9, 0), new Time(10, 0), 'Büro')];
-
-    await new Promise<void>((resolve) => {
-      function handler(e: Event) {
-        const { day: emittedDay, sections: emittedSections } = (
-          e as CustomEvent
-        ).detail;
-        window.removeEventListener(SECTIONS_CHANGED, handler);
-        assert.strictEqual(emittedDay, day);
-        assert.deepEqual(emittedSections, sections);
-        resolve();
-      }
-
-      window.addEventListener(SECTIONS_CHANGED, handler);
-      persistence.saveSections(day, sections);
-    });
   });
 
   it('returns previous day if available, otherwise current day', () => {

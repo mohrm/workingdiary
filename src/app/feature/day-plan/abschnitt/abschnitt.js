@@ -1,5 +1,7 @@
+import { LOCATIONS } from '../../../model/locations.js';
 import { Section } from '../../../model/Section.js';
 import { Time } from '../../../model/Time.js';
+import { bindActions } from '../../../util/bind-actions.js';
 import { icon } from '../../icons.js';
 
 export function createAbschnitt(
@@ -15,7 +17,7 @@ export function createAbschnitt(
   let startMinute = section?.startTime?.minute ?? 0;
   let endHour = section?.endTime?.hour ?? 0;
   let endMinute = section?.endTime?.minute ?? 0;
-  let location = section?.location ?? 'nicht zugeordnet';
+  let location = section?.location ?? LOCATIONS.UNASSIGNED;
 
   function render() {
     if (isEdit) {
@@ -30,9 +32,9 @@ export function createAbschnitt(
           </div>
           <div class="actions">
             <select data-location>
-              <option value="nicht zugeordnet" ${location === 'nicht zugeordnet' ? 'selected' : ''}>nicht zugeordnet</option>
-              <option value="Büro" ${location === 'Büro' ? 'selected' : ''}>Büro</option>
-              <option value="mobil" ${location === 'mobil' ? 'selected' : ''}>mobil</option>
+              <option value="${LOCATIONS.UNASSIGNED}" ${location === LOCATIONS.UNASSIGNED ? 'selected' : ''}>${LOCATIONS.UNASSIGNED}</option>
+              <option value="${LOCATIONS.OFFICE}" ${location === LOCATIONS.OFFICE ? 'selected' : ''}>${LOCATIONS.OFFICE}</option>
+              <option value="${LOCATIONS.MOBILE}" ${location === LOCATIONS.MOBILE ? 'selected' : ''}>${LOCATIONS.MOBILE}</option>
             </select>
             <div class="icon-actions">
               <span data-action="finish">${icon('check')}</span>
@@ -68,34 +70,29 @@ export function createAbschnitt(
       el.querySelector('[data-location]')?.addEventListener('change', (e) => {
         location = e.target.value;
       });
-      el.querySelector('[data-action="finish"]')?.addEventListener(
-        'click',
-        () => {
+      bindActions(el, {
+        finish: () => {
           const newStart = new Time(startHour, startMinute);
           const newEnd = new Time(endHour, endMinute);
           const newSection = new Section(newStart, newEnd, location);
           if (onSectionChange) onSectionChange(newSection);
           if (onIsEditChange) onIsEditChange(false);
         },
-      );
-      el.querySelector('[data-action="abort"]')?.addEventListener(
-        'click',
-        () => {
+        abort: () => {
           if (onIsEditChange) onIsEditChange(false);
         },
-      );
+      });
     } else {
-      el.querySelector('[data-action="edit"]')?.addEventListener(
-        'click',
-        () => {
+      bindActions(el, {
+        edit: () => {
           startHour = section?.startTime?.hour ?? 0;
           startMinute = section?.startTime?.minute ?? 0;
           endHour = section?.endTime?.hour ?? 0;
           endMinute = section?.endTime?.minute ?? 0;
-          location = section?.location ?? 'nicht zugeordnet';
+          location = section?.location ?? LOCATIONS.UNASSIGNED;
           if (onIsEditChange) onIsEditChange(true);
         },
-      );
+      });
     }
   }
 

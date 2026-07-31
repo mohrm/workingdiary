@@ -1,8 +1,6 @@
+import { LOCATIONS } from '../../../model/locations.js';
 import { Time } from '../../../model/Time.js';
-import {
-  persistence,
-  SECTIONS_CHANGED,
-} from '../../../services/persistence.js';
+import { persistence } from '../../../services/persistence.js';
 
 export function createAbschnittSumme(day) {
   const el = document.createElement('div');
@@ -26,8 +24,8 @@ export function createAbschnittSumme(day) {
   function computeDurations() {
     return {
       gesamtdauer: toTime(sumMinutes()),
-      bueroDauer: toTime(sumMinutes('Büro')),
-      mobilDauer: toTime(sumMinutes('mobil')),
+      bueroDauer: toTime(sumMinutes(LOCATIONS.OFFICE)),
+      mobilDauer: toTime(sumMinutes(LOCATIONS.MOBILE)),
     };
   }
 
@@ -68,28 +66,12 @@ export function createAbschnittSumme(day) {
       </table>`;
   }
 
-  function handleSectionsChanged(e) {
-    const { day: changedDay, sections } = e.detail;
-    if (changedDay === day) {
-      abschnitte = sections ?? [];
-      render();
-    }
-  }
-
   function update(newDay) {
     day = newDay;
     abschnitte = persistence.loadSections(day) ?? [];
     render();
   }
 
-  window.addEventListener(SECTIONS_CHANGED, handleSectionsChanged);
-
   render();
-  return {
-    element: el,
-    update,
-    destroy: () => {
-      window.removeEventListener(SECTIONS_CHANGED, handleSectionsChanged);
-    },
-  };
+  return { element: el, update };
 }
