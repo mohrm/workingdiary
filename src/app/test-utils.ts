@@ -48,7 +48,8 @@ class FakeElement {
     const self = this;
     return new Proxy({} as Record<string, string>, {
       get(_, key: string) {
-        const attrName = 'data-' + key.replace(/_/g, '-').toLowerCase();
+        const attrName =
+          'data-' + key.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
         return self._attrs.get(attrName) ?? '';
       },
     });
@@ -87,6 +88,14 @@ class FakeElement {
     handler: (...args: unknown[]) => void,
   ): void {
     this._listeners.get(event)?.delete(handler);
+  }
+
+  dispatchEvent(event: { type: string; target?: unknown }): boolean {
+    event.target ??= this;
+    for (const handler of this._listeners.get(event.type) ?? []) {
+      handler(event);
+    }
+    return true;
   }
 
   querySelector(selector: string): FakeElement | null {
@@ -140,12 +149,16 @@ class FakeElement {
   querySelectorAll(selector: string): FakeElement[] {
     const results: FakeElement[] = [];
     const attrMatch = selector.match(/^\[([\w-]+)=["']([^"']*)["']\]$/);
-    if (attrMatch) {
-      const [, attr, value] = attrMatch;
-      for (const child of this.children) {
+    const presenceMatch = selector.match(/^\[([\w-]+)\]$/);
+    for (const child of this.children) {
+      if (attrMatch) {
+        const [, attr, value] = attrMatch;
         if (child.getAttribute(attr) === value) results.push(child);
-        results.push(...child.querySelectorAll(selector));
+      } else if (presenceMatch) {
+        const [, attr] = presenceMatch;
+        if (child.hasAttribute(attr)) results.push(child);
       }
+      results.push(...child.querySelectorAll(selector));
     }
     return results;
   }
