@@ -47,6 +47,8 @@ jobs:
         run: ./scripts/ci-install-and-build.sh
       - name: typecheck
         run: npm run typecheck
+      - name: lint
+        run: npm run lint
       - name: run jest tests
         run: |
           npm test -- --ci

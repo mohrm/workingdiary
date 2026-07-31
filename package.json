@@ -8,7 +8,7 @@
     "dev": "node --import tsx scripts/dev.ts",
     "build": "node --import tsx scripts/build.ts",
     "preview": "node --import tsx scripts/preview.ts",
-    "prebuild": "node scripts/update-version.cjs",
+    "prebuild": "npm run lint && node scripts/update-version.cjs",
     "pretest": "node scripts/update-version.cjs",
     "test": "sh scripts/run-tests.sh $(find src -name '*.spec.ts')",
     "test:watch": "node --import tsx --import ./test-setup.ts --experimental-test-coverage --watch --test $(find src -name '*.spec.ts')",
