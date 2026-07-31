@@ -2,7 +2,7 @@ import { persistence } from '../../../services/persistence.js';
 import { icon } from '../../icons.js';
 import { createAbschnitt } from '../abschnitt/abschnitt.js';
 
-export function createAbschnittListe(day, stempelCallback, onAbschnitteChange) {
+export function createAbschnittListe(day, onAbschnitteChange) {
   const el = document.createElement('div');
   el.className = 'abschnitt-liste-host';
 
@@ -15,14 +15,10 @@ export function createAbschnittListe(day, stempelCallback, onAbschnitteChange) {
     onAbschnitteChange?.(abschnitte);
   }
 
-  function handleStempelEvent(section) {
+  function addAbschnitt(section) {
     abschnitte = [...abschnitte, section];
     persistAbschnitte();
     render();
-  }
-
-  if (stempelCallback) {
-    stempelCallback(handleStempelEvent);
   }
 
   function entferneAbschnitt(index) {
@@ -96,5 +92,5 @@ export function createAbschnittListe(day, stempelCallback, onAbschnitteChange) {
   }
 
   render();
-  return { element: el, update };
+  return { element: el, update, addAbschnitt };
 }

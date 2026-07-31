@@ -5,7 +5,6 @@ export function createDayPlan(day, onAbschnitteChange) {
   const el = document.createElement('section');
   el.className = 'day-plan';
 
-  let stempelEreignisCallback;
   let stempeluhr;
   let abschnittListe;
 
@@ -20,19 +19,9 @@ export function createDayPlan(day, onAbschnitteChange) {
     el.querySelector('[data-testid="dayplan-title"]').textContent =
       `Tagesplan für den ${day}`;
 
-    stempeluhr = createStempeluhr(day, (section) => {
-      if (stempelEreignisCallback) {
-        stempelEreignisCallback(section);
-      }
-    });
-
-    stempelEreignisCallback = null;
-    abschnittListe = createAbschnittListe(
-      day,
-      (handleStempel) => {
-        stempelEreignisCallback = handleStempel;
-      },
-      onAbschnitteChange,
+    abschnittListe = createAbschnittListe(day, onAbschnitteChange);
+    stempeluhr = createStempeluhr(day, (section) =>
+      abschnittListe.addAbschnitt(section),
     );
 
     el.querySelector('[data-stempeluhr]').appendChild(stempeluhr.element);
