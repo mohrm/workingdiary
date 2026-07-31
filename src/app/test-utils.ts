@@ -157,18 +157,19 @@ class FakeElement {
     const stack: FakeElement[] = [];
     let lastIndex = 0;
 
-    let match: RegExpExecArray | null;
-    while ((match = tagRegex.exec(html)) !== null) {
+    let match: RegExpExecArray | null = tagRegex.exec(html);
+    while (match !== null) {
       if (match[1]) {
         const tagName = match[1].toLowerCase();
         const attrsStr = match[2];
         const attrs: Array<[string, string]> = [];
-        let attrMatch: RegExpExecArray | null;
         const attrRe = /(\w[\w-]*)(?:=["']([^"']*)["'])?/g;
-        while ((attrMatch = attrRe.exec(attrsStr)) !== null) {
+        let attrMatch: RegExpExecArray | null = attrRe.exec(attrsStr);
+        while (attrMatch !== null) {
           if (attrMatch[1] !== undefined) {
             attrs.push([attrMatch[1], attrMatch[2] ?? '']);
           }
+          attrMatch = attrRe.exec(attrsStr);
         }
 
         const isVoid = /^(br|hr|img|input|link|meta|path)$/i.test(tagName);
@@ -198,6 +199,7 @@ class FakeElement {
         }
       }
       lastIndex = match.index + match[0].length;
+      match = tagRegex.exec(html);
     }
 
     return elements;
