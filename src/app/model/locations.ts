@@ -6,3 +6,5 @@ export const LOCATIONS = {
   OFFICE: 'Büro',
   MOBILE: 'mobil',
 } as const;
+
+export type Location = (typeof LOCATIONS)[keyof typeof LOCATIONS];

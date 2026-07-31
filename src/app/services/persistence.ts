@@ -1,7 +1,7 @@
 import { Section, type SectionJson } from '../model/Section';
 import { Time, type TimeJson } from '../model/Time';
 
-interface DayPlan {
+export interface DayPlan {
   startTime?: TimeJson;
   sections?: SectionJson[];
 }

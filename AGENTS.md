@@ -13,12 +13,13 @@ npm run build    # esbuild + sass-embedded + custom build
 npm run preview  # static server for dist/
 npm test         # node:test via tsx, auto-coverage, threshold check
 npm run e2e      # Playwright-BDD
+npm run typecheck # tsc --noEmit
 npm run lint     # biome check
 npm run format   # biome check --write
 ```
 
 ## Code Style
-- Components: `.js` factory functions → `{ element, update, destroy? }`
+- Components: `.ts` factory functions → `{ element, update, destroy? }`
 - Models/Services: `.ts` files
 - Styles: `.scss` per component, imported in `main.ts`
 - Tests: `node:test` + `node:assert/strict` (not Jest)
@@ -29,7 +30,7 @@ npm run format   # biome check --write
 function getUserData() {}          // camelCase
 class PersistenceService {}       // PascalCase
 const MAX_RETRIES = 3;            // UPPER_SNAKE_CASE
-// Files: abschnitt-summe.js, persistence.service.ts
+// Files: abschnitt-summe.ts, persistence.ts
 ```
 
 **Test example:**
@@ -44,7 +45,7 @@ it('should calculate total', () => {
 ```
 
 ## Coverage
-Lines ≥100% | Branches ≥99.02% | Functions ≥100%. Never lower thresholds – add tests instead. Verified via `scripts/check-coverage.mjs`.
+Lines ≥100% | Branches ≥99.02% | Functions ≥100%. Never lower thresholds – add tests instead. Verified via `scripts/check-coverage.ts`.
 
 **Note:** Coverage thresholds may vary slightly between runs due to branch coverage rounding. Always check actual measured values before committing threshold changes.
 
@@ -54,7 +55,7 @@ Lines ≥100% | Branches ≥99.02% | Functions ≥100%. Never lower thresholds �
 - 🚫 **Never:** Commit secrets, edit `node_modules/`, commit `dist/`
 
 ## PWA
-Service Worker generated in `scripts/build.mjs` → `dist/sw.js`. Precache with CSS content-hash. `registerSW` inline in HTML head.
+Service Worker generated in `scripts/build.ts` → `dist/sw.js`. Precache with CSS content-hash. `registerSW` inline in HTML head.
 
 ## Reality Alignment
 Verify referenced facts match actual project files. Update AGENTS.md if drift detected.

@@ -1,15 +1,20 @@
-import { LOCATIONS } from '../../../model/locations.js';
-import { Section } from '../../../model/Section.js';
-import { Time } from '../../../model/Time.js';
-import { bindActions } from '../../../util/bind-actions.js';
-import { icon } from '../../icons.js';
+import type { Component } from '../../../component';
+import { LOCATIONS, type Location } from '../../../model/locations';
+import { Section } from '../../../model/Section';
+import { Time } from '../../../model/Time';
+import { bindActions } from '../../../util/bind-actions';
+import { icon } from '../../icons';
+
+export interface AbschnittComponent extends Component {
+  update: (section: Section | undefined, isEdit: boolean) => void;
+}
 
 export function createAbschnitt(
-  section,
-  onSectionChange,
-  isEdit,
-  onIsEditChange,
-) {
+  section: Section | undefined,
+  onSectionChange: ((section: Section) => void) | undefined,
+  isEdit: boolean,
+  onIsEditChange: ((isEdit: boolean) => void) | undefined,
+): AbschnittComponent {
   const el = document.createElement('div');
   el.className = 'abschnitt-host';
 
@@ -17,7 +22,7 @@ export function createAbschnitt(
   let startMinute = section?.startTime?.minute ?? 0;
   let endHour = section?.endTime?.hour ?? 0;
   let endMinute = section?.endTime?.minute ?? 0;
-  let location = section?.location ?? LOCATIONS.UNASSIGNED;
+  let location: Location = section?.location ?? LOCATIONS.UNASSIGNED;
 
   function render() {
     if (isEdit) {
@@ -52,24 +57,35 @@ export function createAbschnitt(
 
   function bindEvents() {
     if (isEdit) {
-      el.querySelector('[data-start-hour]')?.addEventListener('input', (e) => {
-        startHour = parseInt(e.target.value, 10) || 0;
-      });
-      el.querySelector('[data-start-minute]')?.addEventListener(
+      el.querySelector<HTMLInputElement>('[data-start-hour]')?.addEventListener(
         'input',
         (e) => {
-          startMinute = parseInt(e.target.value, 10) || 0;
+          startHour = parseInt((e.target as HTMLInputElement).value, 10) || 0;
         },
       );
-      el.querySelector('[data-end-hour]')?.addEventListener('input', (e) => {
-        endHour = parseInt(e.target.value, 10) || 0;
+      el.querySelector<HTMLInputElement>(
+        '[data-start-minute]',
+      )?.addEventListener('input', (e) => {
+        startMinute = parseInt((e.target as HTMLInputElement).value, 10) || 0;
       });
-      el.querySelector('[data-end-minute]')?.addEventListener('input', (e) => {
-        endMinute = parseInt(e.target.value, 10) || 0;
-      });
-      el.querySelector('[data-location]')?.addEventListener('change', (e) => {
-        location = e.target.value;
-      });
+      el.querySelector<HTMLInputElement>('[data-end-hour]')?.addEventListener(
+        'input',
+        (e) => {
+          endHour = parseInt((e.target as HTMLInputElement).value, 10) || 0;
+        },
+      );
+      el.querySelector<HTMLInputElement>('[data-end-minute]')?.addEventListener(
+        'input',
+        (e) => {
+          endMinute = parseInt((e.target as HTMLInputElement).value, 10) || 0;
+        },
+      );
+      el.querySelector<HTMLSelectElement>('[data-location]')?.addEventListener(
+        'change',
+        (e) => {
+          location = (e.target as HTMLSelectElement).value as Location;
+        },
+      );
       bindActions(el, {
         finish: () => {
           const newStart = new Time(startHour, startMinute);
@@ -96,7 +112,7 @@ export function createAbschnitt(
     }
   }
 
-  function update(newSection, newIsEdit) {
+  function update(newSection: Section | undefined, newIsEdit: boolean): void {
     section = newSection;
     isEdit = newIsEdit;
     render();

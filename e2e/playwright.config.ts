@@ -1,12 +1,7 @@
+import type { PlaywrightTestConfig } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
 
-/**
- * Playwright configuration file, see link for more information:
- * https://playwright.dev/docs/test-configuration
- *
- * @type {import('@playwright/test').PlaywrightTestConfig}
- */
-export default {
+const config: PlaywrightTestConfig = {
   webServer: {
     command: 'npm run dev',
     port: 5173,
@@ -25,7 +20,7 @@ export default {
   testDir: defineBddConfig({
     paths: ['./features'],
     require: ['./steps/*.ts'],
-    outputDir: '../build/cucumber'
+    outputDir: '../build/cucumber',
   }),
   reporter: [
     [
@@ -37,3 +32,5 @@ export default {
     ],
   ],
 };
+
+export default config;

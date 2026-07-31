@@ -45,6 +45,8 @@ jobs:
 
       - name: npm install and npm run CI commands
         run: ./scripts/ci-install-and-build.sh
+      - name: typecheck
+        run: npm run typecheck
       - name: run jest tests
         run: |
           npm test -- --ci
@@ -56,7 +58,7 @@ jobs:
           fi
       - name: prepare e2e tests
         run: |
-          npx bddgen -c e2e/playwright.config.js
+          npx bddgen -c e2e/playwright.config.ts
       - name: execute e2e tests
         run: |
           npm run e2e:ci
