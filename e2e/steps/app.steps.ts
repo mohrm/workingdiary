@@ -87,6 +87,22 @@ When(
   },
 );
 
+When('I delete section {string}', async ({ page }, sectionIndex: string) => {
+  const section = page.getByTestId(`section-${sectionIndex}`);
+  await section.waitFor();
+  const deleteIcon = section.locator('[data-action="delete"]').first();
+  await deleteIcon.click();
+});
+
+Then(
+  'section {string} is not being edited',
+  async ({ page }, sectionIndex: string) => {
+    const section = page.getByTestId(`section-${sectionIndex}`);
+    await section.waitFor();
+    await expect(section.locator('.abschnitt-edit')).toHaveCount(0);
+  },
+);
+
 Then('the section editor inputs are fully visible', async ({ page }) => {
   const editor = page.locator('.abschnitt-edit');
   await editor.waitFor();

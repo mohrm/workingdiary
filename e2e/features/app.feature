@@ -35,3 +35,14 @@ Feature: Day plan page
     And I log out
     And I open the editor for section "0"
     Then the section editor inputs are fully visible
+
+  Scenario: Deleting an edited section does not leave the next new section in edit mode
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And I log out
+    And I open the editor for section "0"
+    And I delete section "0"
+    And I log in
+    And I log out
+    Then section "0" is not being edited
