@@ -25,6 +25,9 @@
       },
       "performance": {
         "noNamespaceImport": "error"
+      },
+      "correctness": {
+        "noUndeclaredVariables": "error"
       }
     }
   },
