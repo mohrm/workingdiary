@@ -11,7 +11,7 @@ esbuild 0.28.x, TypeScript 7.0.x, Sass, Node test runner (node:test + node:asser
 npm run dev      # esbuild + Node server, port 5173, live-reload
 npm run build    # esbuild + sass-embedded + custom build
 npm run preview  # static server for dist/
-npm test         # node:test via tsx, auto-coverage, threshold check
+npm test         # node:test via tsx, auto-coverage, threshold check (needs `npm run build` first, see below)
 npm run e2e      # Playwright-BDD
 npm run typecheck # tsc --noEmit
 npm run lint     # biome check
@@ -43,6 +43,9 @@ it('should calculate total', () => {
   assert.strictEqual(result, 6);
 });
 ```
+
+## Before Running Tests
+`src/app/sw.spec.ts` reads `dist/sw.js`, which only exists after `npm run build` — it is **not** created by `pretest`. Run `npm run build` once before `npm test` in any fresh checkout/session, otherwise those 8 Service Worker tests fail with a misleading "pre-existing failure" look (their own assertion messages say "run npm run build first" — believe them, don't wave the failures off as unrelated).
 
 ## Coverage
 Lines ≥100% | Branches ≥99.02% | Functions ≥100%. Never lower thresholds – add tests instead. Verified via `scripts/check-coverage.ts`.
