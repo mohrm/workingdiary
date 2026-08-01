@@ -1,8 +1,8 @@
-import * as crypto from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { cp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
-import * as path from 'node:path';
-import * as esbuild from 'esbuild';
-import * as sass from 'sass-embedded';
+import { join } from 'node:path';
+import { build as esbuildBuild } from 'esbuild';
+import { compile as sassCompile } from 'sass-embedded';
 import { updateVersion } from './update-version.mjs';
 
 const SRC = 'src';
@@ -64,7 +64,7 @@ async function scanDir(dir: string, prefix?: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
   const files: string[] = [];
   for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
+    const fullPath = join(dir, entry.name);
     const relPath = prefix ? `${prefix}/${entry.name}` : `/${entry.name}`;
     if (entry.isDirectory()) {
       files.push(...(await scanDir(fullPath, relPath)));
@@ -94,7 +94,7 @@ export async function build({
   await rm(outDir, { recursive: true, force: true });
   await mkdir(`${outDir}/assets`, { recursive: true });
 
-  const cssResult = sass.compile(
+  const cssResult = sassCompile(
     `${SRC}/main.scss`,
     dev
       ? {
@@ -118,8 +118,7 @@ export async function build({
     }
   } else {
     const cssContent = Buffer.from(cssResult.css);
-    const cssHash = crypto
-      .createHash('sha256')
+    const cssHash = createHash('sha256')
       .update(cssContent)
       .digest('hex')
       .slice(0, 8);
@@ -127,7 +126,7 @@ export async function build({
     await writeFile(`${outDir}/assets/${cssFile}`, cssContent);
   }
 
-  await esbuild.build({
+  await esbuildBuild({
     entryPoints: ['src/main.ts'],
     outdir: `${outDir}/assets`,
     entryNames: dev ? '[name]' : '[name]-[hash]',
@@ -172,8 +171,7 @@ export async function build({
   const precacheFiles = await scanDir(outDir);
   const cacheKey = dev
     ? 'workingdiary-dev'
-    : `workingdiary-v${crypto
-        .createHash('sha256')
+    : `workingdiary-v${createHash('sha256')
         .update(precacheFiles.sort().join('|'))
         .digest('hex')
         .slice(0, 8)}`;
