@@ -8,7 +8,8 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["node"]
+    "types": ["node"],
+    "allowJs": true
   },
   "include": ["src/**/*.ts", "e2e/**/*.ts", "scripts/**/*.ts"],
   "exclude": ["node_modules", "dist"]
