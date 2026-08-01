@@ -1,65 +1,14 @@
-import { execSync } from 'node:child_process';
 import * as crypto from 'node:crypto';
-import { mkdir, readdir, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import * as esbuild from 'esbuild';
 import * as sass from 'sass-embedded';
+import { updateVersion } from './update-version.mjs';
 
-const DIST = 'dist';
 const SRC = 'src';
 const PUBLIC = 'public';
 
-execSync('node scripts/update-version.mjs', { stdio: 'inherit' });
-
-execSync(`rm -rf ${DIST}`, { stdio: 'inherit' });
-await mkdir(`${DIST}/assets`, { recursive: true });
-
-const cssResult = sass.compile(`${SRC}/main.scss`, {
-  style: 'compressed',
-  sourceMap: false,
-  loadPaths: [SRC],
-});
-const cssContent = Buffer.from(cssResult.css);
-const cssHash = crypto
-  .createHash('sha256')
-  .update(cssContent)
-  .digest('hex')
-  .slice(0, 8);
-const cssFile = `index-${cssHash}.css`;
-await writeFile(`${DIST}/assets/${cssFile}`, cssContent);
-
-await esbuild.build({
-  entryPoints: ['src/main.ts'],
-  outdir: 'dist/assets',
-  entryNames: '[name]-[hash]',
-  format: 'esm',
-  bundle: true,
-  minify: true,
-  sourcemap: true,
-  loader: { '.ts': 'ts' },
-  plugins: [
-    {
-      name: 'ignore-scss',
-      setup(build) {
-        build.onResolve({ filter: /\.scss$/ }, (args) => ({
-          path: args.path,
-          namespace: 'scss-ignored',
-        }));
-        build.onLoad({ filter: /.*/, namespace: 'scss-ignored' }, () => ({
-          contents: '',
-          loader: 'js',
-        }));
-      },
-    },
-  ],
-});
-
-const assets = await readdir(`${DIST}/assets`);
-const jsFile = assets.find((f) => f.endsWith('.js'));
-
-execSync(`cp -r ${PUBLIC}/* ${DIST}/`, { stdio: 'inherit' });
-
-const manifest = {
+const MANIFEST = {
   name: 'Workingdiary',
   short_name: 'Workingdiary',
   description: 'Time tracking application',
@@ -76,14 +25,11 @@ const manifest = {
     { src: 'icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
   ],
 };
-await writeFile(
-  `${DIST}/manifest.webmanifest`,
-  JSON.stringify(manifest, null, 2),
-);
 
-const inlineRegisterSw = `if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js',{scope:'/'})})}`;
+const registerSw = `if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js',{scope:'/'})})}`;
 
-const html = `<!doctype html>
+function generateHtml(cssFile: string, jsFile: string): string {
+  return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -94,7 +40,7 @@ const html = `<!doctype html>
   <meta name="theme-color" content="#1976d2">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="/assets/${cssFile}">
-  <script>${inlineRegisterSw}</script>
+  <script>${registerSw}</script>
 </head>
 <body>
   <app-root style="display: flex; flex-direction: column; width: 100%; height: 100%"></app-root>
@@ -102,7 +48,17 @@ const html = `<!doctype html>
   <script type="module" src="/assets/${jsFile}"></script>
 </body>
 </html>`;
-await writeFile(`${DIST}/index.html`, html);
+}
+
+function generateServiceWorker(
+  cacheKey: string,
+  precacheFiles: string[],
+): string {
+  return `const PRECACHE='${cacheKey}';const PRECACHE_URLS=${JSON.stringify(precacheFiles)};
+self.addEventListener('install',e=>{e.waitUntil(caches.open(PRECACHE).then(c=>c.addAll(PRECACHE_URLS)));self.skipWaiting()});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(k=>k!==PRECACHE).map(k=>caches.delete(k)))));self.clientsClaim()});
+self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(caches.match('/index.html').then(r=>r||fetch(e.request)))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`;
+}
 
 async function scanDir(dir: string, prefix?: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -119,18 +75,115 @@ async function scanDir(dir: string, prefix?: string): Promise<string[]> {
   return files;
 }
 
-const precacheFiles = await scanDir(DIST);
-const urlsHash = crypto
-  .createHash('sha256')
-  .update(precacheFiles.sort().join('|'))
-  .digest('hex')
-  .slice(0, 8);
-const cacheKey = `workingdiary-v${urlsHash}`;
+export interface BuildOptions {
+  dev: boolean;
+  outDir: string;
+}
 
-const sw = `const PRECACHE='${cacheKey}';const PRECACHE_URLS=${JSON.stringify(precacheFiles)};
-self.addEventListener('install',e=>{e.waitUntil(caches.open(PRECACHE).then(c=>c.addAll(PRECACHE_URLS)));self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(k=>k!==PRECACHE).map(k=>caches.delete(k)))));self.clientsClaim()});
-self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(caches.match('/index.html').then(r=>r||fetch(e.request)))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`;
-await writeFile(`${DIST}/sw.js`, `${sw}\n`);
+export interface BuildResult {
+  cssFile: string;
+  jsFile: string;
+}
 
-console.log(`Build complete: ${jsFile}, ${cssFile}`);
+export async function build({
+  dev,
+  outDir,
+}: BuildOptions): Promise<BuildResult> {
+  updateVersion();
+
+  await rm(outDir, { recursive: true, force: true });
+  await mkdir(`${outDir}/assets`, { recursive: true });
+
+  const cssResult = sass.compile(
+    `${SRC}/main.scss`,
+    dev
+      ? {
+          style: 'expanded',
+          sourceMap: true,
+          sourceMapIncludeSources: true,
+          loadPaths: [SRC],
+        }
+      : { style: 'compressed', sourceMap: false, loadPaths: [SRC] },
+  );
+
+  let cssFile: string;
+  if (dev) {
+    cssFile = 'index.css';
+    await writeFile(`${outDir}/assets/${cssFile}`, cssResult.css);
+    if (cssResult.sourceMap) {
+      await writeFile(
+        `${outDir}/assets/${cssFile}.map`,
+        JSON.stringify(cssResult.sourceMap),
+      );
+    }
+  } else {
+    const cssContent = Buffer.from(cssResult.css);
+    const cssHash = crypto
+      .createHash('sha256')
+      .update(cssContent)
+      .digest('hex')
+      .slice(0, 8);
+    cssFile = `index-${cssHash}.css`;
+    await writeFile(`${outDir}/assets/${cssFile}`, cssContent);
+  }
+
+  await esbuild.build({
+    entryPoints: ['src/main.ts'],
+    outdir: `${outDir}/assets`,
+    entryNames: dev ? '[name]' : '[name]-[hash]',
+    format: 'esm',
+    bundle: true,
+    minify: !dev,
+    sourcemap: true,
+    loader: { '.ts': 'ts' },
+    plugins: [
+      {
+        name: 'ignore-scss',
+        setup(build) {
+          build.onResolve({ filter: /\.scss$/ }, (args) => ({
+            path: args.path,
+            namespace: 'scss-ignored',
+          }));
+          build.onLoad({ filter: /.*/, namespace: 'scss-ignored' }, () => ({
+            contents: '',
+            loader: 'js',
+          }));
+        },
+      },
+    ],
+  });
+
+  const assets = await readdir(`${outDir}/assets`);
+  const jsFile = assets.find((f) => f.endsWith('.js'));
+  if (!jsFile) {
+    throw new Error('esbuild did not produce a .js output file');
+  }
+
+  await cp(PUBLIC, outDir, { recursive: true });
+
+  await writeFile(
+    `${outDir}/manifest.webmanifest`,
+    JSON.stringify(MANIFEST, null, 2),
+  );
+
+  const html = generateHtml(cssFile, jsFile);
+  await writeFile(`${outDir}/index.html`, html);
+
+  const precacheFiles = await scanDir(outDir);
+  const cacheKey = dev
+    ? 'workingdiary-dev'
+    : `workingdiary-v${crypto
+        .createHash('sha256')
+        .update(precacheFiles.sort().join('|'))
+        .digest('hex')
+        .slice(0, 8)}`;
+  const sw = generateServiceWorker(cacheKey, precacheFiles);
+  await writeFile(`${outDir}/sw.js`, `${sw}\n`);
+
+  return { cssFile, jsFile };
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const { cssFile, jsFile } = await build({ dev: false, outDir: 'dist' });
+  console.log(`Build complete: ${jsFile}, ${cssFile}`);
+}
