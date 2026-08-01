@@ -4,7 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const version = packageJson.version;
 
-const getGitValue = (command: string[], fallback: string): string => {
+const getGitValue = (command, fallback) => {
   try {
     return execFileSync('git', command).toString().trim();
   } catch (e) {
