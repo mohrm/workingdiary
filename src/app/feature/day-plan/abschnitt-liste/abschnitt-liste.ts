@@ -35,6 +35,11 @@ export function createAbschnittListe(
 
   function entferneAbschnitt(index: number): void {
     abschnitte = abschnitte.filter((_, i) => i !== index);
+    if (index === editIndex) {
+      editIndex = -1;
+    } else if (index < editIndex) {
+      editIndex -= 1;
+    }
     persistAbschnitte();
     render();
   }

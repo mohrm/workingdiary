@@ -88,6 +88,54 @@ describe('AbschnittListe', () => {
     assert.equal(onAbschnitteChange.mock.callCount(), 2);
   });
 
+  it('deleting the section currently being edited leaves the next new section out of edit mode', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(
+      new Section(new Time(8, 0), new Time(9, 0), LOCATIONS.OFFICE),
+    );
+
+    fireClick(liste.element, '[data-action="edit"]');
+    assert.ok(liste.element.querySelector('[data-start-hour]'));
+
+    fireClick(liste.element, '[data-action="delete"]');
+    liste.addAbschnitt(new Section(new Time(10, 0), new Time(11, 0)));
+
+    assert.equal(liste.element.querySelector('[data-start-hour]'), null);
+  });
+
+  it('deleting a section before the edited one keeps the edited section in edit mode', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+    liste.addAbschnitt(new Section(new Time(9, 0), new Time(10, 0)));
+
+    const secondSection = liste.element.querySelector(
+      '[data-testid="section-1"]',
+    );
+    assert.ok(secondSection);
+    fireClick(secondSection, '[data-action="edit"]');
+    assert.ok(
+      liste.element
+        .querySelector('[data-testid="section-1"]')
+        ?.querySelector('[data-start-hour]'),
+    );
+
+    const firstSection = liste.element.querySelector(
+      '[data-testid="section-0"]',
+    );
+    assert.ok(firstSection);
+    fireClick(firstSection, '[data-action="delete"]');
+
+    assert.equal(
+      liste.element.querySelector('[data-testid="section-1"]'),
+      null,
+    );
+    assert.ok(
+      liste.element
+        .querySelector('[data-testid="section-0"]')
+        ?.querySelector('[data-start-hour]'),
+    );
+  });
+
   it('aborting an edit leaves the section unchanged and closes edit mode', () => {
     const liste = createAbschnittListe('01.01.2024');
     liste.addAbschnitt(
