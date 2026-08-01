@@ -9,7 +9,7 @@ const DIST = 'dist';
 const SRC = 'src';
 const PUBLIC = 'public';
 
-execSync('node scripts/update-version.cjs', { stdio: 'inherit' });
+execSync('node --import tsx scripts/update-version.ts', { stdio: 'inherit' });
 
 execSync(`rm -rf ${DIST}`, { stdio: 'inherit' });
 await mkdir(`${DIST}/assets`, { recursive: true });

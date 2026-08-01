@@ -20,7 +20,8 @@
     "rules": {
       "preset": "recommended",
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "noCommonJs": "error"
       }
     }
   },
