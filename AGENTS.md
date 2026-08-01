@@ -47,6 +47,8 @@ it('should calculate total', () => {
 ## Before Running Tests
 `src/app/sw.spec.ts` reads `dist/sw.js`, which only exists after `npm run build` — it is **not** created by `pretest`. Run `npm run build` once before `npm test` in any fresh checkout/session, otherwise those 8 Service Worker tests fail with a misleading "pre-existing failure" look (their own assertion messages say "run npm run build first" — believe them, don't wave the failures off as unrelated).
 
+`src/environments/version.ts` is generated (gitignored, not checked in) and is imported by `src/app/services/version.ts` / `src/app/version.service.spec.ts`. `npm run typecheck` regenerates it itself via a `pretypecheck` hook (`scripts/update-version.mjs`), so it works standalone in a fresh checkout without needing `npm run build` first.
+
 ## Coverage
 Lines ≥78.63% | Branches ≥92.14% | Functions ≥87.61%. Never lower thresholds – add tests instead. Verified via `scripts/check-coverage.ts`.
 
