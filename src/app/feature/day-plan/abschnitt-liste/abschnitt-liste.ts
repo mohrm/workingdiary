@@ -1,7 +1,6 @@
 import type { Component } from '../../../component';
 import type { Section } from '../../../model/Section';
 import { persistence } from '../../../services/persistence';
-import { icon } from '../../icons';
 import {
   type AbschnittComponent,
   createAbschnitt,
@@ -81,17 +80,9 @@ export function createAbschnittListe(
           else editIndex = index;
           render();
         },
+        () => entferneAbschnitt(index),
       );
       cell.appendChild(controller.element);
-
-      const deleteBtn = document.createElement('span');
-      deleteBtn.setAttribute('data-action', 'delete');
-      deleteBtn.setAttribute('data-index', String(index));
-      deleteBtn.innerHTML = icon('delete');
-      deleteBtn.addEventListener('click', () => {
-        entferneAbschnitt(index);
-      });
-      cell.appendChild(deleteBtn);
 
       itemControllers.push(controller);
     });
