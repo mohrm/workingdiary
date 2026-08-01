@@ -41,14 +41,27 @@ describe('Abschnitt', () => {
       new Time(12, 0),
       LOCATIONS.OFFICE,
     );
-    const abschnitt = createAbschnitt(section, undefined, false, undefined);
+    const abschnitt = createAbschnitt(
+      section,
+      undefined,
+      false,
+      undefined,
+      undefined,
+    );
 
     assert.ok(abschnitt.element.innerHTML.includes('08:00 - 12:00'));
     assert.ok(abschnitt.element.querySelector('[data-action="edit"]'));
+    assert.ok(abschnitt.element.querySelector('[data-action="delete"]'));
   });
 
   it('renders an empty string when there is no section and not editing', () => {
-    const abschnitt = createAbschnitt(undefined, undefined, false, undefined);
+    const abschnitt = createAbschnitt(
+      undefined,
+      undefined,
+      false,
+      undefined,
+      undefined,
+    );
 
     assert.ok(abschnitt.element.querySelector('[data-action="edit"]'));
   });
@@ -60,13 +73,39 @@ describe('Abschnitt', () => {
       LOCATIONS.MOBILE,
     );
     let editState: boolean | undefined;
-    const abschnitt = createAbschnitt(section, undefined, false, (isEdit) => {
-      editState = isEdit;
-    });
+    const abschnitt = createAbschnitt(
+      section,
+      undefined,
+      false,
+      (isEdit) => {
+        editState = isEdit;
+      },
+      undefined,
+    );
 
     fireClick(abschnitt.element, '[data-action="edit"]');
 
     assert.equal(editState, true);
+  });
+
+  it('calls onDelete when the delete action is clicked while not editing', () => {
+    const section = new Section(
+      new Time(8, 0),
+      new Time(12, 0),
+      LOCATIONS.OFFICE,
+    );
+    const onDelete = mock.fn();
+    const abschnitt = createAbschnitt(
+      section,
+      undefined,
+      false,
+      undefined,
+      onDelete,
+    );
+
+    fireClick(abschnitt.element, '[data-action="delete"]');
+
+    assert.equal(onDelete.mock.callCount(), 1);
   });
 
   it('renders time inputs and the location select when editing', () => {
@@ -75,7 +114,13 @@ describe('Abschnitt', () => {
       new Time(12, 0),
       LOCATIONS.OFFICE,
     );
-    const abschnitt = createAbschnitt(section, undefined, true, undefined);
+    const abschnitt = createAbschnitt(
+      section,
+      undefined,
+      true,
+      undefined,
+      undefined,
+    );
 
     assert.ok(abschnitt.element.querySelector('[data-start-hour]'));
     assert.ok(abschnitt.element.querySelector('[data-start-minute]'));
@@ -84,10 +129,37 @@ describe('Abschnitt', () => {
     assert.ok(abschnitt.element.querySelector('[data-location]'));
     assert.ok(abschnitt.element.querySelector('[data-action="finish"]'));
     assert.ok(abschnitt.element.querySelector('[data-action="abort"]'));
+    assert.ok(abschnitt.element.querySelector('[data-action="delete"]'));
+  });
+
+  it('calls onDelete when the delete action is clicked while editing', () => {
+    const section = new Section(
+      new Time(8, 0),
+      new Time(12, 0),
+      LOCATIONS.OFFICE,
+    );
+    const onDelete = mock.fn();
+    const abschnitt = createAbschnitt(
+      section,
+      undefined,
+      true,
+      undefined,
+      onDelete,
+    );
+
+    fireClick(abschnitt.element, '[data-action="delete"]');
+
+    assert.equal(onDelete.mock.callCount(), 1);
   });
 
   it('defaults time fields to 0 when there is no section while editing', () => {
-    const abschnitt = createAbschnitt(undefined, undefined, true, undefined);
+    const abschnitt = createAbschnitt(
+      undefined,
+      undefined,
+      true,
+      undefined,
+      undefined,
+    );
 
     assert.ok(abschnitt.element.innerHTML.includes('value="0"'));
   });
@@ -105,6 +177,7 @@ describe('Abschnitt', () => {
       onSectionChange,
       true,
       onIsEditChange,
+      undefined,
     );
 
     fireInput(abschnitt.element, '[data-start-hour]', '9');
@@ -138,6 +211,7 @@ describe('Abschnitt', () => {
       onSectionChange,
       true,
       undefined,
+      undefined,
     );
 
     fireInput(abschnitt.element, '[data-start-hour]', 'not-a-number');
@@ -154,7 +228,13 @@ describe('Abschnitt', () => {
       LOCATIONS.OFFICE,
     );
     const onIsEditChange = mock.fn();
-    const abschnitt = createAbschnitt(section, undefined, true, onIsEditChange);
+    const abschnitt = createAbschnitt(
+      section,
+      undefined,
+      true,
+      onIsEditChange,
+      undefined,
+    );
 
     fireClick(abschnitt.element, '[data-action="abort"]');
 
@@ -168,11 +248,18 @@ describe('Abschnitt', () => {
       new Time(12, 0),
       LOCATIONS.OFFICE,
     );
-    const abschnitt = createAbschnitt(section, undefined, true, undefined);
+    const abschnitt = createAbschnitt(
+      section,
+      undefined,
+      true,
+      undefined,
+      undefined,
+    );
 
     assert.doesNotThrow(() => {
       fireClick(abschnitt.element, '[data-action="finish"]');
       fireClick(abschnitt.element, '[data-action="abort"]');
+      fireClick(abschnitt.element, '[data-action="delete"]');
     });
 
     const nonEditAbschnitt = createAbschnitt(
@@ -180,9 +267,11 @@ describe('Abschnitt', () => {
       undefined,
       false,
       undefined,
+      undefined,
     );
     assert.doesNotThrow(() => {
       fireClick(nonEditAbschnitt.element, '[data-action="edit"]');
+      fireClick(nonEditAbschnitt.element, '[data-action="delete"]');
     });
   });
 
@@ -192,7 +281,13 @@ describe('Abschnitt', () => {
       new Time(12, 0),
       LOCATIONS.MOBILE,
     );
-    const abschnitt = createAbschnitt(section, undefined, true, undefined);
+    const abschnitt = createAbschnitt(
+      section,
+      undefined,
+      true,
+      undefined,
+      undefined,
+    );
 
     const mobilOption = abschnitt.element.innerHTML
       .split('\n')
@@ -202,7 +297,13 @@ describe('Abschnitt', () => {
   });
 
   it('update() re-renders reflecting the new edit state', () => {
-    const abschnitt = createAbschnitt(undefined, undefined, false, undefined);
+    const abschnitt = createAbschnitt(
+      undefined,
+      undefined,
+      false,
+      undefined,
+      undefined,
+    );
     const section = new Section(
       new Time(1, 2),
       new Time(3, 4),

@@ -8,8 +8,9 @@
   min-width: 0;
 }
 
-.abschnitt-host [data-action="edit"] {
+.abschnitt-actions {
   margin-left: auto;
+  @include mixins.flex-row(6px, null, center);
 }
 
 .abschnitt-edit {

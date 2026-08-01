@@ -14,6 +14,7 @@ export function createAbschnitt(
   onSectionChange: ((section: Section) => void) | undefined,
   isEdit: boolean,
   onIsEditChange: ((isEdit: boolean) => void) | undefined,
+  onDelete: (() => void) | undefined,
 ): AbschnittComponent {
   const el = document.createElement('div');
   el.className = 'abschnitt-host';
@@ -44,13 +45,17 @@ export function createAbschnitt(
             <div class="icon-actions">
               <span data-action="finish">${icon('check')}</span>
               <span data-action="abort">${icon('close')}</span>
+              <span data-action="delete">${icon('delete')}</span>
             </div>
           </div>
         </div>`;
     } else {
       el.innerHTML = `
         ${section ? section.formattedString() : ''}
-        <span data-action="edit">${icon('edit')}</span>`;
+        <span class="abschnitt-actions">
+          <span data-action="edit">${icon('edit')}</span>
+          <span data-action="delete">${icon('delete')}</span>
+        </span>`;
     }
     bindEvents();
   }
@@ -97,6 +102,9 @@ export function createAbschnitt(
         abort: () => {
           if (onIsEditChange) onIsEditChange(false);
         },
+        delete: () => {
+          if (onDelete) onDelete();
+        },
       });
     } else {
       bindActions(el, {
@@ -107,6 +115,9 @@ export function createAbschnitt(
           endMinute = section?.endTime?.minute ?? 0;
           location = section?.location ?? LOCATIONS.UNASSIGNED;
           if (onIsEditChange) onIsEditChange(true);
+        },
+        delete: () => {
+          if (onDelete) onDelete();
         },
       });
     }
