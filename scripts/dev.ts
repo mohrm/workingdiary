@@ -109,6 +109,32 @@ server.listen(PORT, () => {
 
 const watchedDirs = new Set<string>();
 let buildTimeout: NodeJS.Timeout | undefined;
+let buildInProgress: Promise<void> | null = null;
+let rebuildQueued = false;
+
+async function runBuildSerialized(): Promise<void> {
+  if (buildInProgress) {
+    rebuildQueued = true;
+    return;
+  }
+
+  buildInProgress = (async () => {
+    try {
+      await build();
+    } catch (err) {
+      console.error('Build failed:', err);
+    } finally {
+      buildInProgress = null;
+    }
+  })();
+
+  await buildInProgress;
+
+  if (rebuildQueued) {
+    rebuildQueued = false;
+    await runBuildSerialized();
+  }
+}
 
 async function watchDir(dir: string): Promise<void> {
   if (watchedDirs.has(dir)) return;
@@ -129,7 +155,9 @@ async function watchDir(dir: string): Promise<void> {
     const relPath = path.relative(SRC, fullPath);
     if (/\.(scss|ts|js)$/.test(relPath)) {
       clearTimeout(buildTimeout);
-      buildTimeout = setTimeout(build, 100);
+      buildTimeout = setTimeout(() => {
+        void runBuildSerialized();
+      }, 100);
     }
   };
 
@@ -145,5 +173,5 @@ async function watchDir(dir: string): Promise<void> {
   } catch {}
 }
 
-await build();
+await runBuildSerialized();
 await watchDir(SRC);
