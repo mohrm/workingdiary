@@ -27,9 +27,7 @@ export function createDayPlan(
     el.innerHTML = `
       <header class="day-plan__header">
         <h1 data-testid="dayplan-title"></h1>
-      </header>
-      <div class="day-plan__clock" data-stempeluhr></div>
-      <div class="day-plan__list" data-abschnitt-liste></div>`;
+      </header>`;
 
     el.querySelector('[data-testid="dayplan-title"]')!.textContent =
       `Tagesplan für den ${day}`;
@@ -39,10 +37,11 @@ export function createDayPlan(
       abschnittListe!.addAbschnitt(section),
     );
 
-    el.querySelector('[data-stempeluhr]')!.appendChild(stempeluhr.element);
-    el.querySelector('[data-abschnitt-liste]')!.appendChild(
-      abschnittListe.element,
-    );
+    stempeluhr.element.classList.add('day-plan__clock');
+    abschnittListe.element.classList.add('day-plan__list');
+
+    el.appendChild(stempeluhr.element);
+    el.appendChild(abschnittListe.element);
   }
 
   function update(newDay: string): void {
