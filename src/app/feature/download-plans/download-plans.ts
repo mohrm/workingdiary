@@ -2,8 +2,9 @@ import type { Component } from '../../component';
 import { type DayPlan, persistence } from '../../services/persistence';
 
 export function createDownloadPlans(): Component {
-  const el = document.createElement('div');
+  const el = document.createElement('a');
   el.className = 'download-plans';
+  el.textContent = 'Daten exportieren';
 
   function render() {
     const plans: Record<string, DayPlan> = persistence.loadPlans();
@@ -27,7 +28,8 @@ export function createDownloadPlans(): Component {
       pad(now.getSeconds());
     const filename = `dayplans_${timestamp}.json`;
 
-    el.innerHTML = `<a href="${blobUrl}" download="${filename}">Daten exportieren</a>`;
+    el.setAttribute('href', blobUrl);
+    el.setAttribute('download', filename);
   }
 
   render();

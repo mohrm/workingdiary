@@ -14,7 +14,7 @@ export function createStempeluhr(
   onStempelEreignis?: (section: Section) => void,
 ): StempeluhrComponent {
   const el = document.createElement('div');
-  el.className = 'stempeluhr-host';
+  el.className = 'stempeluhr';
 
   let startTime = persistence.loadStartTime(day);
   let isEdit = false;
@@ -42,18 +42,16 @@ export function createStempeluhr(
 
   function render() {
     el.innerHTML = `
-      <div class="stempeluhr">
-        <div class="stempeluhr__row">
-          <span class="stempeluhr__label">Eingestempelt um:</span>
-          <div class="stempeluhr__value">${renderStempelValue()}</div>
-        </div>
-        <div class="stempeluhr__actions">
-          <span class="stempeluhr__label-placeholder" aria-hidden="true"></span>
-          <button class="mat-button" data-testid="log-button">
-            <span data-action>${!startTime ? icon('login') : icon('logout')}</span>
-            ${!startTime ? 'Einstempeln' : 'Ausstempeln'}
-          </button>
-        </div>
+      <div class="stempeluhr__row">
+        <span class="stempeluhr__label">Eingestempelt um:</span>
+        <div class="stempeluhr__value">${renderStempelValue()}</div>
+      </div>
+      <div class="stempeluhr__actions">
+        <span class="stempeluhr__label-placeholder" aria-hidden="true"></span>
+        <button class="mat-button" data-testid="log-button">
+          <span data-action>${!startTime ? icon('login') : icon('logout')}</span>
+          ${!startTime ? 'Einstempeln' : 'Ausstempeln'}
+        </button>
       </div>`;
     bindEvents();
   }

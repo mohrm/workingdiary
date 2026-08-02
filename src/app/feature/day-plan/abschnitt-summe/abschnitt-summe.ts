@@ -8,8 +8,8 @@ export interface AbschnittSummeComponent extends Component {
 }
 
 export function createAbschnittSumme(day: string): AbschnittSummeComponent {
-  const el = document.createElement('div');
-  el.className = 'abschnitt-summe-host';
+  const el = document.createElement('table');
+  el.className = 'abschnitt-summe';
 
   let abschnitte = persistence.loadSections(day) ?? [];
 
@@ -52,17 +52,15 @@ export function createAbschnittSumme(day: string): AbschnittSummeComponent {
     ).join('');
 
     el.innerHTML = `
-      <table class="abschnitt-summe">
-        <thead align="center">
-          <tr>
-            <th>Arbeitsort</th>
-            <th>Gesamtdauer</th>
-            <th class="abschnitt-summe__nowrap">Industriezeit (exakt/gerundet)</th>
-          </tr>
-        </thead>
-        <tbody align="center">${locationRows}${durationRow('Gesamt', gesamtdauer, 'fullduration')}
-        </tbody>
-      </table>`;
+      <thead align="center">
+        <tr>
+          <th>Arbeitsort</th>
+          <th>Gesamtdauer</th>
+          <th class="abschnitt-summe__nowrap">Industriezeit (exakt/gerundet)</th>
+        </tr>
+      </thead>
+      <tbody align="center">${locationRows}${durationRow('Gesamt', gesamtdauer, 'fullduration')}
+      </tbody>`;
   }
 
   function update(newDay: string): void {
