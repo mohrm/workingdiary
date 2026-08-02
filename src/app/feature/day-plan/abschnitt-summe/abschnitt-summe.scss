@@ -4,11 +4,13 @@
 .abschnitt-summe {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .abschnitt-summe th,
 .abschnitt-summe td {
   padding: vars.$padding-table-responsive;
+  overflow-wrap: anywhere;
 }
 
 .abschnitt-summe__nowrap {
@@ -23,5 +25,9 @@
   .abschnitt-summe th,
   .abschnitt-summe td {
     padding: vars.$spacing-sm;
+  }
+
+  .abschnitt-summe__nowrap {
+    white-space: normal;
   }
 }

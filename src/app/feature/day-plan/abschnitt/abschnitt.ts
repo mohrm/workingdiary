@@ -38,7 +38,7 @@ export function createAbschnitt(
         </div>
         <div class="actions">
           <select data-location>
-            <option value="${LOCATIONS.UNASSIGNED}" ${location === LOCATIONS.UNASSIGNED ? 'selected' : ''}>${LOCATIONS.UNASSIGNED}</option>
+            <option value="${LOCATIONS.UNASSIGNED}" ${location === LOCATIONS.UNASSIGNED ? 'selected' : ''}>kein</option>
             <option value="${LOCATIONS.OFFICE}" ${location === LOCATIONS.OFFICE ? 'selected' : ''}>${LOCATIONS.OFFICE}</option>
             <option value="${LOCATIONS.MOBILE}" ${location === LOCATIONS.MOBILE ? 'selected' : ''}>${LOCATIONS.MOBILE}</option>
           </select>
