@@ -1,5 +1,5 @@
 import type { Component } from '../../../component';
-import { LOCATIONS, type Location } from '../../../model/locations';
+import { type Location, WORK_LOCATIONS } from '../../../model/locations';
 import { Time } from '../../../model/Time';
 import { persistence } from '../../../services/persistence';
 
@@ -47,9 +47,9 @@ export function createAbschnittSumme(day: string): AbschnittSummeComponent {
 
   function render() {
     const gesamtdauer = toTime(sumMinutes());
-    const locationRows = Object.values(LOCATIONS)
-      .map((location) => durationRow(location, toTime(sumMinutes(location))))
-      .join('');
+    const locationRows = WORK_LOCATIONS.map((location) =>
+      durationRow(location, toTime(sumMinutes(location))),
+    ).join('');
 
     el.innerHTML = `
       <table class="abschnitt-summe">

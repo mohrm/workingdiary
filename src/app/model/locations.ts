@@ -8,3 +8,11 @@ export const LOCATIONS = {
 } as const;
 
 export type Location = (typeof LOCATIONS)[keyof typeof LOCATIONS];
+
+// Locations that represent an actual place of work, i.e. every LOCATIONS
+// value except the UNASSIGNED default. The duration summary breaks totals
+// down per entry here, so a new work location only needs to be added to
+// LOCATIONS to show up there too.
+export const WORK_LOCATIONS: Location[] = Object.values(LOCATIONS).filter(
+  (location) => location !== LOCATIONS.UNASSIGNED,
+);

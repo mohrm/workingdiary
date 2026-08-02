@@ -13,7 +13,7 @@ describe('AbschnittSumme', () => {
     installFakeDocument();
   });
 
-  it('renders one row per Arbeitsort with the matching subtotal, including unassigned sections', () => {
+  it('renders one row per work location (Büro, mobil) with the matching subtotal', () => {
     const day = '01.01.2024';
     persistence.saveSections(day, [
       new Section(new Time(8, 0), new Time(10, 0), LOCATIONS.OFFICE),
@@ -28,11 +28,20 @@ describe('AbschnittSumme', () => {
     assert.ok(html.includes('02:00'));
     assert.ok(html.includes(LOCATIONS.MOBILE));
     assert.ok(html.includes('01:00'));
-    assert.ok(html.includes(LOCATIONS.UNASSIGNED));
-    assert.ok(html.includes('00:30'));
   });
 
-  it('sums the Gesamt row across all categories, including unassigned sections', () => {
+  it('does not render a row for unassigned sections, matching the previous behaviour', () => {
+    const day = '01.01.2024';
+    persistence.saveSections(day, [
+      new Section(new Time(11, 0), new Time(11, 30), LOCATIONS.UNASSIGNED),
+    ]);
+
+    const summe = createAbschnittSumme(day);
+
+    assert.ok(!summe.element.innerHTML.includes(LOCATIONS.UNASSIGNED));
+  });
+
+  it('sums the Gesamt row across all sections, including unassigned ones', () => {
     const day = '01.01.2024';
     persistence.saveSections(day, [
       new Section(new Time(8, 0), new Time(10, 0), LOCATIONS.OFFICE),
