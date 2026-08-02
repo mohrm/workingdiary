@@ -16,7 +16,7 @@ export function createAbschnittListe(
   onAbschnitteChange?: (sections: Section[]) => void,
 ): AbschnittListeComponent {
   const el = document.createElement('div');
-  el.className = 'abschnitt-liste-host';
+  el.className = 'abschnitt-liste-host abschnitt-liste';
 
   let abschnitte: Section[] = persistence.loadSections(day) ?? [];
   let itemControllers: AbschnittComponent[] = [];
@@ -58,22 +58,18 @@ export function createAbschnittListe(
     itemControllers = [];
 
     el.innerHTML = `
-      <div class="abschnitt-liste">
-        <ul class="abschnitt-liste__list mat-list">
-          ${abschnitte
-            .map(
-              (_abschnitt, i) => `
-            <li class="mat-list-item abschnitt-item" data-index="${i}" data-testid="section-${i}">
-              <div class="abschnitt-cell" data-section-index="${i}"></div>
-            </li>
-          `,
-            )
-            .join('')}
-        </ul>
-      </div>`;
+      <ul class="abschnitt-liste__list mat-list">
+        ${abschnitte
+          .map(
+            (_abschnitt, i) => `
+          <li class="mat-list-item abschnitt-item" data-index="${i}" data-testid="section-${i}"></li>
+        `,
+          )
+          .join('')}
+      </ul>`;
 
-    el.querySelectorAll<HTMLElement>('[data-section-index]').forEach((cell) => {
-      const index = parseInt(cell.dataset.sectionIndex!, 10);
+    el.querySelectorAll<HTMLElement>('[data-index]').forEach((li) => {
+      const index = parseInt(li.dataset.index!, 10);
       const abschnitt = abschnitte[index];
       const isEditing = index === editIndex;
       const controller = createAbschnitt(
@@ -87,7 +83,8 @@ export function createAbschnittListe(
         },
         () => entferneAbschnitt(index),
       );
-      cell.appendChild(controller.element);
+      controller.element.classList.add('abschnitt-cell');
+      li.appendChild(controller.element);
 
       itemControllers.push(controller);
     });

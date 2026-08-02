@@ -26,27 +26,26 @@ export function createAbschnitt(
   let location: Location = section?.location ?? LOCATIONS.UNASSIGNED;
 
   function render() {
+    el.classList.toggle('abschnitt-edit', isEdit);
     if (isEdit) {
       el.innerHTML = `
-        <div class="abschnitt-edit">
-          <div class="time-inputs">
-            <input type="number" min="0" max="23" value="${startHour}" data-start-hour />
-            <input type="number" min="0" max="59" value="${startMinute}" data-start-minute />
-            -
-            <input type="number" min="0" max="23" value="${endHour}" data-end-hour />
-            <input type="number" min="0" max="59" value="${endMinute}" data-end-minute />
-          </div>
-          <div class="actions">
-            <select data-location>
-              <option value="${LOCATIONS.UNASSIGNED}" ${location === LOCATIONS.UNASSIGNED ? 'selected' : ''}>${LOCATIONS.UNASSIGNED}</option>
-              <option value="${LOCATIONS.OFFICE}" ${location === LOCATIONS.OFFICE ? 'selected' : ''}>${LOCATIONS.OFFICE}</option>
-              <option value="${LOCATIONS.MOBILE}" ${location === LOCATIONS.MOBILE ? 'selected' : ''}>${LOCATIONS.MOBILE}</option>
-            </select>
-            <div class="icon-actions">
-              <span data-action="finish">${icon('check')}</span>
-              <span data-action="abort">${icon('close')}</span>
-              <span data-action="delete">${icon('delete')}</span>
-            </div>
+        <div class="time-inputs">
+          <input type="number" min="0" max="23" value="${startHour}" data-start-hour />
+          <input type="number" min="0" max="59" value="${startMinute}" data-start-minute />
+          -
+          <input type="number" min="0" max="23" value="${endHour}" data-end-hour />
+          <input type="number" min="0" max="59" value="${endMinute}" data-end-minute />
+        </div>
+        <div class="actions">
+          <select data-location>
+            <option value="${LOCATIONS.UNASSIGNED}" ${location === LOCATIONS.UNASSIGNED ? 'selected' : ''}>${LOCATIONS.UNASSIGNED}</option>
+            <option value="${LOCATIONS.OFFICE}" ${location === LOCATIONS.OFFICE ? 'selected' : ''}>${LOCATIONS.OFFICE}</option>
+            <option value="${LOCATIONS.MOBILE}" ${location === LOCATIONS.MOBILE ? 'selected' : ''}>${LOCATIONS.MOBILE}</option>
+          </select>
+          <div class="icon-actions">
+            <span data-action="finish">${icon('check')}</span>
+            <span data-action="abort">${icon('close')}</span>
+            <span data-action="delete">${icon('delete')}</span>
           </div>
         </div>`;
     } else {

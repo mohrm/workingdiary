@@ -54,6 +54,34 @@ class FakeElement {
     });
   }
 
+  get classList(): DOMTokenList {
+    const read = (): string[] => this.className.split(/\s+/).filter(Boolean);
+    const write = (classes: string[]): void => {
+      this.className = classes.join(' ');
+    };
+    return {
+      add: (...tokens: string[]): void => {
+        const classes = new Set(read());
+        for (const token of tokens) classes.add(token);
+        write([...classes]);
+      },
+      remove: (...tokens: string[]): void => {
+        const classes = new Set(read());
+        for (const token of tokens) classes.delete(token);
+        write([...classes]);
+      },
+      toggle: (token: string, force?: boolean): boolean => {
+        const classes = new Set(read());
+        const shouldAdd = force ?? !classes.has(token);
+        if (shouldAdd) classes.add(token);
+        else classes.delete(token);
+        write([...classes]);
+        return shouldAdd;
+      },
+      contains: (token: string): boolean => read().includes(token),
+    } as unknown as DOMTokenList;
+  }
+
   setAttribute(name: string, value: string): void {
     this._attrs.set(name, value);
   }
