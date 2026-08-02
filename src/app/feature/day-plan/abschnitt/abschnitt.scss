@@ -14,46 +14,52 @@
 }
 
 .abschnitt-edit {
-  @include mixins.flex-row(vars.$spacing-md, wrap, center);
+  @include mixins.flex-row(vars.$spacing-xs, wrap, center);
   padding: vars.$spacing-lg 0;
 }
 
 .abschnitt-edit .time-inputs {
-  @include mixins.flex-row(vars.$spacing-xs, nowrap, center);
+  @include mixins.flex-row(2px, nowrap, center);
 }
 
 .abschnitt-edit input[type='number'] {
-  @include mixins.form-input-compact;
+  @include mixins.form-input-compact(2.2rem);
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }
 
 .abschnitt-edit .actions {
-  @include mixins.flex-row(6px, wrap, center);
+  @include mixins.flex-row(vars.$spacing-xs, wrap, center);
 }
 
 .abschnitt-edit select {
-  @include mixins.form-select-responsive;
+  @include mixins.form-select-responsive(4rem);
+  flex-grow: 0;
+  width: 4rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .abschnitt-edit .icon-actions {
-  @include mixins.flex-row(6px, null, center, flex-start);
+  @include mixins.flex-row(2px, null, center, flex-start);
   flex: 0 0 auto;
+}
+
+.abschnitt-edit .icon-actions [data-action] {
+  padding: vars.$spacing-xs;
+}
+
+.abschnitt-edit .icon-actions svg {
+  width: 16px;
+  height: 16px;
 }
 
 .abschnitt-edit .actions mat-icon {
   cursor: pointer;
-}
-
-@include mixins.mobile {
-  .abschnitt-edit {
-    align-items: flex-start;
-  }
-
-  .abschnitt-edit .time-inputs,
-  .abschnitt-edit .actions {
-    width: 100%;
-  }
-
-  .abschnitt-edit .actions {
-    justify-content: space-between;
-  }
 }
