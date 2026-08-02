@@ -3,12 +3,6 @@ import { LOCATIONS, type Location } from '../../../model/locations';
 import { Time } from '../../../model/Time';
 import { persistence } from '../../../services/persistence';
 
-interface AbschnittDurations {
-  gesamtdauer: Time;
-  bueroDauer: Time;
-  mobilDauer: Time;
-}
-
 export interface AbschnittSummeComponent extends Component {
   update: (day: string) => void;
 }
@@ -32,21 +26,30 @@ export function createAbschnittSumme(day: string): AbschnittSummeComponent {
     return new Time(hours, remainingMinutes);
   }
 
-  function computeDurations(): AbschnittDurations {
-    return {
-      gesamtdauer: toTime(sumMinutes()),
-      bueroDauer: toTime(sumMinutes(LOCATIONS.OFFICE)),
-      mobilDauer: toTime(sumMinutes(LOCATIONS.MOBILE)),
-    };
+  function formatIndustrial(time: Time | number): string {
+    const value = typeof time === 'number' ? time : time.industrial();
+    return value.toFixed(2);
+  }
+
+  function durationRow(label: string, dauer: Time, testId?: string): string {
+    const durationAttr = testId ? ` data-testid="${testId}"` : '';
+    const industryTestId = testId ? `${testId}-industry-combined` : undefined;
+    const industryAttr = industryTestId
+      ? ` data-testid="${industryTestId}"`
+      : '';
+    return `
+          <tr>
+            <td>${label}</td>
+            <td${durationAttr}>${dauer.formattedString()}</td>
+            <td${industryAttr}>${formatIndustrial(dauer)} / ${formatIndustrial(dauer.industrialQuarterPrecision())}</td>
+          </tr>`;
   }
 
   function render() {
-    const { gesamtdauer, bueroDauer, mobilDauer } = computeDurations();
-
-    function formatIndustrial(time: Time | number): string {
-      const value = typeof time === 'number' ? time : time.industrial();
-      return value.toFixed(2);
-    }
+    const gesamtdauer = toTime(sumMinutes());
+    const locationRows = Object.values(LOCATIONS)
+      .map((location) => durationRow(location, toTime(sumMinutes(location))))
+      .join('');
 
     el.innerHTML = `
       <table class="abschnitt-summe">
@@ -57,22 +60,7 @@ export function createAbschnittSumme(day: string): AbschnittSummeComponent {
             <th class="abschnitt-summe__nowrap">Industriezeit (exakt/gerundet)</th>
           </tr>
         </thead>
-        <tbody align="center">
-          <tr>
-            <td>Büro</td>
-            <td>${bueroDauer.formattedString()}</td>
-            <td>${formatIndustrial(bueroDauer)} / ${formatIndustrial(bueroDauer.industrialQuarterPrecision())}</td>
-          </tr>
-          <tr>
-            <td>mobil</td>
-            <td>${mobilDauer.formattedString()}</td>
-            <td>${formatIndustrial(mobilDauer)} / ${formatIndustrial(mobilDauer.industrialQuarterPrecision())}</td>
-          </tr>
-          <tr>
-            <td>Gesamt</td>
-            <td data-testid="fullduration">${gesamtdauer.formattedString()}</td>
-            <td data-testid="fullduration-industry-combined">${formatIndustrial(gesamtdauer)} / ${formatIndustrial(gesamtdauer.industrialQuarterPrecision())}</td>
-          </tr>
+        <tbody align="center">${locationRows}${durationRow('Gesamt', gesamtdauer, 'fullduration')}
         </tbody>
       </table>`;
   }
