@@ -106,6 +106,14 @@ Feature: Day plan page
     Then the colon between hour and minute is evenly spaced for section "0"'s start and end time
 
   @stable-layout
+  Scenario: The gap around the time range separator is clearly wider than around the colon
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And I log out
+    Then the gap around the range separator is clearly wider than the colon gap for section "0"'s start and end time
+
+  @stable-layout
   Scenario: Clocking in does not move the log button
     Given today's date is "2025-02-17" and the current time is "08:00:00"
     When I open the day plan for today
