@@ -47,9 +47,9 @@ Feature: Day plan page
     And I log out
     Then section "0" is not being edited
 
+  @stable-layout
   Scenario: Opening the section editor does not move the time, location or delete controls
     Given today's date is "2025-02-17" and the current time is "08:00:00"
-    And the viewport is mobile
     When I open the day plan for today
     And I log in
     And I log out
@@ -57,20 +57,29 @@ Feature: Day plan page
     And I open the editor for section "0"
     Then section "0"'s time, location and delete controls have not moved
 
+  @stable-layout
   Scenario: Section editor action icons are the same size as everywhere else in the app
     Given today's date is "2025-02-17" and the current time is "08:00:00"
-    And the viewport is mobile
     When I open the day plan for today
     And I log in
     And I log out
     And I open the editor for section "0"
     Then the section editor's action icons are 24 by 24 pixels
 
+  @stable-layout
   Scenario: The location select shows its full label without truncation
     Given today's date is "2025-02-17" and the current time is "08:00:00"
-    And the viewport is mobile
     When I open the day plan for today
     And I log in
     And I log out
     And I open the editor for section "0"
     Then the location select shows its full label without truncation
+
+  @stable-layout
+  Scenario: The section editor stays on a single line
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And I log out
+    And I open the editor for section "0"
+    Then the section editor does not overflow the viewport horizontally
