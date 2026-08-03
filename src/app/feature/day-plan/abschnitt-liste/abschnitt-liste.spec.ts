@@ -32,11 +32,14 @@ describe('AbschnittListe', () => {
   it('shows Start/Ende/Arbeitsort column headers above the list', () => {
     const liste = createAbschnittListe('01.01.2024');
 
-    const header = liste.element.querySelector('.abschnitt-liste__header');
-    assert.ok(header);
-    assert.ok(header.innerHTML.includes('Start'));
-    assert.ok(header.innerHTML.includes('Ende'));
-    assert.ok(header.innerHTML.includes('Arbeitsort'));
+    assert.ok(liste.element.querySelector('.abschnitt-liste__header'));
+    assert.ok(liste.element.innerHTML.includes('abschnitt-time-cell">Start<'));
+    assert.ok(liste.element.innerHTML.includes('abschnitt-time-cell">Ende<'));
+    assert.ok(
+      liste.element.innerHTML.includes(
+        'abschnitt-liste__header-location">Arbeitsort<',
+      ),
+    );
   });
 
   it('adds a section, persists it and notifies the change callback', () => {
