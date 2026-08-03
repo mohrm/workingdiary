@@ -56,7 +56,7 @@ export function createAbschnittSumme(day: string): AbschnittSummeComponent {
         <tr>
           <th>Arbeitsort</th>
           <th>Gesamtdauer</th>
-          <th class="abschnitt-summe__nowrap">Industriezeit (exakt/gerundet)</th>
+          <th>Industriezeit (exakt/gerundet)</th>
         </tr>
       </thead>
       <tbody align="center">${locationRows}${durationRow('Gesamt', gesamtdauer, 'fullduration')}

@@ -80,11 +80,11 @@ describe('AbschnittListe', () => {
     assert.ok(editIcon);
     fireClick(liste.element, '[data-action="edit"]');
 
-    assert.ok(liste.element.querySelector('[data-start-hour]'));
+    assert.ok(liste.element.querySelector('input[data-start-hour]'));
 
     fireClick(liste.element, '[data-action="finish"]');
 
-    assert.equal(liste.element.querySelector('[data-start-hour]'), null);
+    assert.equal(liste.element.querySelector('input[data-start-hour]'), null);
     assert.equal(onAbschnitteChange.mock.callCount(), 2);
   });
 
@@ -95,12 +95,12 @@ describe('AbschnittListe', () => {
     );
 
     fireClick(liste.element, '[data-action="edit"]');
-    assert.ok(liste.element.querySelector('[data-start-hour]'));
+    assert.ok(liste.element.querySelector('input[data-start-hour]'));
 
     fireClick(liste.element, '[data-action="delete"]');
     liste.addAbschnitt(new Section(new Time(10, 0), new Time(11, 0)));
 
-    assert.equal(liste.element.querySelector('[data-start-hour]'), null);
+    assert.equal(liste.element.querySelector('input[data-start-hour]'), null);
   });
 
   it('deleting a section before the edited one keeps the edited section in edit mode', () => {
@@ -116,7 +116,7 @@ describe('AbschnittListe', () => {
     assert.ok(
       liste.element
         .querySelector('[data-testid="section-1"]')
-        ?.querySelector('[data-start-hour]'),
+        ?.querySelector('input[data-start-hour]'),
     );
 
     const firstSection = liste.element.querySelector(
@@ -132,7 +132,7 @@ describe('AbschnittListe', () => {
     assert.ok(
       liste.element
         .querySelector('[data-testid="section-0"]')
-        ?.querySelector('[data-start-hour]'),
+        ?.querySelector('input[data-start-hour]'),
     );
   });
 
@@ -145,7 +145,7 @@ describe('AbschnittListe', () => {
     fireClick(liste.element, '[data-action="edit"]');
     fireClick(liste.element, '[data-action="abort"]');
 
-    assert.equal(liste.element.querySelector('[data-start-hour]'), null);
+    assert.equal(liste.element.querySelector('input[data-start-hour]'), null);
     assert.equal(persistence.loadSections('01.01.2024')?.[0].startTime.hour, 8);
   });
 

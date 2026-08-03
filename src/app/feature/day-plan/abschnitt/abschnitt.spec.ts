@@ -49,12 +49,16 @@ describe('Abschnitt', () => {
       undefined,
     );
 
-    assert.ok(abschnitt.element.innerHTML.includes('08:00 - 12:00'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-start-hour>08<'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-start-minute>00<'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-end-hour>12<'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-end-minute>00<'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-location>Büro<'));
     assert.ok(abschnitt.element.querySelector('[data-action="edit"]'));
     assert.ok(abschnitt.element.querySelector('[data-action="delete"]'));
   });
 
-  it('renders an empty string when there is no section and not editing', () => {
+  it('defaults to zeroed time fields and "kein" when there is no section and not editing', () => {
     const abschnitt = createAbschnitt(
       undefined,
       undefined,
@@ -63,6 +67,8 @@ describe('Abschnitt', () => {
       undefined,
     );
 
+    assert.ok(abschnitt.element.innerHTML.includes('data-start-hour>00<'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-location>kein<'));
     assert.ok(abschnitt.element.querySelector('[data-action="edit"]'));
   });
 
@@ -310,14 +316,25 @@ describe('Abschnitt', () => {
       LOCATIONS.UNASSIGNED,
     );
 
-    assert.equal(abschnitt.element.querySelector('[data-start-hour]'), null);
+    assert.equal(
+      abschnitt.element.querySelector('input[data-start-hour]'),
+      null,
+    );
 
     abschnitt.update(section, true);
 
-    assert.ok(abschnitt.element.querySelector('[data-start-hour]'));
+    assert.ok(abschnitt.element.querySelector('input[data-start-hour]'));
 
     abschnitt.update(section, false);
 
-    assert.ok(abschnitt.element.innerHTML.includes('01:02 - 03:04'));
+    assert.equal(
+      abschnitt.element.querySelector('input[data-start-hour]'),
+      null,
+    );
+    assert.ok(abschnitt.element.innerHTML.includes('data-start-hour>01<'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-start-minute>02<'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-end-hour>03<'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-end-minute>04<'));
+    assert.ok(abschnitt.element.innerHTML.includes('data-location>kein<'));
   });
 });
