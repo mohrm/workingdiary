@@ -5,11 +5,11 @@
 // label, value and button: the button's area never changes shape or
 // position when the value's content changes (placeholder text vs. a time
 // vs. edit inputs), so clocking in/out or editing the login time never
-// moves it. Below the tablet breakpoint there isn't enough width for the
-// value and button to share a line without the widest value state (the
-// edit-mode inputs) overlapping the button, so the button gets its own
-// full-width row there instead — still a fixed area, so it's equally
-// stable within that layout.
+// moves it. Below the tablet breakpoint the label cannot share the line
+// with the widest value state (the edit-mode inputs) and the button, so
+// it is clipped to a screen-reader-only box and the grid collapses to a
+// single 'value button' row — the Stempeluhr stays on one line at every
+// width (see the tablet block below).
 .stempeluhr {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -88,9 +88,21 @@
 
 @include mixins.tablet {
   .stempeluhr {
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-      'label value'
-      'button button';
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'value button';
+  }
+
+  // The label text no longer fits next to value and button on a phone,
+  // but removing it from the accessibility tree would leave the time and
+  // button captions without context for screen readers — so it is kept
+  // as a standard visually-hidden box instead of display: none.
+  .stempeluhr__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
