@@ -274,6 +274,17 @@ Then(
   },
 );
 
+async function textRect(
+  locator: ReturnType<Page['locator']>,
+): Promise<{ left: number; right: number }> {
+  return locator.first().evaluate((el) => {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const rect = range.getBoundingClientRect();
+    return { left: rect.left, right: rect.right };
+  });
+}
+
 Then(
   "the column headers are left-aligned with section {string}'s values",
   async ({ page }, sectionIndex: string) => {
@@ -306,19 +317,22 @@ Then(
       expect(valueBox).not.toBeNull();
       expect(headerBox!.x).toBeCloseTo(valueBox!.x, 0);
     }
+
+    // The cell boxes above are fixed-width regardless of text-align, so
+    // matching box positions alone doesn't prove the *glyphs* line up (see
+    // e.g. https://github.com/mohrm/workingdiary/pull/552, which right-
+    // aligned the hour digits inside an unchanged box and broke this
+    // visually without moving any box). Compare rendered text position too.
+    for (const [headerCell, valueSelector] of [
+      [labelCells.nth(0), '[data-start-hour]'],
+      [labelCells.nth(1), '[data-end-hour]'],
+    ] as const) {
+      const headerTextRect = await textRect(headerCell);
+      const valueTextRect = await textRect(section.locator(valueSelector));
+      expect(headerTextRect.left).toBeCloseTo(valueTextRect.left, 0);
+    }
   },
 );
-
-async function textRect(
-  locator: ReturnType<Page['locator']>,
-): Promise<{ left: number; right: number }> {
-  return locator.first().evaluate((el) => {
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    const rect = range.getBoundingClientRect();
-    return { left: rect.left, right: rect.right };
-  });
-}
 
 Then(
   "the colon between hour and minute is evenly spaced for section {string}'s start and end time",

@@ -66,13 +66,16 @@ input.abschnitt-time-cell {
   border-radius: 4px;
 }
 
-// Hour cells right-align their digits so they sit flush against the colon,
-// mirroring the minute cells' left-aligned digits on the colon's other
-// side — keeps the colon visually centered between hour and minute without
-// changing any cell's box geometry (width/height stay shared with the
-// input, per the @stable-layout guarantees above).
-.abschnitt-time-cell[data-start-hour],
-.abschnitt-time-cell[data-end-hour] {
+// Hour cells stay left-aligned (inherited above) so their digits share a
+// left edge with the left-aligned "Start"/"Ende" column headers, which sit
+// in a same-width cell one row up (see abschnitt-liste.ts). Right-aligning
+// the minute cells instead moves their digits flush against the colon,
+// balancing the colon's left gap (hour digit to colon: leftover box width
+// + right padding) against its right gap (colon to minute digit: leftover
+// box width + left padding) — keeps the colon visually centered without
+// touching the hour cells' box geometry or their header alignment.
+.abschnitt-time-cell[data-start-minute],
+.abschnitt-time-cell[data-end-minute] {
   justify-content: flex-end;
   text-align: right;
 }
