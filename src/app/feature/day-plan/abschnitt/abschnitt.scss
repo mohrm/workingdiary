@@ -66,6 +66,17 @@ input.abschnitt-time-cell {
   border-radius: 4px;
 }
 
+// Hour cells right-align their digits so they sit flush against the colon,
+// mirroring the minute cells' left-aligned digits on the colon's other
+// side — keeps the colon visually centered between hour and minute without
+// changing any cell's box geometry (width/height stay shared with the
+// input, per the @stable-layout guarantees above).
+.abschnitt-time-cell[data-start-hour],
+.abschnitt-time-cell[data-end-hour] {
+  justify-content: flex-end;
+  text-align: right;
+}
+
 // Shared by the view-mode <span> and the edit-mode <select>, same reasoning
 // as .abschnitt-time-cell above.
 .abschnitt-location-cell {
