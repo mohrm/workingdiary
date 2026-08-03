@@ -1,8 +1,33 @@
-import { expect } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { createBdd } from 'playwright-bdd';
 import { hasElementWithText, navigateTo } from '../page-objects/app.po';
 
 const { Given, When, Then } = createBdd();
+
+interface ControlPositions {
+  time: { x: number; y: number } | null;
+  location: { x: number; y: number } | null;
+  delete: { x: number; y: number } | null;
+}
+
+const rememberedPositions = new WeakMap<Page, ControlPositions>();
+
+async function readControlPositions(
+  page: Page,
+  sectionIndex: string,
+): Promise<ControlPositions> {
+  const section = page.getByTestId(`section-${sectionIndex}`);
+  await section.waitFor();
+  const boxOf = async (selector: string) => {
+    const box = await section.locator(selector).first().boundingBox();
+    return box ? { x: box.x, y: box.y } : null;
+  };
+  return {
+    time: await boxOf('[data-start-hour]'),
+    location: await boxOf('[data-location]'),
+    delete: await boxOf('[data-action="delete"]'),
+  };
+}
 
 Given('I open the home page', async ({ page: _page }) => {});
 
@@ -124,3 +149,73 @@ Then('the section editor inputs are fully visible', async ({ page }) => {
     expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
   }
 });
+
+Given(
+  "I remember the position of section {string}'s time, location and delete controls",
+  async ({ page }, sectionIndex: string) => {
+    rememberedPositions.set(
+      page,
+      await readControlPositions(page, sectionIndex),
+    );
+  },
+);
+
+Then(
+  "section {string}'s time, location and delete controls have not moved",
+  async ({ page }, sectionIndex: string) => {
+    const before = rememberedPositions.get(page);
+    if (!before) {
+      throw new Error(
+        'No remembered position — call the "I remember the position of..." step first.',
+      );
+    }
+    const after = await readControlPositions(page, sectionIndex);
+
+    for (const control of ['time', 'location', 'delete'] as const) {
+      expect(before[control], `${control} before`).not.toBeNull();
+      expect(after[control], `${control} after`).not.toBeNull();
+      expect(after[control]!.x, `${control} x`).toBeCloseTo(
+        before[control]!.x,
+        0,
+      );
+      expect(after[control]!.y, `${control} y`).toBeCloseTo(
+        before[control]!.y,
+        0,
+      );
+    }
+  },
+);
+
+Then(
+  "the section editor's action icons are 24 by 24 pixels",
+  async ({ page }) => {
+    const editor = page.locator('.abschnitt-edit');
+    await editor.waitFor();
+
+    const icons = editor.locator('.abschnitt-icon-zone svg');
+    const count = await icons.count();
+    expect(count).toBeGreaterThan(0);
+
+    for (let i = 0; i < count; i++) {
+      const box = await icons.nth(i).boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.width).toBe(24);
+      expect(box!.height).toBe(24);
+    }
+  },
+);
+
+Then(
+  'the location select shows its full label without truncation',
+  async ({ page }) => {
+    const select = page.locator('.abschnitt-edit select[data-location]');
+    await select.waitFor();
+
+    const { clientWidth, scrollWidth } = await select.evaluate((el) => ({
+      clientWidth: (el as HTMLSelectElement).clientWidth,
+      scrollWidth: (el as HTMLSelectElement).scrollWidth,
+    }));
+
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  },
+);
