@@ -361,6 +361,52 @@ Then(
   },
 );
 
+Then(
+  "the gap around the range separator is clearly wider than the colon gap for section {string}'s start and end time",
+  async ({ page }, sectionIndex: string) => {
+    const section = page.getByTestId(`section-${sectionIndex}`);
+    await section.waitFor();
+    const seps = section.locator('.abschnitt-time-sep');
+
+    // DOM order (abschnitt.ts): start-hour, ":" (0), start-minute,
+    // " - " (1), end-hour, ":" (2), end-minute.
+    const startMinuteRect = await textRect(
+      section.locator('[data-start-minute]'),
+    );
+    const rangeSepBox = await seps.nth(1).boundingBox();
+    const endHourRect = await textRect(section.locator('[data-end-hour]'));
+    expect(rangeSepBox).not.toBeNull();
+
+    const rangeGapBefore = rangeSepBox!.x - startMinuteRect.right;
+    const rangeGapAfter =
+      endHourRect.left - (rangeSepBox!.x + rangeSepBox!.width);
+
+    // Compare against the larger of both colons' gaps in this section, so
+    // the assertion holds regardless of which colon happens to be wider
+    // and isn't a coin-flip on sub-pixel rounding.
+    const colonPairs = [
+      { hour: '[data-start-hour]', sepIndex: 0, minute: '[data-start-minute]' },
+      { hour: '[data-end-hour]', sepIndex: 2, minute: '[data-end-minute]' },
+    ];
+    const colonGaps: number[] = [];
+    for (const { hour, sepIndex, minute } of colonPairs) {
+      const hourRect = await textRect(section.locator(hour));
+      const colonSepBox = await seps.nth(sepIndex).boundingBox();
+      const minuteRect = await textRect(section.locator(minute));
+      expect(colonSepBox).not.toBeNull();
+      colonGaps.push(colonSepBox!.x - hourRect.right);
+      colonGaps.push(minuteRect.left - (colonSepBox!.x + colonSepBox!.width));
+    }
+    const maxColonGap = Math.max(...colonGaps);
+
+    // Comfortably clears rounding noise so this is a real regression guard,
+    // not a bare `>`.
+    const MARGIN_PX = 4;
+    expect(rangeGapBefore).toBeGreaterThan(maxColonGap + MARGIN_PX);
+    expect(rangeGapAfter).toBeGreaterThan(maxColonGap + MARGIN_PX);
+  },
+);
+
 Given('I remember the position of the log button', async ({ page }) => {
   rememberedBoxes.set(
     page,
