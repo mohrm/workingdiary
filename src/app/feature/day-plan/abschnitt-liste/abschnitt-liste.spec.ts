@@ -29,6 +29,16 @@ describe('AbschnittListe', () => {
     );
   });
 
+  it('shows Start/Ende/Arbeitsort column headers above the list', () => {
+    const liste = createAbschnittListe('01.01.2024');
+
+    const header = liste.element.querySelector('.abschnitt-liste__header');
+    assert.ok(header);
+    assert.ok(header.innerHTML.includes('Start'));
+    assert.ok(header.innerHTML.includes('Ende'));
+    assert.ok(header.innerHTML.includes('Arbeitsort'));
+  });
+
   it('adds a section, persists it and notifies the change callback', () => {
     const onAbschnitteChange = mock.fn();
     const liste = createAbschnittListe('01.01.2024', onAbschnitteChange);

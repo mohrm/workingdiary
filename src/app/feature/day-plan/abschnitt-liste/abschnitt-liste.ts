@@ -58,6 +58,18 @@ export function createAbschnittListe(
     itemControllers = [];
 
     el.innerHTML = `
+      <div class="abschnitt-row abschnitt-liste__header">
+        <div class="abschnitt-time-range">
+          <span class="abschnitt-time-cell">Start</span>
+          <span class="abschnitt-time-sep abschnitt-liste__header-filler" aria-hidden="true">:</span>
+          <span class="abschnitt-time-cell abschnitt-liste__header-filler" aria-hidden="true"></span>
+          <span class="abschnitt-time-sep abschnitt-time-sep--range" aria-hidden="true"> - </span>
+          <span class="abschnitt-time-cell">Ende</span>
+          <span class="abschnitt-time-sep abschnitt-liste__header-filler" aria-hidden="true">:</span>
+          <span class="abschnitt-time-cell abschnitt-liste__header-filler" aria-hidden="true"></span>
+        </div>
+        <span class="abschnitt-location-cell abschnitt-liste__header-location">Arbeitsort</span>
+      </div>
       <ul class="abschnitt-liste__list mat-list">
         ${abschnitte
           .map(

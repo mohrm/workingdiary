@@ -38,9 +38,17 @@
   justify-content: center;
   box-sizing: border-box;
   width: 2.75rem;
+  // An explicit height (rather than relying on content/padding to size the
+  // box) means the view-mode <span> and the edit-mode <input> render at the
+  // exact same height, regardless of the browser's intrinsic form-control
+  // sizing — so toggling edit mode never changes row height.
+  height: 24px;
   flex-shrink: 0;
-  padding: vars.$spacing-xs vars.$spacing-sm;
-  border: 1px solid transparent;
+  padding: 0 vars.$spacing-sm;
+  // A box-shadow (rather than a border) reserves the outline without adding
+  // to the box height, so toggling the transparent-vs-visible outline never
+  // changes this cell's height.
+  box-shadow: inset 0 0 0 1px transparent;
   font: inherit;
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -54,7 +62,7 @@
 }
 
 input.abschnitt-time-cell {
-  border-color: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
   border-radius: 4px;
 }
 
@@ -65,16 +73,17 @@ input.abschnitt-time-cell {
   align-items: center;
   box-sizing: border-box;
   width: 4.5rem;
+  height: 24px;
   flex-shrink: 0;
-  padding: vars.$spacing-xs vars.$spacing-xs;
-  border: 1px solid transparent;
+  padding: 0 vars.$spacing-xs;
+  box-shadow: inset 0 0 0 1px transparent;
   font: inherit;
   overflow: hidden;
   white-space: nowrap;
 }
 
 select.abschnitt-location-cell {
-  border-color: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
   border-radius: 4px;
   appearance: none;
   padding-right: 1.125rem;
