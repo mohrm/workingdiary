@@ -274,6 +274,41 @@ Then(
   },
 );
 
+Then(
+  "the column headers are left-aligned with section {string}'s values",
+  async ({ page }, sectionIndex: string) => {
+    const header = page.locator('.abschnitt-liste__header');
+    const labelCells = header.locator(
+      '.abschnitt-time-cell:not(.abschnitt-liste__header-filler)',
+    );
+    const section = page.getByTestId(`section-${sectionIndex}`);
+    await section.waitFor();
+
+    const startHeaderBox = await labelCells.nth(0).boundingBox();
+    const endeHeaderBox = await labelCells.nth(1).boundingBox();
+    const arbeitsortHeaderBox = await header
+      .locator('.abschnitt-liste__header-location')
+      .boundingBox();
+    const startValueBox = await section
+      .locator('[data-start-hour]')
+      .boundingBox();
+    const endeValueBox = await section.locator('[data-end-hour]').boundingBox();
+    const arbeitsortValueBox = await section
+      .locator('[data-location]')
+      .boundingBox();
+
+    for (const [headerBox, valueBox] of [
+      [startHeaderBox, startValueBox],
+      [endeHeaderBox, endeValueBox],
+      [arbeitsortHeaderBox, arbeitsortValueBox],
+    ] as const) {
+      expect(headerBox).not.toBeNull();
+      expect(valueBox).not.toBeNull();
+      expect(headerBox!.x).toBeCloseTo(valueBox!.x, 0);
+    }
+  },
+);
+
 Given('I remember the position of the log button', async ({ page }) => {
   rememberedBoxes.set(
     page,
