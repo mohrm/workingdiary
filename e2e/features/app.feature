@@ -90,6 +90,14 @@ Feature: Day plan page
     Then I see the column headers "Start", "Ende" and "Arbeitsort" above the section list
 
   @stable-layout
+  Scenario: The section list column headers are left-aligned with the section values
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And I log out
+    Then the column headers are left-aligned with section "0"'s values
+
+  @stable-layout
   Scenario: Clocking in does not move the log button
     Given today's date is "2025-02-17" and the current time is "08:00:00"
     When I open the day plan for today
