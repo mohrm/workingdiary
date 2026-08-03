@@ -13,10 +13,6 @@
   overflow-wrap: anywhere;
 }
 
-.abschnitt-summe__nowrap {
-  white-space: nowrap;
-}
-
 @include mixins.mobile {
   .abschnitt-summe {
     font-size: vars.$font-size-mobile;
@@ -25,9 +21,5 @@
   .abschnitt-summe th,
   .abschnitt-summe td {
     padding: vars.$spacing-sm;
-  }
-
-  .abschnitt-summe__nowrap {
-    white-space: normal;
   }
 }

@@ -170,6 +170,20 @@ class FakeElement {
       return null;
     }
 
+    const tagWithAttr = selector.match(/^(\w+)\[([\w-]+)\]$/);
+    if (tagWithAttr) {
+      const [, tag, attr] = tagWithAttr;
+      const tagUpper = tag.toUpperCase();
+      for (const child of this.children) {
+        if (child.tagName === tagUpper && child.hasAttribute(attr)) {
+          return child;
+        }
+        const found = child.querySelector(selector);
+        if (found) return found;
+      }
+      return null;
+    }
+
     return null;
   }
 

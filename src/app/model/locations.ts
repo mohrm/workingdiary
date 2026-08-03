@@ -16,3 +16,12 @@ export type Location = (typeof LOCATIONS)[keyof typeof LOCATIONS];
 export const WORK_LOCATIONS: Location[] = Object.values(LOCATIONS).filter(
   (location) => location !== LOCATIONS.UNASSIGNED,
 );
+
+// Short display labels for the Abschnitteditor's view/edit location cell —
+// kept separate from the LOCATIONS values themselves so persisted data and
+// equality checks are unaffected by display-only abbreviations.
+export const LOCATION_LABELS: Record<Location, string> = {
+  [LOCATIONS.UNASSIGNED]: 'kein',
+  [LOCATIONS.OFFICE]: LOCATIONS.OFFICE,
+  [LOCATIONS.MOBILE]: LOCATIONS.MOBILE,
+};
