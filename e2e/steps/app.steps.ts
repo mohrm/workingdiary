@@ -309,6 +309,44 @@ Then(
   },
 );
 
+async function textRect(
+  locator: ReturnType<Page['locator']>,
+): Promise<{ left: number; right: number }> {
+  return locator.first().evaluate((el) => {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const rect = range.getBoundingClientRect();
+    return { left: rect.left, right: rect.right };
+  });
+}
+
+Then(
+  "the colon between hour and minute is evenly spaced for section {string}'s start and end time",
+  async ({ page }, sectionIndex: string) => {
+    const section = page.getByTestId(`section-${sectionIndex}`);
+    await section.waitFor();
+    const seps = section.locator('.abschnitt-time-sep');
+
+    // DOM order (abschnitt.ts): start-hour, ":" (0), start-minute,
+    // " - " (1), end-hour, ":" (2), end-minute.
+    const pairs = [
+      { hour: '[data-start-hour]', sepIndex: 0, minute: '[data-start-minute]' },
+      { hour: '[data-end-hour]', sepIndex: 2, minute: '[data-end-minute]' },
+    ];
+
+    for (const { hour, sepIndex, minute } of pairs) {
+      const hourRect = await textRect(section.locator(hour));
+      const sepBox = await seps.nth(sepIndex).boundingBox();
+      const minuteRect = await textRect(section.locator(minute));
+
+      expect(sepBox).not.toBeNull();
+      const gapBefore = sepBox!.x - hourRect.right;
+      const gapAfter = minuteRect.left - (sepBox!.x + sepBox!.width);
+      expect(gapBefore).toBeCloseTo(gapAfter, 0);
+    }
+  },
+);
+
 Given('I remember the position of the log button', async ({ page }) => {
   rememberedBoxes.set(
     page,
