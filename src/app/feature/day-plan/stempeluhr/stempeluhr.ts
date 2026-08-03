@@ -23,7 +23,7 @@ export function createStempeluhr(
 
   function renderStempelValue(): string {
     if (!startTime) {
-      return '<i>noch nicht eingestempelt</i>';
+      return '<i class="stempeluhr__placeholder">noch nicht eingestempelt</i>';
     }
     if (isEdit) {
       return `<span class="stempeluhr__time-inputs">
@@ -42,17 +42,12 @@ export function createStempeluhr(
 
   function render() {
     el.innerHTML = `
-      <div class="stempeluhr__row">
-        <span class="stempeluhr__label">Eingestempelt um:</span>
-        <div class="stempeluhr__value">${renderStempelValue()}</div>
-      </div>
-      <div class="stempeluhr__actions">
-        <span class="stempeluhr__label-placeholder" aria-hidden="true"></span>
-        <button class="mat-button" data-testid="log-button">
-          <span data-action>${!startTime ? icon('login') : icon('logout')}</span>
-          ${!startTime ? 'Einstempeln' : 'Ausstempeln'}
-        </button>
-      </div>`;
+      <span class="stempeluhr__label">Eingestempelt um:</span>
+      <div class="stempeluhr__value">${renderStempelValue()}</div>
+      <button class="mat-button stempeluhr__button" data-testid="log-button">
+        <span data-action>${!startTime ? icon('login') : icon('logout')}</span>
+        <span class="stempeluhr__button-label">${!startTime ? 'Einstempeln' : 'Ausstempeln'}</span>
+      </button>`;
     bindEvents();
   }
 

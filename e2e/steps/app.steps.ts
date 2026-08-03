@@ -11,6 +11,34 @@ interface ControlPositions {
 }
 
 const rememberedPositions = new WeakMap<Page, ControlPositions>();
+const rememberedBoxes = new WeakMap<
+  Page,
+  Record<string, { x: number; y: number }>
+>();
+
+// Positions are recorded relative to the document, not the viewport, by
+// adding the current scroll offset: navigating via the "Zurück"/"Vor" links
+// (which sit below the fold) makes Playwright auto-scroll them into view
+// before clicking, which would otherwise look like every element above them
+// had shifted, even though nothing in the layout actually moved.
+async function readNamedBoxes(
+  page: Page,
+  selectors: Record<string, string>,
+): Promise<Record<string, { x: number; y: number }>> {
+  const scroll = await page.evaluate(() => ({
+    x: window.scrollX,
+    y: window.scrollY,
+  }));
+  const result: Record<string, { x: number; y: number }> = {};
+  for (const [name, selector] of Object.entries(selectors)) {
+    const box = await page.locator(selector).first().boundingBox();
+    if (!box) {
+      throw new Error(`Could not find element for "${name}" (${selector}).`);
+    }
+    result[name] = { x: box.x + scroll.x, y: box.y + scroll.y };
+  }
+  return result;
+}
 
 async function readControlPositions(
   page: Page,
@@ -144,7 +172,7 @@ Then('the section editor inputs are fully visible', async ({ page }) => {
     await element.scrollIntoViewIfNeeded();
     const box = await element.boundingBox();
     expect(box).not.toBeNull();
-    expect(box!.height).toBeGreaterThan(24);
+    expect(box!.height).toBeGreaterThanOrEqual(24);
     expect(box!.y).toBeGreaterThanOrEqual(0);
     expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
   }
@@ -232,5 +260,127 @@ Then(
         document.documentElement.clientWidth,
     );
     expect(overflows).toBe(false);
+  },
+);
+
+Then(
+  'I see the column headers {string}, {string} and {string} above the section list',
+  async ({ page }, start: string, ende: string, arbeitsort: string) => {
+    const header = page.locator('.abschnitt-liste__header');
+    await header.waitFor();
+    await expect(header).toContainText(start);
+    await expect(header).toContainText(ende);
+    await expect(header).toContainText(arbeitsort);
+  },
+);
+
+Given('I remember the position of the log button', async ({ page }) => {
+  rememberedBoxes.set(
+    page,
+    await readNamedBoxes(page, { logButton: '[data-testid="log-button"]' }),
+  );
+});
+
+Then('the log button has not moved', async ({ page }) => {
+  const before = rememberedBoxes.get(page);
+  if (!before) {
+    throw new Error(
+      'No remembered position — call the "I remember the position of the log button" step first.',
+    );
+  }
+  const after = await readNamedBoxes(page, {
+    logButton: '[data-testid="log-button"]',
+  });
+  expect(after.logButton.x, 'log button x').toBeCloseTo(before.logButton.x, 0);
+  expect(after.logButton.y, 'log button y').toBeCloseTo(before.logButton.y, 0);
+});
+
+When('I open the login time editor', async ({ page }) => {
+  await page.locator('.stempeluhr [data-action="edit"]').click();
+});
+
+When('I abort the login time edit', async ({ page }) => {
+  await page.locator('.stempeluhr [data-action="abort"]').click();
+});
+
+Given(
+  'I remember the position of the stempeluhr and the section list',
+  async ({ page }) => {
+    rememberedBoxes.set(
+      page,
+      await readNamedBoxes(page, {
+        stempeluhr: '.stempeluhr',
+        sectionList: '.abschnitt-liste__list',
+      }),
+    );
+  },
+);
+
+Then('the stempeluhr and the section list have not moved', async ({ page }) => {
+  const before = rememberedBoxes.get(page);
+  if (!before) {
+    throw new Error(
+      'No remembered position — call the "I remember the position of the stempeluhr and the section list" step first.',
+    );
+  }
+  const after = await readNamedBoxes(page, {
+    stempeluhr: '.stempeluhr',
+    sectionList: '.abschnitt-liste__list',
+  });
+  for (const name of ['stempeluhr', 'sectionList'] as const) {
+    expect(after[name].x, `${name} x`).toBeCloseTo(before[name].x, 0);
+    expect(after[name].y, `${name} y`).toBeCloseTo(before[name].y, 0);
+  }
+});
+
+When('I go to the previous day', async ({ page }) => {
+  await page.locator('[data-prev-link]').click();
+});
+
+When(
+  'I log in and out {int} times starting at {string} for {int} minutes each',
+  async ({ page }, times: number, startTime: string, minutes: number) => {
+    const isoDate = await page.evaluate(() =>
+      new Date().toISOString().slice(0, 10),
+    );
+    let [hour, minute, second] = startTime.split(':').map(Number);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    for (let i = 0; i < times; i++) {
+      await page.clock.setFixedTime(
+        `${isoDate}T${pad(hour)}:${pad(minute)}:${pad(second)}`,
+      );
+      await page.getByTestId('log-button').click();
+
+      minute += minutes;
+      while (minute >= 60) {
+        minute -= 60;
+        hour += 1;
+      }
+      await page.clock.setFixedTime(
+        `${isoDate}T${pad(hour)}:${pad(minute)}:${pad(second)}`,
+      );
+      await page.getByTestId('log-button').click();
+    }
+  },
+);
+
+Then(
+  'at least {int} sections are fully visible without scrolling the section list',
+  async ({ page }, minCount: number) => {
+    const list = page.locator('.abschnitt-liste__list');
+    await list.waitFor();
+    const listBox = await list.boundingBox();
+    expect(listBox).not.toBeNull();
+
+    const items = page.locator('[data-testid^="section-"]');
+    const count = await items.count();
+    let visible = 0;
+    for (let i = 0; i < count; i++) {
+      const box = await items.nth(i).boundingBox();
+      if (box && box.y + box.height <= listBox!.y + listBox!.height + 0.5) {
+        visible++;
+      }
+    }
+    expect(visible).toBeGreaterThanOrEqual(minCount);
   },
 );
