@@ -295,6 +295,38 @@ Then('the log button has not moved', async ({ page }) => {
   expect(after.logButton.y, 'log button y').toBeCloseTo(before.logButton.y, 0);
 });
 
+Then(
+  'the stempeluhr value and log button share a single line',
+  async ({ page }) => {
+    const stempeluhr = page.locator('.stempeluhr');
+    await stempeluhr.waitFor();
+    const box = await stempeluhr.boundingBox();
+    const value = await stempeluhr.locator('.stempeluhr__value').boundingBox();
+    const button = await stempeluhr
+      .locator('.stempeluhr__button')
+      .boundingBox();
+    expect(box).not.toBeNull();
+    expect(value).not.toBeNull();
+    expect(button).not.toBeNull();
+
+    // The value and the button differ in height, so they line up on the
+    // same grid row only when their vertical centers match.
+    const valueCenter = value!.y + value!.height / 2;
+    const buttonCenter = button!.y + button!.height / 2;
+    expect(
+      Math.abs(valueCenter - buttonCenter),
+      'value and button on one line',
+    ).toBeLessThanOrEqual(1);
+    expect(value!.x + value!.width, 'value before button').toBeLessThanOrEqual(
+      button!.x + 0.5,
+    );
+    expect(
+      button!.x + button!.width,
+      'button inside stempeluhr',
+    ).toBeLessThanOrEqual(box!.x + box!.width + 0.5);
+  },
+);
+
 When('I open the login time editor', async ({ page }) => {
   await page.locator('.stempeluhr [data-action="edit"]').click();
 });

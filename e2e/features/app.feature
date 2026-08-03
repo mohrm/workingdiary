@@ -107,6 +107,20 @@ Feature: Day plan page
     Then the log button has not moved
 
   @stable-layout
+  Scenario: The stempeluhr fits on a single line
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    Then the stempeluhr value and log button share a single line
+
+  @stable-layout
+  Scenario: Editing the login time keeps the stempeluhr on a single line
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And I open the login time editor
+    Then the stempeluhr value and log button share a single line
+
+  @stable-layout
   Scenario: Opening and closing the login time editor does not move the log button
     Given today's date is "2025-02-17" and the current time is "08:00:00"
     When I open the day plan for today
