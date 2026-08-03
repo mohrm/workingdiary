@@ -219,3 +219,18 @@ Then(
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
   },
 );
+
+Then(
+  'the section editor does not overflow the viewport horizontally',
+  async ({ page }) => {
+    const editor = page.locator('.abschnitt-edit');
+    await editor.waitFor();
+
+    const overflows = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth >
+        document.documentElement.clientWidth,
+    );
+    expect(overflows).toBe(false);
+  },
+);
