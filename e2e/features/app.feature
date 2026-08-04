@@ -114,6 +114,15 @@ Feature: Day plan page
     Then the gap around the range separator is clearly wider than the colon gap for section "0"'s start and end time
 
   @stable-layout
+  Scenario: The section rows do not overflow the section list horizontally
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "09:00:00"
+    And I log out
+    Then the section rows do not overflow the section list horizontally
+
+  @stable-layout
   Scenario: Clocking in does not move the log button
     Given today's date is "2025-02-17" and the current time is "08:00:00"
     When I open the day plan for today

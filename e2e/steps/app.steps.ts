@@ -410,6 +410,53 @@ Then(
   },
 );
 
+Then(
+  'the section rows do not overflow the section list horizontally',
+  async ({ page }) => {
+    const list = page.locator('.abschnitt-liste__list');
+    await list.waitFor();
+
+    const metrics = await page.evaluate(() => {
+      const list = document.querySelector('.abschnitt-liste__list');
+      if (!list) {
+        throw new Error('Section list not found.');
+      }
+      const listBox = list.getBoundingClientRect();
+      const listRight = listBox.left + list.clientWidth;
+
+      // The rows' own boxes are 100% of the list's content box, so a
+      // horizontal overflow shows up only as their children (the fixed-width
+      // time range, location cell and icon zone) sticking out beyond the
+      // list's content right edge. Also catch a horizontal scrollbar on the
+      // list or the document, either of which would mean the row pushed past
+      // its container.
+      const childRights = Array.from(
+        document.querySelectorAll('.abschnitt-row'),
+      ).flatMap((row) =>
+        Array.from(row.children).map(
+          (child) => child.getBoundingClientRect().right,
+        ),
+      );
+      return {
+        listRight,
+        maxChildRight: Math.max(...childRights),
+        listScrollWidth: list.scrollWidth,
+        listClientWidth: list.clientWidth,
+        docScrollWidth: document.documentElement.scrollWidth,
+        innerWidth: window.innerWidth,
+      };
+    });
+
+    // Sub-pixel rounding gets a 0.5px tolerance; anything more means the row
+    // actually sticks out of its container.
+    expect(metrics.maxChildRight).toBeLessThanOrEqual(metrics.listRight + 0.5);
+    expect(metrics.listScrollWidth).toBeLessThanOrEqual(
+      metrics.listClientWidth,
+    );
+    expect(metrics.docScrollWidth).toBeLessThanOrEqual(metrics.innerWidth);
+  },
+);
+
 Given('I remember the position of the log button', async ({ page }) => {
   rememberedBoxes.set(
     page,

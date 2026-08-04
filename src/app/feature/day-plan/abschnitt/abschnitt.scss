@@ -42,30 +42,34 @@
 //
 // The colon's own gap isn't fixed width: it comes from leftover space in
 // `.abschnitt-time-cell`'s fixed box, so it shrinks as the cell width is
-// reduced. The cell is kept just wide enough for the 2-digit times it
-// displays (the wider "Start"/"Ende" header text spills into the adjacent
-// hidden filler cells). Kept narrow so the range separator's margin beats
-// the colon gap even under the CI container's narrower Liberation Sans
-// digits, while the whole row still fits within the list's content width
-// on a Fairphone 4 (411px viewport). Verified via the "@stable-layout"
-// e2e scenario comparing this gap against the colon gap across the full
-// configured viewport spread.
+// reduced. With the 1.875em cell below it is ~7px at the base 16px font
+// (leftover box width minus the ~20px digit pair), so 12px (18px incl. the
+// minute cell's padding, as measured by the e2e step) clears it with room
+// to spare even under the CI container's narrower Liberation Sans digits.
+// Kept as small as this so the whole section row still fits within the
+// list's content width on a 360px viewport — verified via the
+// "@stable-layout" e2e scenarios below across the full configured viewport
+// spread.
 .abschnitt-time-sep--range {
-  // Must beat the colon's leftover-driven gap (peaks ~13px at narrow
-  // viewports) on both sides, while keeping the whole section row within
-  // the list's content width on a Fairphone 4 (411px viewport). Verified
-  // via the "@stable-layout" e2e scenario below.
-  margin: 0 14px;
+  margin: 0 12px;
 }
 
 // Shared by the view-mode <span> and the edit-mode <input> so toggling
 // between them never changes this cell's box size or position.
+// Width in `em` (not `rem`) so it scales with the base font (16px on
+// phones → 22px on desktop, see $font-size-base): at the mobile 16px the
+// 1.875em cell is 30px, small enough that the whole row fits within the
+// section list's content width on a 360px viewport (see @stable-layout e2e
+// scenario), and at the desktop 22px it grows to ~41px so the ~28px digit
+// pair keeps its ~3px padding either side instead of overflowing into the
+// colon. Kept just wide enough for the 2-digit times (the wider "Start"/
+// "Ende" header text spills into the adjacent hidden filler cells).
 .abschnitt-time-cell {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
   box-sizing: border-box;
-  width: 2.375rem;
+  width: 1.875em;
   // An explicit height (rather than relying on content/padding to size the
   // box) means the view-mode <span> and the edit-mode <input> render at the
   // exact same height, regardless of the browser's intrinsic form-control
@@ -109,12 +113,16 @@ input.abschnitt-time-cell {
 }
 
 // Shared by the view-mode <span> and the edit-mode <select>, same reasoning
-// as .abschnitt-time-cell above.
+// as .abschnitt-time-cell above. Width in `em` so it scales with the base
+// font: at the mobile 16px the 4em cell is 64px — "mobil" (the longest
+// location label, ~40px) still fits, while keeping the row within the
+// list's content width on a 360px viewport — and at the desktop 22px it
+// grows to 88px so the label and the select's arrow both keep their space.
 .abschnitt-location-cell {
   display: inline-flex;
   align-items: center;
   box-sizing: border-box;
-  width: 4.5rem;
+  width: 4em;
   height: 24px;
   flex-shrink: 0;
   padding: 0 vars.$spacing-xs;
