@@ -41,16 +41,19 @@
 // because in flex layout it sits outside the box.
 //
 // The colon's own gap isn't fixed width: it comes from leftover space in
-// `.abschnitt-time-cell`'s fixed 2.75rem box (sized to fit "Start"/"Ende"
-// text, not just 2 digits), so it grows as the responsive base font-size
-// shrinks — largest at narrow/mobile viewports, where the row's
-// single-line width budget is also tightest. Verified via the
-// "@stable-layout" e2e scenario comparing this gap against the colon gap
-// across the full configured viewport spread.
+// `.abschnitt-time-cell`'s fixed box, so it shrinks as the cell width is
+// reduced. The cell is kept just wide enough for the 2-digit times it
+// displays (the wider "Start"/"Ende" header text spills into the adjacent
+// hidden filler cells). Kept narrow so the range separator's margin beats
+// the colon gap even under the CI container's narrower Liberation Sans
+// digits, while the whole row still fits within the list's content width
+// on a Fairphone 4 (411px viewport). Verified via the "@stable-layout"
+// e2e scenario comparing this gap against the colon gap across the full
+// configured viewport spread.
 .abschnitt-time-sep--range {
-  // Must beat the colon's leftover-driven gap (peaks ~21-22px at narrow
-  // viewports) on both sides, but kept small enough that the whole
-  // section row still fits on a Fairphone 4 (411px viewport). Verified
+  // Must beat the colon's leftover-driven gap (peaks ~13px at narrow
+  // viewports) on both sides, while keeping the whole section row within
+  // the list's content width on a Fairphone 4 (411px viewport). Verified
   // via the "@stable-layout" e2e scenario below.
   margin: 0 14px;
 }
@@ -62,7 +65,7 @@
   align-items: center;
   justify-content: flex-start;
   box-sizing: border-box;
-  width: 2.75rem;
+  width: 2.375rem;
   // An explicit height (rather than relying on content/padding to size the
   // box) means the view-mode <span> and the edit-mode <input> render at the
   // exact same height, regardless of the browser's intrinsic form-control
