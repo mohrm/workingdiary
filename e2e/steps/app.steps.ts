@@ -401,8 +401,9 @@ Then(
 
     // Clears sub-pixel rounding noise so this is a real regression guard,
     // not a bare `>`. Kept small (2 px) because the range separator's
-    // margin is itself only 4 px — a 4 px tolerance would force the margin
-    // back to 24 px and re-introduce the section-row overflow on phones.
+    // margin (14 px) only just beats the colon's leftover-driven gap — a
+    // 4 px tolerance would force the margin back to 24 px and re-introduce
+    // the section-row overflow on phones.
     const MARGIN_PX = 2;
     expect(rangeGapBefore).toBeGreaterThan(maxColonGap + MARGIN_PX);
     expect(rangeGapAfter).toBeGreaterThan(maxColonGap + MARGIN_PX);
