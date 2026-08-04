@@ -48,11 +48,11 @@
 // "@stable-layout" e2e scenario comparing this gap against the colon gap
 // across the full configured viewport spread.
 .abschnitt-time-sep--range {
-  // Larger than the spacing scale's largest step ($spacing-xl, 12px):
-  // measurement showed the colon's gap peaks around 21-22px at narrow
-  // viewports (see e2e scenario below), so this needs enough margin to
-  // clear that with a comfortable buffer on both sides of the separator.
-  margin: 0 24px;
+  // Must beat the colon's leftover-driven gap (peaks ~21-22px at narrow
+  // viewports) on both sides, but kept small enough that the whole
+  // section row still fits on a Fairphone 4 (411px viewport). Verified
+  // via the "@stable-layout" e2e scenario below.
+  margin: 0 4px;
 }
 
 // Shared by the view-mode <span> and the edit-mode <input> so toggling
