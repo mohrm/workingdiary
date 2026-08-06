@@ -60,10 +60,14 @@
 // phones → 22px on desktop, see $font-size-base): at the mobile 16px the
 // 1.875em cell is 30px, small enough that the whole row fits within the
 // section list's content width on a 360px viewport (see @stable-layout e2e
-// scenario), and at the desktop 22px it grows to ~41px so the ~28px digit
-// pair keeps its ~3px padding either side instead of overflowing into the
-// colon. Kept just wide enough for the 2-digit times (the wider "Start"/
-// "Ende" header text spills into the adjacent hidden filler cells).
+// scenario — there's only ~3px of headroom left there across all 4 time
+// cells combined, too little to grow this box further), and at the desktop
+// 22px it grows to ~41px. Kept just wide enough for the 2-digit times (the
+// wider "Start"/"Ende" header text spills into the adjacent hidden filler
+// cells). The reduced padding below (was $spacing-sm) and the input border
+// reset further down reclaim space *inside* this same box, because at the
+// old padding the edit-mode <input>'s 2-digit value (e.g. "45") clipped its
+// second digit on mobile (scrollWidth exceeded clientWidth).
 .abschnitt-time-cell {
   display: inline-flex;
   align-items: center;
@@ -76,7 +80,7 @@
   // sizing — so toggling edit mode never changes row height.
   height: 24px;
   flex-shrink: 0;
-  padding: 0 vars.$spacing-sm;
+  padding: 0 vars.$spacing-xs;
   // A box-shadow (rather than a border) reserves the outline without adding
   // to the box height, so toggling the transparent-vs-visible outline never
   // changes this cell's height.
@@ -94,6 +98,11 @@
 }
 
 input.abschnitt-time-cell {
+  // Overrides the browser's default ~2px number-input border, which would
+  // otherwise eat into the box-sizing: border-box content width on top of
+  // the box-shadow outline below (that box-shadow is what actually draws
+  // the visible outline, since it doesn't add to the box height/width).
+  border: none;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
   border-radius: 4px;
 }
