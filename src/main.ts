@@ -1,11 +1,3 @@
-import './styles.scss';
-import './app/app.scss';
-import './app/feature/day-plan/day-plan.scss';
-import './app/feature/day-plan/abschnitt/abschnitt.scss';
-import './app/feature/day-plan/abschnitt-liste/abschnitt-liste.scss';
-import './app/feature/day-plan/abschnitt-summe/abschnitt-summe.scss';
-import './app/feature/day-plan/stempeluhr/stempeluhr.scss';
-import './app/feature/download-plans/download-plans.scss';
 import { createApp } from './app/app';
 
 const rootElement = document.querySelector('app-root');

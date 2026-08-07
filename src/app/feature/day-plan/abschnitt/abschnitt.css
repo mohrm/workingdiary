@@ -1,0 +1,175 @@
+.abschnitt-host {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Single child of .abschnitt-host so the ambient `.abschnitt-cell { gap: 8px }`
+   (set by abschnitt-liste.ts, unrelated to this component) never leaks
+   between the cells below regardless of stylesheet cascade order. */
+.abschnitt-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--spacing-xs);
+  width: 100%;
+}
+
+.abschnitt-time-range {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.abschnitt-time-sep {
+  padding: 0 1px;
+}
+
+/* The gap on both sides of the range separator (" - ", between a section's
+   start and end time) must read as clearly *wider* than the gap around each
+   colon (between an hour and its minute) — otherwise the eye tries to group
+   a start time's minute with the end time's hour instead of grouping
+   hour+minute within each time. Padding wouldn't help here: `.abschnitt-
+   time-range` is a flex row with no `gap`, so adjacent cell boxes always
+   touch — padding only grows this element's own box inward, it never
+   pushes the neighboring minute/hour cell further away. `margin` does,
+   because in flex layout it sits outside the box.
+
+   The colon's own gap isn't fixed width: it comes from leftover space in
+   `.abschnitt-time-cell`'s fixed box, so it shrinks as the cell width is
+   reduced. With the 1.875em cell below it is ~7px at the base 16px font
+   (leftover box width minus the ~20px digit pair), so 12px (18px incl. the
+   minute cell's padding, as measured by the e2e step) clears it with room
+   to spare even under the CI container's narrower Liberation Sans digits.
+   Kept as small as this so the whole section row still fits within the
+   list's content width on a 360px viewport - verified via the
+   "@stable-layout" e2e scenarios below across the full configured viewport
+   spread. */
+.abschnitt-time-sep--range {
+  margin: 0 12px;
+}
+
+/* Shared by the view-mode <span> and the edit-mode <input> so toggling
+   between them never changes this cell's box size or position.
+   Width in `em` (not `rem`) so it scales with the base font (16px on
+   phones → 22px on desktop, see --font-size-base): at the mobile 16px the
+   1.875em cell is 30px, small enough that the whole row fits within the
+   section list's content width on a 360px viewport (see @stable-layout e2e
+   scenario — there's only ~3px of headroom left there across all 4 time
+   cells combined, too little to grow this box further), and at the desktop
+   22px it grows to ~41px. Kept just wide enough for the 2-digit times (the
+   wider "Start"/"Ende" header text spills into the adjacent hidden filler
+   cells). The reduced padding below (was --spacing-sm) and the input border
+   reset further down reclaim space *inside* this same box, because at the
+   old padding the edit-mode <input>'s 2-digit value (e.g. "45") clipped its
+   second digit on mobile (scrollWidth exceeded clientWidth). */
+.abschnitt-time-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  width: 1.875em;
+  /* An explicit height (rather than relying on content/padding to size the
+     box) means the view-mode <span> and the edit-mode <input> render at the
+     exact same height, regardless of the browser's intrinsic form-control
+     sizing — so toggling edit mode never changes row height. */
+  height: 24px;
+  flex-shrink: 0;
+  padding: 0 var(--spacing-xs);
+  /* A box-shadow (rather than a border) reserves the outline without adding
+     to the box height, so toggling the transparent-vs-visible outline never
+     changes this cell's height. */
+  box-shadow: inset 0 0 0 1px transparent;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+input.abschnitt-time-cell {
+  /* Overrides the browser's default ~2px number-input border, which would
+     otherwise eat into the box-sizing: border-box content width on top of
+     the box-shadow outline below (that box-shadow is what actually draws
+     the visible outline, since it doesn't add to the box height/width). */
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+/* Hour cells stay left-aligned (inherited above) so their digits share a
+   left edge with the left-aligned "Start"/"Ende" column headers, which sit
+   in a same-width cell one row up (see abschnitt-liste.ts). Right-aligning
+   the minute cells instead moves their digits flush against the colon,
+   balancing the colon's left gap (hour digit to colon: leftover box width
+   + right padding) against its right gap (colon to minute digit: leftover
+   box width + left padding) — keeps the colon visually centered without
+   touching the hour cells' box geometry or their header alignment. */
+.abschnitt-time-cell[data-start-minute],
+.abschnitt-time-cell[data-end-minute] {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+/* Shared by the view-mode <span> and the edit-mode <select>, same reasoning
+   as .abschnitt-time-cell above. Width in `em` so it scales with the base
+   font: at the mobile 16px the 4em cell is 64px — "mobil" (the longest
+   location label, ~40px) still fits, while keeping the row within the
+   list's content width on a 360px viewport — and at the desktop 22px it
+   grows to 88px so the label and the select's arrow both keep their space. */
+.abschnitt-location-cell {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 4em;
+  height: 24px;
+  flex-shrink: 0;
+  padding: 0 var(--spacing-xs);
+  box-shadow: inset 0 0 0 1px transparent;
+  font: inherit;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+select.abschnitt-location-cell {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  appearance: none;
+  padding-right: 1.125rem;
+  background:
+    right 6px center / 8px 6px no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 6'%3E%3Cpath d='M0 0h8L4 6z' fill='%23555'/%3E%3C/svg%3E");
+}
+
+/* Reserves 3 fixed-size slots regardless of how many are filled: view mode
+   only places `edit` (slot 2) and `delete` (slot 3), leaving slot 1 empty,
+   so `delete` never moves and `edit`/`finish` share the same slot. */
+.abschnitt-icon-zone {
+  display: grid;
+  grid-template-columns: repeat(3, 24px);
+  column-gap: var(--spacing-xs);
+  align-items: center;
+  justify-items: center;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.abschnitt-icon-zone [data-action='abort'] {
+  grid-column: 1;
+}
+
+.abschnitt-icon-zone [data-action='edit'],
+.abschnitt-icon-zone [data-action='finish'] {
+  grid-column: 2;
+}
+
+.abschnitt-icon-zone [data-action='delete'] {
+  grid-column: 3;
+}

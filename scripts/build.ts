@@ -2,7 +2,6 @@ import { createHash } from 'node:crypto';
 import { cp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { build as esbuildBuild } from 'esbuild';
-import { compile as sassCompile } from 'sass-embedded';
 import { updateVersion } from './update-version.mjs';
 
 const SRC = 'src';
@@ -94,40 +93,8 @@ export async function build({
   await rm(outDir, { recursive: true, force: true });
   await mkdir(`${outDir}/assets`, { recursive: true });
 
-  const cssResult = sassCompile(
-    `${SRC}/main.scss`,
-    dev
-      ? {
-          style: 'expanded',
-          sourceMap: true,
-          sourceMapIncludeSources: true,
-          loadPaths: [SRC],
-        }
-      : { style: 'compressed', sourceMap: false, loadPaths: [SRC] },
-  );
-
-  let cssFile: string;
-  if (dev) {
-    cssFile = 'index.css';
-    await writeFile(`${outDir}/assets/${cssFile}`, cssResult.css);
-    if (cssResult.sourceMap) {
-      await writeFile(
-        `${outDir}/assets/${cssFile}.map`,
-        JSON.stringify(cssResult.sourceMap),
-      );
-    }
-  } else {
-    const cssContent = Buffer.from(cssResult.css);
-    const cssHash = createHash('sha256')
-      .update(cssContent)
-      .digest('hex')
-      .slice(0, 8);
-    cssFile = `index-${cssHash}.css`;
-    await writeFile(`${outDir}/assets/${cssFile}`, cssContent);
-  }
-
   await esbuildBuild({
-    entryPoints: ['src/main.ts'],
+    entryPoints: ['src/main.ts', `${SRC}/main.css`],
     outdir: `${outDir}/assets`,
     entryNames: dev ? '[name]' : '[name]-[hash]',
     format: 'esm',
@@ -135,27 +102,16 @@ export async function build({
     minify: !dev,
     sourcemap: true,
     loader: { '.ts': 'ts' },
-    plugins: [
-      {
-        name: 'ignore-scss',
-        setup(build) {
-          build.onResolve({ filter: /\.scss$/ }, (args) => ({
-            path: args.path,
-            namespace: 'scss-ignored',
-          }));
-          build.onLoad({ filter: /.*/, namespace: 'scss-ignored' }, () => ({
-            contents: '',
-            loader: 'js',
-          }));
-        },
-      },
-    ],
   });
 
   const assets = await readdir(`${outDir}/assets`);
   const jsFile = assets.find((f) => f.endsWith('.js'));
+  const cssFile = assets.find((f) => f.endsWith('.css'));
   if (!jsFile) {
     throw new Error('esbuild did not produce a .js output file');
+  }
+  if (!cssFile) {
+    throw new Error('esbuild did not produce a .css output file');
   }
 
   await cp(PUBLIC, outDir, { recursive: true });

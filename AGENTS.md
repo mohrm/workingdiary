@@ -4,12 +4,12 @@ description: Builds and improves this Vanilla JS + Vite + TypeScript project.
 ---
 
 ## Tech Stack
-esbuild 0.28.x, TypeScript 7.0.x, Sass, Node test runner (node:test + node:assert/strict) + tsx 4.23, Biome 2.5.x, Playwright 1.61 + playwright-bdd 9.2. No framework – pure Vanilla JS ES modules.
+esbuild 0.28.x, TypeScript 7.0.x, plain CSS, Node test runner (node:test + node:assert/strict) + tsx 4.23, Biome 2.5.x, Playwright 1.61 + playwright-bdd 9.2. No framework – pure Vanilla JS ES modules.
 
 ## Commands
 ```bash
-npm run dev      # esbuild + Node server, port 5173, live-reload
-npm run build    # esbuild + sass-embedded + custom build
+npm run dev      # esbuild (JS + CSS) + Node server, port 5173, live-reload
+npm run build    # esbuild (JS + CSS) + custom build
 npm run preview  # static server for dist/
 npm test         # node:test via tsx, auto-coverage, threshold check (needs `npm run build` first, see below)
 npm run e2e      # Playwright-BDD
@@ -21,7 +21,8 @@ npm run format   # biome check --write
 ## Code Style
 - Components: `.ts` factory functions → `{ element, update, destroy? }`
 - Models/Services: `.ts` files
-- Styles: `.scss` per component, imported in `main.ts`
+- Styles: `.css` per component, no preprocessor. Shared tokens (`--spacing-*`, `--color-*`, ...) as CSS custom properties on `:root` in `src/styles.css`. Component files are wired together via plain `@import` in `src/main.css` (esbuild bundles it, mirroring the old `main.scss` import order) — `.ts` files no longer import their stylesheet.
+- Browser baseline: "Baseline Widely Available" (features stable across major evergreen browsers for ~30 months). Responsive breakpoints use `@container` (queried against `container-name: app` set on `<html>` in `styles.css`) instead of viewport `@media` queries — breakpoint values (480px/600px) still can't be expressed as custom properties inside the query condition itself (`@container`/`@media` can't reference `var()`), so they're duplicated as literals at each use site with a `/* mirrors --bp-* in styles.css */` comment; keep those in sync by hand if a breakpoint ever changes.
 - Tests: `node:test` + `node:assert/strict` (not Jest)
 - No comments unless intent unclear
 
