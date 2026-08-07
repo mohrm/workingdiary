@@ -1,6 +1,3 @@
-@use '../../../../variables' as vars;
-@use '../../../../mixins';
-
 .abschnitt-summe {
   width: 100%;
   border-collapse: collapse;
@@ -9,17 +6,18 @@
 
 .abschnitt-summe th,
 .abschnitt-summe td {
-  padding: vars.$padding-table-responsive;
+  padding: var(--padding-table-responsive);
   overflow-wrap: anywhere;
 }
 
-@include mixins.mobile {
+/* mirrors --bp-mobile in styles.css */
+@container app (max-width: 480px) {
   .abschnitt-summe {
-    font-size: vars.$font-size-mobile;
+    font-size: var(--font-size-mobile);
   }
 
   .abschnitt-summe th,
   .abschnitt-summe td {
-    padding: vars.$spacing-sm;
+    padding: var(--spacing-sm);
   }
 }

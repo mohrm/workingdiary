@@ -155,7 +155,7 @@ async function watchDir(dir: string): Promise<void> {
       }
     } catch {}
     const relPath = relative(SRC, fullPath);
-    if (/\.(scss|ts|js)$/.test(relPath)) {
+    if (/\.(css|ts|js)$/.test(relPath)) {
       clearTimeout(buildTimeout);
       buildTimeout = setTimeout(() => {
         void runBuildSerialized();
