@@ -1,4 +1,4 @@
-FROM nginx:1.31.3-alpine
+FROM nginx:1.31.4-alpine
 
 COPY dist/ /usr/share/nginx/html
 COPY package.json /tmp/package.json
