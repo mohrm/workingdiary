@@ -22,7 +22,7 @@
     "e2e:ci": "npx playwright test -c e2e/playwright.config.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.8",
+    "@biomejs/biome": "2.5.9",
     "@playwright/test": "1.62.1",
     "@types/node": "24.13.3",
     "esbuild": "0.28.2",
