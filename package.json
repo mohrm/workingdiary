@@ -24,7 +24,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.13",
     "@playwright/test": "1.63.0",
-    "@types/node": "24.13.4",
+    "@types/node": "24.13.5",
     "esbuild": "0.28.2",
     "playwright-bdd": "9.2.1",
     "tsx": "4.23.13",
