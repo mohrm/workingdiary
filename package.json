@@ -27,7 +27,7 @@
     "@types/node": "24.13.6",
     "esbuild": "0.28.2",
     "playwright-bdd": "9.2.1",
-    "tsx": "4.23.13",
+    "tsx": "4.23.15",
     "typescript": "7.0.2"
   }
 }
