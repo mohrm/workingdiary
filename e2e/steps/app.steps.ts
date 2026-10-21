@@ -609,10 +609,7 @@ Then('the undo hint is gone', async ({ page }) => {
 });
 
 When('I click the undo button', async ({ page }) => {
-  await page
-    .getByTestId('undo-toast')
-    .locator('[data-action="undo"]')
-    .click();
+  await page.getByTestId('undo-toast').locator('[data-action="undo"]').click();
 });
 
 Then('no sections are left', async ({ page }) => {
