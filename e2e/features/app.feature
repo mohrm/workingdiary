@@ -240,3 +240,26 @@ Feature: Day plan page
     And the page itself does not scroll
     When I click the undo button
     Then the page itself does not scroll
+
+@stable-layout
+Scenario: The version information opens in a centered dialog
+  Given today's date is "2025-02-17" and the current time is "08:00:00"
+  When I open the day plan for today
+  Then the version information dialog is gone
+  When I click the version info icon
+  Then I see the version information dialog
+  And the version information dialog is centered on the page
+  And the page itself does not scroll
+
+@stable-layout
+Scenario: The version information dialog closes again
+  Given today's date is "2025-02-17" and the current time is "08:00:00"
+  When I open the day plan for today
+  And I click the version info icon
+  Then I see the version information dialog
+  And I press Escape
+  Then the version information dialog is gone
+  When I click the version info icon
+  And I see the version information dialog
+  And I close the version information dialog
+  Then the version information dialog is gone

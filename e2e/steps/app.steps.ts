@@ -626,3 +626,42 @@ Then('the page itself does not scroll', async ({ page }) => {
   expect(scrolled.x, 'page horizontal scroll').toBe(0);
   expect(scrolled.y, 'page vertical scroll').toBe(0);
 });
+
+When('I click the version info icon', async ({ page }) => {
+  await page.getByTestId('version-info').click();
+});
+
+Then('I see the version information dialog', async ({ page }) => {
+  const dialog = page.getByTestId('version-info-dialog');
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText('Versionsinformation');
+  await expect(dialog).toContainText('Zuletzt geändert');
+  await expect(dialog.locator('a')).toBeVisible();
+});
+
+Then('the version information dialog is gone', async ({ page }) => {
+  await expect(page.getByTestId('version-info-dialog')).toBeHidden();
+});
+
+Then(
+  'the version information dialog is centered on the page',
+  async ({ page }) => {
+    const box = await page.getByTestId('version-info-dialog').boundingBox();
+    const viewport = page.viewportSize();
+    if (!box || !viewport) {
+      throw new Error('Dialog box or viewport size is not available.');
+    }
+    const centerX = box.x + box.width / 2;
+    const centerY = box.y + box.height / 2;
+    expect(Math.abs(centerX - viewport.width / 2)).toBeLessThanOrEqual(1);
+    expect(Math.abs(centerY - viewport.height / 2)).toBeLessThanOrEqual(1);
+  },
+);
+
+When('I press Escape', async ({ page }) => {
+  await page.keyboard.press('Escape');
+});
+
+When('I close the version information dialog', async ({ page }) => {
+  await page.getByTestId('version-info-close').click();
+});
