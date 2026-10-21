@@ -59,12 +59,8 @@ export function createApp(): AppComponent {
         </section>
         <footer class="app-footer">
           <div class="app-footer__row">
-            <div class="app-footer__spacer"></div>
             <div class="app-footer__title">Versionsinformation</div>
-            <div class="app-footer__meta">
-              <div>${getCommitTimestamp()}</div>
-              <div><a href="${getUrlOfLastCommit()}">${getCommitHash()}</a></div>
-            </div>
+            <div class="app-footer__meta">${getCommitTimestamp()} · <a href="${getUrlOfLastCommit()}">${getCommitHash()}</a></div>
             <div class="app-footer__spacer"></div>
             <div class="app-footer__actions" data-download-plans></div>
           </div>

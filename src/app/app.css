@@ -20,13 +20,17 @@
   min-height: 0;
 }
 
+/* The summary, navigation and footer stack must fit inside the shell's
+   viewport area on short viewports (see #595): the vh-based cap is measured
+   against the full viewport, so it shrinks by the same 2 * var(--gap-page)
+   as the shell above, and the stack keeps compact gaps. */
 .app-bottom {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-small);
+  gap: var(--spacing-md);
   width: 100%;
   flex: 0 0 auto;
-  max-height: var(--app-bottom-max-height);
+  max-height: calc(var(--app-bottom-max-height) - 2 * var(--gap-page));
 }
 
 .app-summary {
@@ -74,23 +78,17 @@
   flex: 0 1 auto;
 }
 
+/* flex-basis would size the height (not the width) once the row wraps,
+   which reserved 220px of empty space below the export link on viewports
+   narrower than 600px (see #595), so keep the actions content-sized. */
 .app-footer__actions {
-  flex: 0 1 220px;
+  flex: 0 0 auto;
 }
 
 /* mirrors --bp-tablet in styles.css */
 @container app (max-width: 600px) {
   .app-shell {
     gap: var(--spacing-xl);
-  }
-
-  .app-footer__row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .app-footer__spacer {
-    display: none;
   }
 }
 

@@ -4,9 +4,13 @@
   table-layout: fixed;
 }
 
+/* The summary is part of the bottom stack that must fit inside
+   .app-bottom's capped height on short viewports (see #595), so the
+   vertical cell padding stays minimal at every width. */
 .abschnitt-summe th,
 .abschnitt-summe td {
-  padding: var(--padding-table-responsive);
+  padding-inline: var(--padding-table-responsive);
+  padding-block: var(--spacing-xs);
   overflow-wrap: anywhere;
 }
 
@@ -14,10 +18,5 @@
 @container app (max-width: 480px) {
   .abschnitt-summe {
     font-size: var(--font-size-mobile);
-  }
-
-  .abschnitt-summe th,
-  .abschnitt-summe td {
-    padding: var(--spacing-sm);
   }
 }
