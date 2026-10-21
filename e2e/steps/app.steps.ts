@@ -615,3 +615,14 @@ When('I click the undo button', async ({ page }) => {
 Then('no sections are left', async ({ page }) => {
   await expect(page.locator('[data-testid^="section-"]')).toHaveCount(0);
 });
+
+Then('the page itself does not scroll', async ({ page }) => {
+  const scrolled = await page.evaluate(() => {
+    window.scrollTo(200, 200);
+    const result = { x: window.scrollX, y: window.scrollY };
+    window.scrollTo(0, 0);
+    return result;
+  });
+  expect(scrolled.x, 'page horizontal scroll').toBe(0);
+  expect(scrolled.y, 'page vertical scroll').toBe(0);
+});
