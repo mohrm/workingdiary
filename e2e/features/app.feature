@@ -249,6 +249,7 @@ Scenario: The version information opens in a centered dialog
   When I click the version info icon
   Then I see the version information dialog
   And the version information dialog is centered on the page
+  And I can export my data from the version information dialog
   And the page itself does not scroll
 
 @stable-layout
