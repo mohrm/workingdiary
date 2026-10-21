@@ -82,6 +82,120 @@ describe('AbschnittListe', () => {
     assert.ok(liste.element.querySelector('[data-testid="section-0"]'));
   });
 
+  it('shows an undo affordance after deleting a section', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+
+    assert.equal(
+      liste.element.querySelector('[data-testid="undo-toast"]'),
+      null,
+    );
+
+    fireClick(liste.element, '[data-action="delete"]');
+
+    assert.ok(liste.element.querySelector('[data-testid="undo-toast"]'));
+  });
+
+  it('restores a deleted section with its original values on undo', () => {
+    const onAbschnitteChange = mock.fn();
+    const liste = createAbschnittListe('01.01.2024', onAbschnitteChange);
+    liste.addAbschnitt(
+      new Section(new Time(8, 0), new Time(9, 0), LOCATIONS.OFFICE),
+    );
+
+    fireClick(liste.element, '[data-action="delete"]');
+    fireClick(liste.element, '[data-action="undo"]');
+
+    assert.ok(liste.element.querySelector('[data-testid="section-0"]'));
+    assert.equal(
+      liste.element.querySelector('[data-testid="undo-toast"]'),
+      null,
+    );
+    const sections = persistence.loadSections('01.01.2024');
+    assert.equal(sections?.length, 1);
+    assert.equal(sections?.[0].location, LOCATIONS.OFFICE);
+    assert.equal(onAbschnitteChange.mock.callCount(), 3);
+  });
+
+  it('restores a deleted section at its original position', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+    liste.addAbschnitt(new Section(new Time(9, 0), new Time(10, 0)));
+    liste.addAbschnitt(new Section(new Time(10, 0), new Time(11, 0)));
+
+    const middle = liste.element.querySelector('[data-testid="section-1"]');
+    assert.ok(middle);
+    fireClick(middle, '[data-action="delete"]');
+    fireClick(liste.element, '[data-action="undo"]');
+
+    const sections = persistence.loadSections('01.01.2024');
+    assert.equal(sections?.length, 3);
+    assert.equal(sections?.[1].startTime.hour, 9);
+    assert.equal(sections?.[1].endTime.hour, 10);
+  });
+
+  it('undo keeps the section currently being edited in edit mode', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+    liste.addAbschnitt(new Section(new Time(9, 0), new Time(10, 0)));
+
+    const second = liste.element.querySelector('[data-testid="section-1"]');
+    assert.ok(second);
+    fireClick(second, '[data-action="edit"]');
+
+    const first = liste.element.querySelector('[data-testid="section-0"]');
+    assert.ok(first);
+    fireClick(first, '[data-action="delete"]');
+    fireClick(liste.element, '[data-action="undo"]');
+
+    assert.ok(
+      liste.element
+        .querySelector('[data-testid="section-1"]')
+        ?.querySelector('input[data-start-hour]'),
+    );
+  });
+
+  it('hides the undo affordance when a new section is added', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+
+    fireClick(liste.element, '[data-action="delete"]');
+    liste.addAbschnitt(new Section(new Time(10, 0), new Time(11, 0)));
+
+    assert.equal(
+      liste.element.querySelector('[data-testid="undo-toast"]'),
+      null,
+    );
+  });
+
+  it('hides the undo affordance after an edit is saved', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+    liste.addAbschnitt(new Section(new Time(9, 0), new Time(10, 0)));
+
+    fireClick(liste.element, '[data-action="delete"]');
+    fireClick(liste.element, '[data-action="edit"]');
+    fireClick(liste.element, '[data-action="finish"]');
+
+    assert.equal(
+      liste.element.querySelector('[data-testid="undo-toast"]'),
+      null,
+    );
+  });
+
+  it('hides the undo affordance when switching days', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+
+    fireClick(liste.element, '[data-action="delete"]');
+    liste.update('02.01.2024');
+
+    assert.equal(
+      liste.element.querySelector('[data-testid="undo-toast"]'),
+      null,
+    );
+  });
+
   it('edits a section in place and clears edit mode afterwards', () => {
     const onAbschnitteChange = mock.fn();
     const liste = createAbschnittListe('01.01.2024', onAbschnitteChange);
