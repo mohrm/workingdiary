@@ -1,1 +1,124 @@
-[object Object]
+import type { Component } from './component';
+import {
+  type AbschnittSummeComponent,
+  createAbschnittSumme,
+} from './feature/day-plan/abschnitt-summe/abschnitt-summe';
+import {
+  createDayPlan,
+  type DayPlanComponent,
+} from './feature/day-plan/day-plan';
+import { createDownloadPlans } from './feature/download-plans/download-plans';
+import { createVersionInfo } from './feature/version-info/version-info';
+import { persistence } from './services/persistence';
+
+function today(): string {
+  return new Date().toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
+
+function getDayFromURL(): string {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('day') ?? today();
+}
+
+function navigate(day: string): void {
+  history.pushState({ day }, '', `/?day=${day}`);
+}
+
+export interface AppComponent extends Component {
+  update: () => void;
+}
+
+export function createApp(): AppComponent {
+  const el = document.createElement('div');
+  el.className = 'app-shell';
+
+  let day = getDayFromURL();
+  let dayPlan: DayPlanComponent | undefined;
+  let abschnittSumme: AbschnittSummeComponent | undefined;
+  let downloadPlans: Component | undefined;
+  let versionInfo: Component | undefined;
+
+  function render() {
+    el.innerHTML = `
+      <main class="app-main" data-dayplan></main>
+      <div class="app-bottom">
+        <div class="app-summary" data-abschnitt-summe></div>
+        <section class="app-navigation">
+          <div class="app-navigation__row">
+            <a class="app-navigation__link" data-prev-link href="#">Zurück</a>
+            <div class="app-navigation__spacer"></div>
+            <a class="app-navigation__link" data-next-link href="#">Vor</a>
+          </div>
+        </section>
+        <footer class="app-footer">
+          <div class="app-footer__row">
+            <div class="app-footer__version" data-version-info></div>
+          </div>
+        </footer>
+      </div>`;
+
+    dayPlan = createDayPlan(day, () => abschnittSumme?.update(day));
+    abschnittSumme = createAbschnittSumme(day);
+    downloadPlans = createDownloadPlans();
+    versionInfo = createVersionInfo();
+
+    el.querySelector('[data-dayplan]')!.appendChild(dayPlan.element);
+    el.querySelector('[data-abschnitt-summe]')!.appendChild(
+      abschnittSumme.element,
+    );
+    // The export link lives inside the version info dialog now, so the
+    // dialog must be mounted before its data-download-plans slot is filled.
+    el.querySelector('[data-version-info]')!.appendChild(versionInfo.element);
+    el.querySelector('[data-download-plans]')!.appendChild(
+      downloadPlans.element,
+    );
+
+    bindNavigation();
+  }
+
+  function bindNavigation() {
+    const prevLink = el.querySelector<HTMLAnchorElement>('[data-prev-link]');
+    const nextLink = el.querySelector<HTMLAnchorElement>('[data-next-link]');
+
+    prevLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      day = persistence.previousDay(day);
+      navigate(day);
+      updateView();
+    });
+
+    nextLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      day = persistence.nextDay(day);
+      navigate(day);
+      updateView();
+    });
+  }
+
+  function updateView() {
+    dayPlan?.update(day);
+    abschnittSumme?.update(day);
+    updateNavigationLinks();
+  }
+
+  function updateNavigationLinks() {
+    const prevLink = el.querySelector<HTMLAnchorElement>('[data-prev-link]');
+    const nextLink = el.querySelector<HTMLAnchorElement>('[data-next-link]');
+    if (prevLink) prevLink.href = `/?day=${persistence.previousDay(day)}`;
+    if (nextLink) nextLink.href = `/?day=${persistence.nextDay(day)}`;
+  }
+
+  render();
+
+  return {
+    element: el,
+    update() {
+      day = getDayFromURL();
+      updateView();
+    },
+  };
+}
