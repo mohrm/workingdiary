@@ -599,3 +599,22 @@ Then(
     expect(visible).toBeGreaterThanOrEqual(minCount);
   },
 );
+
+Then('I see the undo hint', async ({ page }) => {
+  await expect(page.getByTestId('undo-toast')).toBeVisible();
+});
+
+Then('the undo hint is gone', async ({ page }) => {
+  await expect(page.getByTestId('undo-toast')).toHaveCount(0);
+});
+
+When('I click the undo button', async ({ page }) => {
+  await page
+    .getByTestId('undo-toast')
+    .locator('[data-action="undo"]')
+    .click();
+});
+
+Then('no sections are left', async ({ page }) => {
+  await expect(page.locator('[data-testid^="section-"]')).toHaveCount(0);
+});

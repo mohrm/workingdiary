@@ -11,6 +11,11 @@ export interface AbschnittListeComponent extends Component {
   addAbschnitt: (section: Section) => void;
 }
 
+interface UndoState {
+  section: Section;
+  index: number;
+}
+
 export function createAbschnittListe(
   day: string,
   onAbschnitteChange?: (sections: Section[]) => void,
@@ -21,6 +26,7 @@ export function createAbschnittListe(
   let abschnitte: Section[] = persistence.loadSections(day) ?? [];
   let itemControllers: AbschnittComponent[] = [];
   let editIndex = -1;
+  let undoState: UndoState | undefined;
 
   function persistAbschnitte(): void {
     persistence.saveSections(day, abschnitte);
@@ -29,11 +35,13 @@ export function createAbschnittListe(
 
   function addAbschnitt(section: Section): void {
     abschnitte = [...abschnitte, section];
+    undoState = undefined;
     persistAbschnitte();
     render();
   }
 
   function entferneAbschnitt(index: number): void {
+    undoState = { section: abschnitte[index], index };
     abschnitte = abschnitte.filter((_, i) => i !== index);
     if (index === editIndex) {
       editIndex = -1;
@@ -44,11 +52,37 @@ export function createAbschnittListe(
     render();
   }
 
+  function macheLoeschungRueckgaengig(): void {
+    if (!undoState) return;
+    const { section, index } = undoState;
+    undoState = undefined;
+    abschnitte = [
+      ...abschnitte.slice(0, index),
+      section,
+      ...abschnitte.slice(index),
+    ];
+    if (index <= editIndex) {
+      editIndex += 1;
+    }
+    persistAbschnitte();
+    render();
+  }
+
   function aendereAbschnitt(index: number, newSection: Section): void {
     abschnitte = abschnitte.map((v, i) => (i === index ? newSection : v));
+    undoState = undefined;
     persistAbschnitte();
     editIndex = -1;
     render();
+  }
+
+  function renderUndoToast(): string {
+    if (!undoState) return '';
+    return `
+      <div class="abschnitt-liste__undo-toast" data-testid="undo-toast" role="status">
+        <span>Abschnitt gelöscht.</span>
+        <button type="button" class="abschnitt-liste__undo-button" data-action="undo">Rückgängig</button>
+      </div>`;
   }
 
   function render() {
@@ -78,7 +112,8 @@ export function createAbschnittListe(
         `,
           )
           .join('')}
-      </ul>`;
+      </ul>
+      ${renderUndoToast()}`;
 
     el.querySelectorAll<HTMLElement>('[data-index]').forEach((li) => {
       const index = parseInt(li.dataset.index!, 10);
@@ -100,12 +135,22 @@ export function createAbschnittListe(
 
       itemControllers.push(controller);
     });
+
+    bindUndoAction();
+  }
+
+  function bindUndoAction(): void {
+    el.querySelector('[data-action="undo"]')?.addEventListener(
+      'click',
+      macheLoeschungRueckgaengig,
+    );
   }
 
   function update(newDay: string): void {
     day = newDay;
     abschnitte = persistence.loadSections(day) ?? [];
     editIndex = -1;
+    undoState = undefined;
     render();
   }
 
