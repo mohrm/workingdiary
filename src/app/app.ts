@@ -8,12 +8,8 @@ import {
   type DayPlanComponent,
 } from './feature/day-plan/day-plan';
 import { createDownloadPlans } from './feature/download-plans/download-plans';
+import { createVersionInfo } from './feature/version-info/version-info';
 import { persistence } from './services/persistence';
-import {
-  getCommitHash,
-  getCommitTimestamp,
-  getUrlOfLastCommit,
-} from './services/version';
 
 function today(): string {
   return new Date().toLocaleDateString('de-DE', {
@@ -44,6 +40,7 @@ export function createApp(): AppComponent {
   let dayPlan: DayPlanComponent | undefined;
   let abschnittSumme: AbschnittSummeComponent | undefined;
   let downloadPlans: Component | undefined;
+  let versionInfo: Component | undefined;
 
   function render() {
     el.innerHTML = `
@@ -59,8 +56,7 @@ export function createApp(): AppComponent {
         </section>
         <footer class="app-footer">
           <div class="app-footer__row">
-            <div class="app-footer__title">Versionsinformation</div>
-            <div class="app-footer__meta">${getCommitTimestamp()} · <a href="${getUrlOfLastCommit()}">${getCommitHash()}</a></div>
+            <div class="app-footer__version" data-version-info></div>
             <div class="app-footer__spacer"></div>
             <div class="app-footer__actions" data-download-plans></div>
           </div>
@@ -70,6 +66,7 @@ export function createApp(): AppComponent {
     dayPlan = createDayPlan(day, () => abschnittSumme?.update(day));
     abschnittSumme = createAbschnittSumme(day);
     downloadPlans = createDownloadPlans();
+    versionInfo = createVersionInfo();
 
     el.querySelector('[data-dayplan]')!.appendChild(dayPlan.element);
     el.querySelector('[data-abschnitt-summe]')!.appendChild(
@@ -78,6 +75,7 @@ export function createApp(): AppComponent {
     el.querySelector('[data-download-plans]')!.appendChild(
       downloadPlans.element,
     );
+    el.querySelector('[data-version-info]')!.appendChild(versionInfo.element);
 
     bindNavigation();
   }

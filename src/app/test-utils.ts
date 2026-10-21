@@ -44,6 +44,22 @@ class FakeElement {
     return this._value;
   }
 
+  // Minimal <dialog> support so dialog-based components can be exercised
+  // against the fake DOM without a real browser.
+  private _open = false;
+
+  showModal(): void {
+    this._open = true;
+  }
+
+  close(): void {
+    this._open = false;
+  }
+
+  get open(): boolean {
+    return this._open;
+  }
+
   get dataset(): Record<string, string> {
     const self = this;
     return new Proxy({} as Record<string, string>, {
