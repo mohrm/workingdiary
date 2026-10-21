@@ -1,10 +1,10 @@
 import type { Component } from '../../component';
-import { icon } from '../icons';
 import {
   getCommitHash,
   getCommitTimestamp,
   getUrlOfLastCommit,
 } from '../../services/version';
+import { icon } from '../icons';
 
 export function createVersionInfo(): Component {
   const el = document.createElement('div');
