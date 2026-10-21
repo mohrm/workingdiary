@@ -68,14 +68,8 @@
   flex: 1 1 120px;
 }
 
-.app-footer__title {
+.app-footer__version {
   flex: 0 0 auto;
-  text-align: center;
-  font-weight: var(--font-weight-semibold);
-}
-
-.app-footer__meta {
-  flex: 0 1 auto;
 }
 
 /* flex-basis would size the height (not the width) once the row wraps,
