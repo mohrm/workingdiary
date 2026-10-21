@@ -228,3 +228,15 @@ Feature: Day plan page
     And the stempeluhr and the section list have not moved
     When I click the undo button
     Then the stempeluhr and the section list have not moved
+
+  @stable-layout
+  Scenario: The app page itself never scrolls
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in and out 3 times starting at "08:00:00" for 30 minutes each
+    Then the page itself does not scroll
+    When I delete section "0"
+    Then I see the undo hint
+    And the page itself does not scroll
+    When I click the undo button
+    Then the page itself does not scroll
