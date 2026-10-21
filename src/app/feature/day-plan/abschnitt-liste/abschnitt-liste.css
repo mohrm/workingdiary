@@ -58,12 +58,16 @@
 
 /* The undo toast overlays the list instead of joining the flex column, so
    its appearance/disappearance never reflows the header, the rows, or any
-   sibling of the list (see AGENTS.md layout stability). */
+   sibling of the list (see AGENTS.md layout stability). Centered without
+   transforms: engines derive scrollable overflow from the untransformed
+   box, and a left: 50% box sticking out to the right would make the page
+   itself scroll horizontally while the toast is visible (see issue #595). */
 .abschnitt-liste__undo-toast {
   position: absolute;
   bottom: var(--spacing-xs);
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
   z-index: 10;
   display: flex;
   align-items: center;
