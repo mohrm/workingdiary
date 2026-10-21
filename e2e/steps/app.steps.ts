@@ -634,10 +634,26 @@ When('I click the version info icon', async ({ page }) => {
 Then('I see the version information dialog', async ({ page }) => {
   const dialog = page.getByTestId('version-info-dialog');
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText('Versionsinformation');
+  const title = dialog.locator('.version-info__title');
+  await expect(title).toHaveText('Informationen');
   await expect(dialog).toContainText('Zuletzt geändert');
-  await expect(dialog.locator('a')).toBeVisible();
+  await expect(dialog.locator('a').first()).toBeVisible();
 });
+
+Then(
+  'I can export my data from the version information dialog',
+  async ({ page }) => {
+    const downloadPromise = page.waitForEvent('download');
+    await page
+      .getByTestId('version-info-dialog')
+      .locator('.download-plans')
+      .click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(
+      /^dayplans_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json$/,
+    );
+  },
+);
 
 Then('the version information dialog is gone', async ({ page }) => {
   await expect(page.getByTestId('version-info-dialog')).toBeHidden();
