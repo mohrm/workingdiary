@@ -623,6 +623,49 @@ Then('the page itself does not scroll', async ({ page }) => {
     window.scrollTo(0, 0);
     return result;
   });
-  expect(scrolled.x, 'page horizontal scroll').toBe(0);
-  expect(scrolled.y, 'page vertical scroll').toBe(0);
+  if (scrolled.x === 0 && scrolled.y === 0) return;
+  const diag = await page.evaluate(() => {
+    const box = (el: Element | null) => {
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return {
+        top: Math.round(r.top),
+        bottom: Math.round(r.bottom),
+        h: Math.round(r.height),
+        sh: el.scrollHeight,
+      };
+    };
+    const offenders = [...document.querySelectorAll('*')]
+      .map((el) => ({ el, r: el.getBoundingClientRect() }))
+      .filter((x) => x.r.bottom > window.innerHeight + 1)
+      .sort((a, b) => b.r.bottom - a.r.bottom)
+      .slice(0, 15)
+      .map((x) => {
+        const cls = String(x.el.className).split(' ')[0];
+        return {
+          name: x.el.tagName.toLowerCase() + (cls ? '.' + cls : ''),
+          bottom: Math.round(x.r.bottom),
+        };
+      });
+    return {
+      vh: window.innerHeight,
+      vw: window.innerWidth,
+      scrollH: document.documentElement.scrollHeight,
+      bodySH: document.body.scrollHeight,
+      gapPage: getComputedStyle(document.documentElement).getPropertyValue(
+        '--gap-page',
+      ),
+      body: box(document.body),
+      appRoot: box(document.querySelector('app-root')),
+      shell: box(document.querySelector('.app-shell')),
+      main: box(document.querySelector('.app-main')),
+      bottom: box(document.querySelector('.app-bottom')),
+      host: box(document.querySelector('.abschnitt-liste-host')),
+      list: box(document.querySelector('.abschnitt-liste__list')),
+      offenders,
+    };
+  });
+  const msg = `page scroll ${JSON.stringify(diag)}`;
+  expect(scrolled.x, msg).toBe(0);
+  expect(scrolled.y, msg).toBe(0);
 });
