@@ -38,9 +38,9 @@ describe('VersionInfo', () => {
     assert.ok(
       info.element.querySelector('[data-testid="version-info-dialog"]'),
     );
-    assert.ok(info.element.textContent?.includes('Versionsinformation'));
-    assert.ok(info.element.textContent?.includes(getCommitTimestamp()));
-    assert.ok(info.element.textContent?.includes(getCommitHash()));
+    assert.ok(info.element.innerHTML.includes('Versionsinformation'));
+    assert.ok(info.element.innerHTML.includes(getCommitTimestamp()));
+    assert.ok(info.element.innerHTML.includes(getCommitHash()));
     const link = info.element.querySelector('a');
     assert.equal(link?.getAttribute('href'), getUrlOfLastCommit());
   });
