@@ -27,8 +27,6 @@
 
   --stempeluhr-label-width: 160px;
   --stempeluhr-label-width-mobile: 140px;
-  --app-bottom-max-height: 38vh;
-  --app-bottom-max-height-mobile: 42vh;
   --padding-table-responsive: clamp(6px, 1.2vw, 12px);
 }
 
