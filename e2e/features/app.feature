@@ -16,7 +16,7 @@ Feature: Day plan page
 
   Scenario: Logging out
     Given today's date is "2025-02-17" and the current time is "08:00:00"
-    And I open the day plan for today
+    When I open the day plan for today
     And I log in
     And time moves forward to "2025-02-17" at "09:00:00"
     And I log out
@@ -250,6 +250,7 @@ Scenario: The version information opens in a centered dialog
   Then I see the version information dialog
   And the version information dialog is centered on the page
   And I can export my data from the version information dialog
+  And the version information dialog links to the viewport checker
   And the page itself does not scroll
 
 @stable-layout
