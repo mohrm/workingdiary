@@ -46,6 +46,19 @@ describe('VersionInfo', () => {
     assert.equal(link?.getAttribute('href'), getUrlOfLastCommit());
   });
 
+  it('links to the viewport checker for on-device debugging', () => {
+    const info = createVersionInfo();
+
+    const links = info.element.querySelectorAll('a');
+    const checker = links[links.length - 1];
+    assert.equal(
+      checker?.getAttribute('href'),
+      'https://mohrm.github.io/viewport-checker/',
+    );
+    assert.equal(checker?.getAttribute('target'), '_blank');
+    assert.equal(checker?.getAttribute('rel'), 'noopener');
+  });
+
   it('starts with the dialog closed', () => {
     const info = createVersionInfo();
 

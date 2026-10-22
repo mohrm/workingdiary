@@ -11,7 +11,10 @@ export function createVersionInfo(): Component {
   el.className = 'version-info';
 
   // The dialog doubles as the footer's info menu: the export link is
-  // mounted into its data-download-plans slot by app.ts.
+  // mounted into its data-download-plans slot by app.ts. The viewport
+  // checker link opens in a new browsing context (target="_blank"), so
+  // on-device viewport measurements (see #595) happen without navigating
+  // away from the app.
   el.innerHTML = `
     <button type="button" class="version-info__button" data-testid="version-info" aria-label="Informationen anzeigen">
       ${icon('info')}
@@ -20,6 +23,7 @@ export function createVersionInfo(): Component {
       <h2 class="version-info__title" id="version-info-title">Informationen</h2>
       <p class="version-info__entry">Zuletzt geändert: ${getCommitTimestamp()}</p>
       <p class="version-info__entry">Commit: <a href="${getUrlOfLastCommit()}">${getCommitHash()}</a></p>
+      <p class="version-info__entry">Viewport prüfen: <a href="https://mohrm.github.io/viewport-checker/" target="_blank" rel="noopener">mohrm.github.io/viewport-checker</a></p>
       <div class="version-info__actions">
         <div class="version-info__export" data-download-plans></div>
         <button type="button" class="version-info__close" data-testid="version-info-close">${icon('close')}Schließen</button>
