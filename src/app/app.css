@@ -20,8 +20,8 @@
   min-height: 0;
 }
 
-/* The summary, navigation and footer stack must fit inside the shell's
-   viewport area on short viewports (see #595): the vh-based cap is measured
+/* The summary and navigation stack must fit inside the shell's viewport
+   area on short viewports (see #595): the vh-based cap is measured
    against the full viewport, so it shrinks by the same 2 * var(--gap-page)
    as the shell above, and the stack keeps compact gaps. */
 .app-bottom {
@@ -41,6 +41,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: var(--spacing-md);
 }
 
 .app-navigation__link {
@@ -52,19 +53,12 @@
   flex: 1 1 auto;
 }
 
-.app-footer {
-  width: 100%;
-}
-
-.app-footer__row {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.app-footer__version {
+/* The version info icon joins the navigation row instead of sitting in a
+   footer row of its own, so the bottom stack stays one row shorter and
+   keeps fitting the viewport with real-device fonts (see #595). The row
+   gap above separates it from the "Vor" link; the spacer keeps both day
+   links in place. */
+.app-navigation__version {
   flex: 0 0 auto;
 }
 

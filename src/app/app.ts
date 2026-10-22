@@ -52,13 +52,9 @@ export function createApp(): AppComponent {
             <a class="app-navigation__link" data-prev-link href="#">Zurück</a>
             <div class="app-navigation__spacer"></div>
             <a class="app-navigation__link" data-next-link href="#">Vor</a>
+            <div class="app-navigation__version" data-version-info></div>
           </div>
         </section>
-        <footer class="app-footer">
-          <div class="app-footer__row">
-            <div class="app-footer__version" data-version-info></div>
-          </div>
-        </footer>
       </div>`;
 
     dayPlan = createDayPlan(day, () => abschnittSumme?.update(day));
