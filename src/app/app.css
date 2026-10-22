@@ -53,15 +53,6 @@
   flex: 1 1 auto;
 }
 
-/* The version info icon joins the navigation row instead of sitting in a
-   footer row of its own, so the bottom stack stays one row shorter and
-   keeps fitting the viewport with real-device fonts (see #595). The row
-   gap above separates it from the "Vor" link; the spacer keeps both day
-   links in place. */
-.app-navigation__version {
-  flex: 0 0 auto;
-}
-
 /* mirrors --bp-tablet in styles.css */
 @container app (max-width: 600px) {
   .app-shell {
