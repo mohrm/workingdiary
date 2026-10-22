@@ -20,17 +20,18 @@
   min-height: 0;
 }
 
-/* The summary and navigation stack must fit inside the shell's viewport
-   area on short viewports (see #595): the vh-based cap is measured
-   against the full viewport, so it shrinks by the same 2 * var(--gap-page)
-   as the shell above, and the stack keeps compact gaps. */
+/* Content-sized on purpose: the stack must never be capped below its
+   real height. The old 38vh/42vh caps sat below the stack's actual
+   height once real-device fonts render taller than CI's Liberation
+   Sans, and the overflow pushed the navigation row below the fold —
+   the page scrolled just to reach "Zurück"/"Vor" (see #595). The
+   section list absorbs whatever viewport height is left instead. */
 .app-bottom {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   width: 100%;
   flex: 0 0 auto;
-  max-height: calc(var(--app-bottom-max-height) - 2 * var(--gap-page));
 }
 
 .app-summary {
@@ -71,9 +72,5 @@
   .app-shell {
     height: calc(100dvh - 2 * var(--spacing-xl));
     height: calc(100svh - 2 * var(--spacing-xl));
-  }
-
-  .app-bottom {
-    max-height: var(--app-bottom-max-height-mobile);
   }
 }
