@@ -16,7 +16,7 @@ Feature: Day plan page
 
   Scenario: Logging out
     Given today's date is "2025-02-17" and the current time is "08:00:00"
-    When I open the day plan for today
+    And I open the day plan for today
     And I log in
     And time moves forward to "2025-02-17" at "09:00:00"
     And I log out
