@@ -62,9 +62,15 @@
 
 /* mirrors --bp-mobile in styles.css */
 @container app (max-width: 480px) {
+  /* The body keeps its --spacing-xl padding on mobile, so a full-viewport
+     height made the shell stick out by 2 * --spacing-xl — and since the
+     body clips overflow on mobile, that cut the navigation row off the
+     bottom of the screen entirely (see #595). Fit the shell into the
+     padded content box instead, so every row down to the navigation
+     stays visible. */
   .app-shell {
-    height: 100dvh;
-    height: 100svh;
+    height: calc(100dvh - 2 * var(--spacing-xl));
+    height: calc(100svh - 2 * var(--spacing-xl));
   }
 
   .app-bottom {
