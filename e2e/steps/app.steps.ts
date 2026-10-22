@@ -59,7 +59,7 @@ async function readControlPositions(
 
 Given('I open the home page', async ({ page: _page }) => {});
 
-Then('I see {string} on the page', async ({ page: _page }, _theString) => {});
+Then('I see {string} on the page', async ({ page: _page }, _theString: string) => {});
 
 Given(
   "today's date is {string} and the current time is {string}",
@@ -401,8 +401,8 @@ Then(
 
     // Clears sub-pixel rounding noise so this is a real regression guard,
     // not a bare `>`. Kept small (2 px): the range separator's margin
-    // (14 px) beats the colon's leftover-driven gap (~13 px) with room to
-    // spare even under the CI container's narrower Liberation Sans digits,
+    // (14 px) beats the colon's leftover-driven gap (~13 px) with room
+    // to spare even under the CI container's narrower Liberation Sans digits,
     // so a larger tolerance isn't needed here.
     const MARGIN_PX = 2;
     expect(rangeGapBefore).toBeGreaterThan(maxColonGap + MARGIN_PX);
@@ -681,3 +681,13 @@ When('I press Escape', async ({ page }) => {
 When('I close the version information dialog', async ({ page }) => {
   await page.getByTestId('version-info-close').click();
 });
+
+Then(
+  'the version information dialog links to the viewport checker',
+  async ({ page }) => {
+    const link = page
+      .getByTestId('version-info-dialog')
+      .locator('a[href^="https://mohrm.github.io/viewport-checker"]');
+    await expect(link).toHaveAttribute('target', '_blank');
+  },
+);
