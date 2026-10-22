@@ -199,6 +199,19 @@ Feature: Day plan page
     Then I see that section "0" has start time "08:00" and end time "09:00"
     And the undo hint is gone
 
+  Scenario: The undo hint can be dismissed without restoring the section
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "09:00:00"
+    And I log out
+    And I delete section "0"
+    Then I see the undo hint
+    And no sections are left
+    When I dismiss the undo hint
+    Then the undo hint is gone
+    And no sections are left
+
   Scenario: The undo affordance only restores the most recently deleted section
     Given today's date is "2025-02-17" and the current time is "08:00:00"
     When I open the day plan for today

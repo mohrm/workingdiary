@@ -96,3 +96,21 @@
   cursor: pointer;
   white-space: nowrap;
 }
+
+/* The dismiss button drops the toast without restoring the section; it
+   keeps the undo button's quiet look, just icon-only. */
+.abschnitt-liste__undo-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs);
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.abschnitt-liste__undo-close svg {
+  width: 16px;
+  height: 16px;
+}

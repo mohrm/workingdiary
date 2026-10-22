@@ -94,6 +94,7 @@ describe('AbschnittListe', () => {
     fireClick(liste.element, '[data-action="delete"]');
 
     assert.ok(liste.element.querySelector('[data-testid="undo-toast"]'));
+    assert.ok(liste.element.querySelector('[data-action="dismiss-undo"]'));
   });
 
   it('restores a deleted section with its original values on undo', () => {
@@ -153,6 +154,20 @@ describe('AbschnittListe', () => {
         .querySelector('[data-testid="section-1"]')
         ?.querySelector('input[data-start-hour]'),
     );
+  });
+
+  it('dismisses the undo toast without restoring the section', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+
+    fireClick(liste.element, '[data-action="delete"]');
+    fireClick(liste.element, '[data-action="dismiss-undo"]');
+
+    assert.equal(
+      liste.element.querySelector('[data-testid="undo-toast"]'),
+      null,
+    );
+    assert.equal(persistence.loadSections('01.01.2024')?.length, 0);
   });
 
   it('hides the undo affordance when a new section is added', () => {
