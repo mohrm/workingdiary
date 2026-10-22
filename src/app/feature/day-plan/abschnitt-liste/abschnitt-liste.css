@@ -46,8 +46,12 @@
 
 /* mirrors --bp-mobile in styles.css */
 @container app (max-width: 480px) {
+  /* Six sections are enough to see at once; the list itself scrolls for
+     more (see #595). The old 36vh reserve could hold ~8 rows and squeezed
+     the summary and navigation on days with several work locations. A
+     row is a 24px time/location cell plus two --spacing-lg paddings. */
   .abschnitt-liste__list {
-    min-height: 36vh;
+    min-height: calc(6 * (24px + 2 * var(--spacing-lg)));
   }
 }
 

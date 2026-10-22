@@ -19,6 +19,14 @@
   gap: var(--spacing-md);
 }
 
+/* The default h1 block margins float the title 0.67em below the top of
+   the page and add the same below it — wasted vertical space that pushed
+   everything under it down (see #595). The header's own flex gap is the
+   only spacing the title line needs. */
+.day-plan__header h1 {
+  margin: 0;
+}
+
 .day-plan__clock,
 .day-plan__list {
   flex: 0 0 auto;
