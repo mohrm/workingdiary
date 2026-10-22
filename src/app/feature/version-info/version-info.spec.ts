@@ -49,13 +49,13 @@ describe('VersionInfo', () => {
   it('links to the viewport checker for on-device debugging', () => {
     const info = createVersionInfo();
 
-    const links = info.element.querySelectorAll('a');
-    const checker = links[links.length - 1];
+    // The fake DOM's querySelectorAll only knows attribute selectors, so
+    // find the checker link via its target="_blank" attribute.
+    const checker = info.element.querySelector('[target="_blank"]');
     assert.equal(
       checker?.getAttribute('href'),
       'https://mohrm.github.io/viewport-checker/',
     );
-    assert.equal(checker?.getAttribute('target'), '_blank');
     assert.equal(checker?.getAttribute('rel'), 'noopener');
   });
 
