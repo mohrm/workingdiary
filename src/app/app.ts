@@ -52,7 +52,6 @@ export function createApp(): AppComponent {
             <a class="app-navigation__link" data-prev-link href="#">Zurück</a>
             <div class="app-navigation__spacer"></div>
             <a class="app-navigation__link" data-next-link href="#">Vor</a>
-            <div class="app-navigation__version" data-version-info></div>
           </div>
         </section>
       </div>`;
@@ -66,9 +65,13 @@ export function createApp(): AppComponent {
     el.querySelector('[data-abschnitt-summe]')!.appendChild(
       abschnittSumme.element,
     );
-    // The export link lives inside the version info dialog now, so the
-    // dialog must be mounted before its data-download-plans slot is filled.
-    el.querySelector('[data-version-info]')!.appendChild(versionInfo.element);
+    // The info icon rides along the title line in the page header at the
+    // top instead of adding a row to the viewport-fitted bottom stack
+    // (see #595). The dialog must be mounted before its
+    // data-download-plans slot is filled.
+    dayPlan.element
+      .querySelector('.day-plan__header')!
+      .appendChild(versionInfo.element);
     el.querySelector('[data-download-plans]')!.appendChild(
       downloadPlans.element,
     );
