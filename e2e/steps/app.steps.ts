@@ -612,6 +612,13 @@ When('I click the undo button', async ({ page }) => {
   await page.getByTestId('undo-toast').locator('[data-action="undo"]').click();
 });
 
+When('I dismiss the undo hint', async ({ page }) => {
+  await page
+    .getByTestId('undo-toast')
+    .locator('[data-action="dismiss-undo"]')
+    .click();
+});
+
 Then('no sections are left', async ({ page }) => {
   await expect(page.locator('[data-testid^="section-"]')).toHaveCount(0);
 });

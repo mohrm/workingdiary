@@ -1,6 +1,7 @@
 import type { Component } from '../../../component';
 import type { Section } from '../../../model/Section';
 import { persistence } from '../../../services/persistence';
+import { icon } from '../../icons';
 import {
   type AbschnittComponent,
   createAbschnitt,
@@ -76,12 +77,20 @@ export function createAbschnittListe(
     render();
   }
 
+  // Dismissing only forgets the undo state: the deletion was already
+  // persisted, and nothing else about the list changed.
+  function versteckeUndoToast(): void {
+    undoState = undefined;
+    render();
+  }
+
   function renderUndoToast(): string {
     if (!undoState) return '';
     return `
       <div class="abschnitt-liste__undo-toast" data-testid="undo-toast" role="status">
         <span>Abschnitt gelöscht.</span>
         <button type="button" class="abschnitt-liste__undo-button" data-action="undo">Rückgängig</button>
+        <button type="button" class="abschnitt-liste__undo-close" data-action="dismiss-undo" aria-label="Meldung ausblenden">${icon('close')}</button>
       </div>`;
   }
 
@@ -136,13 +145,17 @@ export function createAbschnittListe(
       itemControllers.push(controller);
     });
 
-    bindUndoAction();
+    bindToastActions();
   }
 
-  function bindUndoAction(): void {
+  function bindToastActions(): void {
     el.querySelector('[data-action="undo"]')?.addEventListener(
       'click',
       macheLoeschungRueckgaengig,
+    );
+    el.querySelector('[data-action="dismiss-undo"]')?.addEventListener(
+      'click',
+      versteckeUndoToast,
     );
   }
 
