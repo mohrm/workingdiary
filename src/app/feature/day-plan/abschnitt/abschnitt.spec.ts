@@ -47,6 +47,8 @@ describe('Abschnitt', () => {
       false,
       undefined,
       undefined,
+      undefined,
+      undefined,
     );
 
     assert.ok(abschnitt.element.innerHTML.includes('data-start-hour>08<'));
@@ -63,6 +65,8 @@ describe('Abschnitt', () => {
       undefined,
       undefined,
       false,
+      undefined,
+      undefined,
       undefined,
       undefined,
     );
@@ -87,6 +91,8 @@ describe('Abschnitt', () => {
         editState = isEdit;
       },
       undefined,
+      undefined,
+      undefined,
     );
 
     fireClick(abschnitt.element, '[data-action="edit"]');
@@ -107,6 +113,8 @@ describe('Abschnitt', () => {
       false,
       undefined,
       onDelete,
+      undefined,
+      undefined,
     );
 
     fireClick(abschnitt.element, '[data-action="delete"]');
@@ -124,6 +132,8 @@ describe('Abschnitt', () => {
       section,
       undefined,
       true,
+      undefined,
+      undefined,
       undefined,
       undefined,
     );
@@ -151,6 +161,8 @@ describe('Abschnitt', () => {
       true,
       undefined,
       onDelete,
+      undefined,
+      undefined,
     );
 
     fireClick(abschnitt.element, '[data-action="delete"]');
@@ -163,6 +175,8 @@ describe('Abschnitt', () => {
       undefined,
       undefined,
       true,
+      undefined,
+      undefined,
       undefined,
       undefined,
     );
@@ -183,6 +197,8 @@ describe('Abschnitt', () => {
       onSectionChange,
       true,
       onIsEditChange,
+      undefined,
+      undefined,
       undefined,
     );
 
@@ -218,6 +234,8 @@ describe('Abschnitt', () => {
       true,
       undefined,
       undefined,
+      undefined,
+      undefined,
     );
 
     fireInput(abschnitt.element, '[data-start-hour]', 'not-a-number');
@@ -240,12 +258,93 @@ describe('Abschnitt', () => {
       true,
       onIsEditChange,
       undefined,
+      undefined,
+      undefined,
     );
 
     fireClick(abschnitt.element, '[data-action="abort"]');
 
     assert.equal(onIsEditChange.mock.callCount(), 1);
     assert.equal(onIsEditChange.mock.calls[0].arguments[0], false);
+  });
+
+  it('blocks finish and stays in edit mode when validation fails', () => {
+    const section = new Section(
+      new Time(8, 0),
+      new Time(12, 0),
+      LOCATIONS.OFFICE,
+    );
+    const onSectionChange = mock.fn();
+    const onIsEditChange = mock.fn();
+    const onValidationError = mock.fn();
+    const abschnitt = createAbschnitt(
+      section,
+      onSectionChange,
+      true,
+      onIsEditChange,
+      undefined,
+      () => ({ type: 'end-before-start', message: 'ungültig' }),
+      onValidationError,
+    );
+
+    fireClick(abschnitt.element, '[data-action="finish"]');
+
+    assert.equal(onSectionChange.mock.callCount(), 0);
+    assert.equal(onIsEditChange.mock.callCount(), 0);
+    assert.equal(onValidationError.mock.callCount(), 1);
+    assert.equal(
+      onValidationError.mock.calls[0].arguments[0].type,
+      'end-before-start',
+    );
+  });
+
+  it('commits and leaves edit mode when validation passes', () => {
+    const section = new Section(
+      new Time(8, 0),
+      new Time(12, 0),
+      LOCATIONS.OFFICE,
+    );
+    const onSectionChange = mock.fn();
+    const onIsEditChange = mock.fn();
+    const onValidationError = mock.fn();
+    const abschnitt = createAbschnitt(
+      section,
+      onSectionChange,
+      true,
+      onIsEditChange,
+      undefined,
+      () => undefined,
+      onValidationError,
+    );
+
+    fireClick(abschnitt.element, '[data-action="finish"]');
+
+    assert.equal(onSectionChange.mock.callCount(), 1);
+    assert.equal(onIsEditChange.mock.callCount(), 1);
+    assert.equal(onIsEditChange.mock.calls[0].arguments[0], false);
+    assert.equal(onValidationError.mock.callCount(), 0);
+  });
+
+  it('finishes without validation when no validator is provided', () => {
+    const section = new Section(
+      new Time(12, 0),
+      new Time(8, 0),
+      LOCATIONS.OFFICE,
+    );
+    const onSectionChange = mock.fn();
+    const abschnitt = createAbschnitt(
+      section,
+      onSectionChange,
+      true,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
+
+    fireClick(abschnitt.element, '[data-action="finish"]');
+
+    assert.equal(onSectionChange.mock.callCount(), 1);
   });
 
   it('does nothing when finish/abort/edit callbacks are not provided', () => {
@@ -260,6 +359,8 @@ describe('Abschnitt', () => {
       true,
       undefined,
       undefined,
+      undefined,
+      undefined,
     );
 
     assert.doesNotThrow(() => {
@@ -272,6 +373,8 @@ describe('Abschnitt', () => {
       section,
       undefined,
       false,
+      undefined,
+      undefined,
       undefined,
       undefined,
     );
@@ -293,6 +396,8 @@ describe('Abschnitt', () => {
       true,
       undefined,
       undefined,
+      undefined,
+      undefined,
     );
 
     const mobilOption = abschnitt.element.innerHTML
@@ -307,6 +412,8 @@ describe('Abschnitt', () => {
       undefined,
       undefined,
       false,
+      undefined,
+      undefined,
       undefined,
       undefined,
     );

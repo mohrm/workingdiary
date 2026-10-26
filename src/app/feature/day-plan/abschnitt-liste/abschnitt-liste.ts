@@ -1,5 +1,7 @@
 import type { Component } from '../../../component';
 import type { Section } from '../../../model/Section';
+import type { SectionValidationError } from '../../../model/section-validation';
+import { validateSection } from '../../../model/section-validation';
 import { persistence } from '../../../services/persistence';
 import { icon } from '../../icons';
 import {
@@ -28,6 +30,7 @@ export function createAbschnittListe(
   let itemControllers: AbschnittComponent[] = [];
   let editIndex = -1;
   let undoState: UndoState | undefined;
+  let validationError: SectionValidationError | undefined;
 
   function persistAbschnitte(): void {
     persistence.saveSections(day, abschnitte);
@@ -72,8 +75,19 @@ export function createAbschnittListe(
   function aendereAbschnitt(index: number, newSection: Section): void {
     abschnitte = abschnitte.map((v, i) => (i === index ? newSection : v));
     undoState = undefined;
+    validationError = undefined;
     persistAbschnitte();
     editIndex = -1;
+    render();
+  }
+
+  function zeigeValidierungsfehler(error: SectionValidationError): void {
+    validationError = error;
+    render();
+  }
+
+  function versteckeValidierungsfehler(): void {
+    validationError = undefined;
     render();
   }
 
@@ -82,6 +96,15 @@ export function createAbschnittListe(
   function versteckeUndoToast(): void {
     undoState = undefined;
     render();
+  }
+
+  function renderValidationErrorToast(): string {
+    if (!validationError) return '';
+    return `
+      <div class="abschnitt-liste__undo-toast abschnitt-liste__validation-toast" data-testid="validation-toast" role="alert">
+        <span>${validationError.message}</span>
+        <button type="button" class="abschnitt-liste__undo-close" data-action="dismiss-validation" aria-label="Meldung ausblenden">${icon('close')}</button>
+      </div>`;
   }
 
   function renderUndoToast(): string {
@@ -122,7 +145,8 @@ export function createAbschnittListe(
           )
           .join('')}
       </ul>
-      ${renderUndoToast()}`;
+      ${renderUndoToast()}
+      ${renderValidationErrorToast()}`;
 
     el.querySelectorAll<HTMLElement>('[data-index]').forEach((li) => {
       const index = parseInt(li.dataset.index!, 10);
@@ -138,6 +162,12 @@ export function createAbschnittListe(
           render();
         },
         () => entferneAbschnitt(index),
+        (newSection) =>
+          validateSection(
+            newSection,
+            abschnitte.filter((_, i) => i !== index),
+          ),
+        (error) => zeigeValidierungsfehler(error),
       );
       controller.element.classList.add('abschnitt-cell');
       li.appendChild(controller.element);
@@ -157,6 +187,10 @@ export function createAbschnittListe(
       'click',
       versteckeUndoToast,
     );
+    el.querySelector('[data-action="dismiss-validation"]')?.addEventListener(
+      'click',
+      versteckeValidierungsfehler,
+    );
   }
 
   function update(newDay: string): void {
@@ -164,6 +198,7 @@ export function createAbschnittListe(
     abschnitte = persistence.loadSections(day) ?? [];
     editIndex = -1;
     undoState = undefined;
+    validationError = undefined;
     render();
   }
 
