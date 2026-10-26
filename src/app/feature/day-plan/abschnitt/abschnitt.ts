@@ -5,6 +5,7 @@ import {
   type Location,
 } from '../../../model/locations';
 import { Section } from '../../../model/Section';
+import type { SectionValidationError } from '../../../model/section-validation';
 import { Time } from '../../../model/Time';
 import { bindActions } from '../../../util/bind-actions';
 import { icon } from '../../icons';
@@ -19,6 +20,10 @@ export function createAbschnitt(
   isEdit: boolean,
   onIsEditChange: ((isEdit: boolean) => void) | undefined,
   onDelete: (() => void) | undefined,
+  getValidationError:
+    | ((section: Section) => SectionValidationError | undefined)
+    | undefined,
+  onValidationError: ((error: SectionValidationError) => void) | undefined,
 ): AbschnittComponent {
   const el = document.createElement('div');
   el.className = 'abschnitt-host';
@@ -127,6 +132,11 @@ export function createAbschnitt(
           const newStart = new Time(startHour, startMinute);
           const newEnd = new Time(endHour, endMinute);
           const newSection = new Section(newStart, newEnd, location);
+          const error = getValidationError?.(newSection);
+          if (error) {
+            onValidationError?.(error);
+            return;
+          }
           if (onSectionChange) onSectionChange(newSection);
           if (onIsEditChange) onIsEditChange(false);
         },

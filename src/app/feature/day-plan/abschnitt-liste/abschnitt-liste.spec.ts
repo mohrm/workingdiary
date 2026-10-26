@@ -14,6 +14,15 @@ function fireClick(el: Element, selector: string): void {
   target.dispatchEvent({ type: 'click' });
 }
 
+function fireInput(el: Element, selector: string, value: string): void {
+  const target = el.querySelector(selector) as unknown as {
+    dispatchEvent: (event: { type: string; target: unknown }) => void;
+    value: string;
+  };
+  target.value = value;
+  target.dispatchEvent({ type: 'input', target });
+}
+
 describe('AbschnittListe', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -209,6 +218,107 @@ describe('AbschnittListe', () => {
       liste.element.querySelector('[data-testid="undo-toast"]'),
       null,
     );
+  });
+
+  it('blocks saving an edited section whose end is before its start', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+    liste.addAbschnitt(new Section(new Time(9, 0), new Time(10, 0)));
+
+    fireClick(liste.element, '[data-action="edit"]');
+    fireInput(liste.element, '[data-end-hour]', '7');
+    fireInput(liste.element, '[data-end-minute]', '30');
+    fireClick(liste.element, '[data-action="finish"]');
+
+    assert.ok(liste.element.querySelector('[data-testid="validation-toast"]'));
+    assert.ok(
+      liste.element.innerHTML.includes(
+        'Die Enduhrzeit darf nicht vor der Startuhrzeit liegen',
+      ),
+    );
+    assert.ok(
+      liste.element
+        .querySelector('[data-testid="section-0"]')
+        ?.querySelector('input[data-start-hour]'),
+    );
+    const sections = persistence.loadSections('01.01.2024');
+    assert.equal(sections?.[0].endTime.hour, 9);
+  });
+
+  it('blocks saving an edited section that overlaps another section', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+    liste.addAbschnitt(new Section(new Time(9, 0), new Time(10, 0)));
+
+    const second = liste.element.querySelector('[data-testid="section-1"]');
+    assert.ok(second);
+    fireClick(second, '[data-action="edit"]');
+    const secondEditing = liste.element.querySelector(
+      '[data-testid="section-1"]',
+    );
+    assert.ok(secondEditing);
+    fireInput(secondEditing, '[data-start-hour]', '8');
+    fireInput(secondEditing, '[data-start-minute]', '30');
+    fireClick(secondEditing, '[data-action="finish"]');
+
+    assert.ok(liste.element.querySelector('[data-testid="validation-toast"]'));
+    const sections = persistence.loadSections('01.01.2024');
+    assert.equal(sections?.[1].startTime.hour, 9);
+  });
+
+  it('allows saving an edited section that only touches another section', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+    liste.addAbschnitt(new Section(new Time(9, 0), new Time(10, 0)));
+
+    fireClick(liste.element, '[data-action="edit"]');
+    fireInput(liste.element, '[data-start-hour]', '9');
+    fireInput(liste.element, '[data-start-minute]', '0');
+    fireClick(liste.element, '[data-action="finish"]');
+
+    assert.equal(
+      liste.element.querySelector('[data-testid="validation-toast"]'),
+      null,
+    );
+    assert.equal(persistence.loadSections('01.01.2024')?.length, 2);
+  });
+
+  it('dismisses the validation toast without changing anything', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+
+    fireClick(liste.element, '[data-action="edit"]');
+    fireInput(liste.element, '[data-end-hour]', '7');
+    fireClick(liste.element, '[data-action="finish"]');
+    assert.ok(liste.element.querySelector('[data-testid="validation-toast"]'));
+
+    fireClick(liste.element, '[data-action="dismiss-validation"]');
+
+    assert.equal(
+      liste.element.querySelector('[data-testid="validation-toast"]'),
+      null,
+    );
+    assert.ok(liste.element.querySelector('input[data-start-hour]'));
+  });
+
+  it('clears the validation toast after a successful save', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+
+    fireClick(liste.element, '[data-action="edit"]');
+    fireInput(liste.element, '[data-end-hour]', '7');
+    fireClick(liste.element, '[data-action="finish"]');
+    assert.ok(liste.element.querySelector('[data-testid="validation-toast"]'));
+
+    fireInput(liste.element, '[data-end-hour]', '10');
+    fireClick(liste.element, '[data-action="finish"]');
+
+    assert.equal(
+      liste.element.querySelector('[data-testid="validation-toast"]'),
+      null,
+    );
+    const sections = persistence.loadSections('01.01.2024');
+    assert.equal(sections?.[0].endTime.hour, 10);
   });
 
   it('edits a section in place and clears edit mode afterwards', () => {
