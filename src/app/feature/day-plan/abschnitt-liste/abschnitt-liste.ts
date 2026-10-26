@@ -11,7 +11,7 @@ import {
 
 export interface AbschnittListeComponent extends Component {
   update: (day: string) => void;
-  addAbschnitt: (section: Section) => void;
+  addAbschnitt: (section: Section) => boolean;
 }
 
 interface UndoState {
@@ -37,11 +37,19 @@ export function createAbschnittListe(
     onAbschnitteChange?.(abschnitte);
   }
 
-  function addAbschnitt(section: Section): void {
+  function addAbschnitt(section: Section): boolean {
+    const error = validateSection(section, abschnitte);
+    if (error) {
+      validationError = error;
+      render();
+      return false;
+    }
     abschnitte = [...abschnitte, section];
     undoState = undefined;
+    validationError = undefined;
     persistAbschnitte();
     render();
+    return true;
   }
 
   function entferneAbschnitt(index: number): void {

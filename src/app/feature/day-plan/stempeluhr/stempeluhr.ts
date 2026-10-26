@@ -11,7 +11,7 @@ export interface StempeluhrComponent extends Component {
 
 export function createStempeluhr(
   day: string,
-  onStempelEreignis?: (section: Section) => void,
+  onStempelEreignis?: (section: Section) => boolean | undefined,
 ): StempeluhrComponent {
   const el = document.createElement('div');
   el.className = 'stempeluhr';
@@ -99,9 +99,12 @@ export function createStempeluhr(
           render();
         } else {
           const section = new Section(startTime, Time.now());
+          if (onStempelEreignis) {
+            const accepted = onStempelEreignis(section);
+            if (accepted === false) return;
+          }
           startTime = undefined;
           persistence.saveStartTime(day, startTime);
-          if (onStempelEreignis) onStempelEreignis(section);
           render();
         }
       },

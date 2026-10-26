@@ -61,6 +61,30 @@ describe('Stempeluhr', () => {
     assert.equal(persistence.loadStartTime('01.01.2024'), undefined);
   });
 
+  it('stays clocked in when the section is rejected by the callback', () => {
+    persistence.saveStartTime('01.01.2024', new Time(8, 0));
+    const onStempelEreignis = mock.fn(() => false);
+    const stempeluhr = createStempeluhr('01.01.2024', onStempelEreignis);
+
+    fireClick(stempeluhr.element, '[data-testid="log-button"]');
+
+    assert.equal(onStempelEreignis.mock.callCount(), 1);
+    assert.equal(persistence.loadStartTime('01.01.2024')?.hour, 8);
+    assert.ok(stempeluhr.element.innerHTML.includes('Ausstempeln'));
+  });
+
+  it('clears the start time when the callback accepts the section', () => {
+    persistence.saveStartTime('01.01.2024', new Time(8, 0));
+    const onStempelEreignis = mock.fn(() => true);
+    const stempeluhr = createStempeluhr('01.01.2024', onStempelEreignis);
+
+    fireClick(stempeluhr.element, '[data-testid="log-button"]');
+
+    assert.equal(onStempelEreignis.mock.callCount(), 1);
+    assert.equal(persistence.loadStartTime('01.01.2024'), undefined);
+    assert.ok(stempeluhr.element.innerHTML.includes('Einstempeln'));
+  });
+
   it('clocks out without a callback', () => {
     persistence.saveStartTime('01.01.2024', new Time(8, 0));
     const stempeluhr = createStempeluhr('01.01.2024');

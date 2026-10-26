@@ -68,6 +68,50 @@ describe('AbschnittListe', () => {
     assert.equal(sections.length, 1);
   });
 
+  it('rejects adding a section that overlaps an existing one', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+
+    const accepted = liste.addAbschnitt(
+      new Section(new Time(8, 30), new Time(10, 0)),
+    );
+
+    assert.equal(accepted, false);
+    assert.ok(liste.element.querySelector('[data-testid="validation-toast"]'));
+    assert.equal(persistence.loadSections('01.01.2024')?.length, 1);
+  });
+
+  it('rejects adding a section whose end is before its start', () => {
+    const liste = createAbschnittListe('01.01.2024');
+
+    const accepted = liste.addAbschnitt(
+      new Section(new Time(10, 0), new Time(8, 0)),
+    );
+
+    assert.equal(accepted, false);
+    assert.ok(liste.element.querySelector('[data-testid="validation-toast"]'));
+    assert.equal(
+      liste.element.querySelector('[data-testid="section-0"]'),
+      null,
+    );
+  });
+
+  it('accepts adding a section that only touches an existing one', () => {
+    const liste = createAbschnittListe('01.01.2024');
+    liste.addAbschnitt(new Section(new Time(8, 0), new Time(9, 0)));
+
+    const accepted = liste.addAbschnitt(
+      new Section(new Time(9, 0), new Time(10, 0)),
+    );
+
+    assert.equal(accepted, true);
+    assert.equal(
+      liste.element.querySelector('[data-testid="validation-toast"]'),
+      null,
+    );
+    assert.equal(persistence.loadSections('01.01.2024')?.length, 2);
+  });
+
   it('loads previously persisted sections for the day', () => {
     const first = createAbschnittListe('01.01.2024');
     first.addAbschnitt(new Section(new Time(8, 0), new Time(12, 0)));
