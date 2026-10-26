@@ -126,7 +126,7 @@ Then(
     // From: features/app.feature:27:5
     const sec = page.getByTestId(`section-${sectionIndex}`);
     await sec.waitFor();
-    expect(sec).toContainText(`${start} - ${end}`);
+    await expect(sec).toContainText(`${start} - ${end}`);
   },
 );
 
