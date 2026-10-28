@@ -25,38 +25,53 @@ const MANIFEST = {
   ],
 };
 
-const registerSw = `if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js',{scope:'/'})})}`;
+export function normalizeBasePath(basePath?: string): string {
+  if (!basePath) {
+    return '/';
+  }
+  const withLeading = basePath.startsWith('/') ? basePath : `/${basePath}`;
+  return withLeading.endsWith('/') ? withLeading : `${withLeading}/`;
+}
 
-function generateHtml(cssFile: string, jsFile: string): string {
+export function generateHtml(
+  cssFile: string,
+  jsFile: string,
+  basePath: string,
+): string {
+  const registerSw = `if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('${basePath}sw.js',{scope:'${basePath}'})})}`;
   return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Workingdiary</title>
-  <base href="/">
+  <base href="${basePath}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <meta name="theme-color" content="#1976d2">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="stylesheet" href="/assets/${cssFile}">
+  <link rel="manifest" href="${basePath}manifest.webmanifest">
+  <link rel="stylesheet" href="${basePath}assets/${cssFile}">
   <script>${registerSw}</script>
 </head>
 <body>
   <app-root style="display: flex; flex-direction: column; width: 100%; height: 100%"></app-root>
   <noscript>Please enable JavaScript to continue using this application.</noscript>
-  <script type="module" src="/assets/${jsFile}"></script>
+  <script type="module" src="${basePath}assets/${jsFile}"></script>
 </body>
 </html>`;
 }
 
-function generateServiceWorker(
+export function generateServiceWorker(
   cacheKey: string,
   precacheFiles: string[],
+  basePath: string,
 ): string {
-  return `const PRECACHE='${cacheKey}';const PRECACHE_URLS=${JSON.stringify(precacheFiles)};
+  const prefixedFiles = precacheFiles.map(
+    (file) => `${basePath}${file.slice(1)}`,
+  );
+  return `const PRECACHE='${cacheKey}';const PRECACHE_URLS=${JSON.stringify(prefixedFiles)};
 self.addEventListener('install',e=>{e.waitUntil(caches.open(PRECACHE).then(c=>c.addAll(PRECACHE_URLS)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(k=>k!==PRECACHE).map(k=>caches.delete(k)))));self.clientsClaim()});
-self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(caches.match('/index.html').then(r=>r||fetch(e.request)))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`;
+self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(caches.match('${basePath}index.html').then(r=>r||fetch(e.request)))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`;
 }
 
 async function scanDir(dir: string, prefix?: string): Promise<string[]> {
@@ -77,6 +92,7 @@ async function scanDir(dir: string, prefix?: string): Promise<string[]> {
 export interface BuildOptions {
   dev: boolean;
   outDir: string;
+  basePath?: string;
 }
 
 export interface BuildResult {
@@ -87,7 +103,9 @@ export interface BuildResult {
 export async function build({
   dev,
   outDir,
+  basePath,
 }: BuildOptions): Promise<BuildResult> {
+  const normalizedBasePath = normalizeBasePath(basePath);
   updateVersion();
 
   await rm(outDir, { recursive: true, force: true });
@@ -121,7 +139,7 @@ export async function build({
     JSON.stringify(MANIFEST, null, 2),
   );
 
-  const html = generateHtml(cssFile, jsFile);
+  const html = generateHtml(cssFile, jsFile, normalizedBasePath);
   await writeFile(`${outDir}/index.html`, html);
 
   const precacheFiles = await scanDir(outDir);
@@ -131,13 +149,20 @@ export async function build({
         .update(precacheFiles.sort().join('|'))
         .digest('hex')
         .slice(0, 8)}`;
-  const sw = generateServiceWorker(cacheKey, precacheFiles);
+  const sw = generateServiceWorker(cacheKey, precacheFiles, normalizedBasePath);
   await writeFile(`${outDir}/sw.js`, `${sw}\n`);
 
   return { cssFile, jsFile };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { cssFile, jsFile } = await build({ dev: false, outDir: 'dist' });
+  const argBasePath = process.argv
+    .find((arg) => arg.startsWith('--base-path='))
+    ?.slice('--base-path='.length);
+  const { cssFile, jsFile } = await build({
+    dev: false,
+    outDir: 'dist',
+    basePath: argBasePath || process.env.BASE_PATH,
+  });
   console.log(`Build complete: ${jsFile}, ${cssFile}`);
 }
