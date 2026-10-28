@@ -64,14 +64,13 @@ export function createZeitVerteilung(
     }
     const gesamt = totalIndustrialMinutes(day);
     const frei = gesamt - verteilteMinuten(aktivitaeten);
-    const anteil = Math.max(0, Math.min(minutes, frei));
     if (minutes > frei) {
       fehlermeldung = 'So viel Zeit ist nicht mehr frei.';
       render();
       return false;
     }
     fehlermeldung = undefined;
-    persist([...aktivitaeten, new Activity(trimmed, anteil)]);
+    persist([...aktivitaeten, new Activity(trimmed, minutes)]);
     render();
     return true;
   }
@@ -80,13 +79,23 @@ export function createZeitVerteilung(
     const input = el.querySelector<HTMLInputElement>(
       '[data-testid="neue-taetigkeit"]',
     );
-    const minutesInput = el.querySelector<HTMLInputElement>(
-      '[data-testid="neue-taetigkeit-minuten"]',
+    const hoursInput = el.querySelector<HTMLInputElement>(
+      '[data-testid="neue-taetigkeit-industriezeit"]',
+    );
+    const percentInput = el.querySelector<HTMLInputElement>(
+      '[data-testid="neue-taetigkeit-prozent"]',
     );
     const name = input?.value ?? neueTaetigkeit;
-    const hours = parseHours(minutesInput?.value ?? '');
+    const gesamt = totalIndustrialMinutes(day);
+    let minutes: number;
+    if ((percentInput?.value ?? '') !== '') {
+      const percent = parseDecimal(percentInput?.value ?? '');
+      minutes = Math.round((gesamt * percent) / 100);
+    } else {
+      minutes = hoursToIndustrialMinutes(parseDecimal(hoursInput?.value ?? ''));
+    }
     neueTaetigkeit = '';
-    addTaetigkeit(name, hoursToIndustrialMinutes(hours));
+    addTaetigkeit(name, minutes);
   }
 
   function addVorgegebeneTaetigkeit(name: string): void {
@@ -105,31 +114,62 @@ export function createZeitVerteilung(
     render();
   }
 
-  function aendereMinuten(index: number, minutes: number): void {
+  function aendereDauer(index: number, minutes: number): void {
     const aktivitaeten = persistence.loadTimeDistribution(day) ?? [];
     const gesamt = totalIndustrialMinutes(day);
     const rest = aktivitaeten
       .filter((_, i) => i !== index)
       .map((activity) => activity.minutes)
       .reduce((prev, cur) => prev + cur, 0);
-    const anteil = Math.max(0, Math.min(minutes, gesamt - rest));
+    if (minutes > gesamt - rest) {
+      fehlermeldung = 'So viel Zeit ist nicht mehr frei.';
+      minutes = Math.max(0, gesamt - rest);
+    } else {
+      fehlermeldung = undefined;
+    }
     persist(
       aktivitaeten.map((activity, i) =>
-        i === index ? new Activity(activity.name, anteil) : activity,
+        i === index ? new Activity(activity.name, minutes) : activity,
       ),
     );
     render();
   }
 
-  function parseHours(value: string): number {
+  function aendereProzent(index: number, percent: number): void {
+    const gesamt = totalIndustrialMinutes(day);
+    aendereDauer(index, Math.round((gesamt * percent) / 100));
+  }
+
+  function parseDecimal(value: string): number {
     return parseFloat(value.replace(',', '.')) || 0;
   }
 
-  function renderRow(activity: Activity, index: number): string {
+  function formatIndustrial(minutes: number): string {
+    return (minutes / 100).toFixed(2).replace('.', ',');
+  }
+
+  function formatIndustrialQuarterPrecision(minutes: number): string {
+    return formatIndustrial(Math.round(minutes / 25) * 25);
+  }
+
+  function formatPercent(minutes: number, gesamt: number): string {
+    if (gesamt === 0) return '0 %';
+    return `${((100 * minutes) / gesamt).toFixed(1).replace('.', ',')} %`;
+  }
+
+  function renderRow(
+    activity: Activity,
+    index: number,
+    gesamt: number,
+  ): string {
     return `
       <li class="zeit-verteilung__row mat-list-item" data-index="${index}">
-        <span class="zeit-verteilung__name" data-testid="taetigkeit-${index}">${activity.name}</span>
-        <input class="zeit-verteilung__minuten" type="number" min="0" step="0.01" value="${(activity.minutes / 100).toFixed(2).replace('.', ',')}" data-minuten-index="${index}" aria-label="Dauer in Industrieminuten für ${activity.name}" />
+        <div class="zeit-verteilung__taetigkeit">
+          <span class="zeit-verteilung__name" data-testid="taetigkeit-${index}">${activity.name}</span>
+          <span class="zeit-verteilung__indizes">${formatIndustrial(activity.minutes)} / ${formatIndustrialQuarterPrecision(activity.minutes)}</span>
+        </div>
+        <input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" value="${formatIndustrial(activity.minutes)}" data-industriezeit-index="${index}" aria-label="Dauer in Industriezeit für ${activity.name}" />
+        <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" value="${formatPercent(activity.minutes, gesamt)}" data-prozent-index="${index}" aria-label="Dauer in Prozent für ${activity.name}" />
         <button type="button" class="zeit-verteilung__delete" data-action="delete-${index}" data-testid="delete-taetigkeit-${index}" aria-label="${activity.name} entfernen">${icon('delete')}</button>
       </li>`;
   }
@@ -146,14 +186,18 @@ export function createZeitVerteilung(
     el.innerHTML = `
       <header class="zeit-verteilung__header">
         <h1 data-testid="zeitverteilung-title">Zeitverteilung für den ${day}</h1>
+        <button type="button" class="zeit-verteilung__back" data-action="back" data-testid="back-to-dayplan" aria-label="Zurück zum Tagesplan">${icon('arrow-back')}</button>
       </header>
       <p class="zeit-verteilung__gesamt">
-        Gesamtdauer: <span data-testid="zeitverteilung-gesamt">${(gesamt / 100).toFixed(2).replace('.', ',')}</span> Industrieminuten
+        Gesamtdauer: <span data-testid="zeitverteilung-gesamt">${formatIndustrial(gesamt)}</span>
+        <span class="zeit-verteilung__gesamt-rund">/ ${formatIndustrialQuarterPrecision(gesamt)}</span>
+        Industriezeit
       </p>
       <div class="zeit-verteilung__neu">
         <input class="zeit-verteilung__input" type="text" placeholder="Neue Tätigkeit" value="${neueTaetigkeit}" data-testid="neue-taetigkeit" data-neue-taetigkeit />
-        <input class="zeit-verteilung__input zeit-verteilung__input--minuten" type="number" min="0" step="0.01" placeholder="Dauer" data-testid="neue-taetigkeit-minuten" />
-        <button type="button" class="mat-button zeit-verteilung__add" data-action="add-freitext" data-testid="add-taetigkeit">${icon('check')}Hinzufügen</button>
+        <input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" placeholder="Industriezeit" data-testid="neue-taetigkeit-industriezeit" aria-label="Dauer in Industriezeit" />
+        <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" placeholder="%" data-testid="neue-taetigkeit-prozent" aria-label="Dauer in Prozent" />
+        <button type="button" class="zeit-verteilung__add" data-action="add-freitext" data-testid="add-taetigkeit" aria-label="Tätigkeit hinzufügen">${icon('check')}</button>
       </div>
       ${
         vorschlaege.length > 0
@@ -164,15 +208,19 @@ export function createZeitVerteilung(
           : ''
       }
       <ul class="zeit-verteilung__liste mat-list">
-        ${aktivitaeten.map((activity, index) => renderRow(activity, index)).join('')}
+        ${aktivitaeten.map((activity, index) => renderRow(activity, index, gesamt)).join('')}
         <li class="zeit-verteilung__row zeit-verteilung__row--unverteilt mat-list-item">
-          <span class="zeit-verteilung__name" data-testid="unverteilt-name">${UNVERTEILTE_ZEIT}</span>
-          <span class="zeit-verteilung__minuten zeit-verteilung__minuten--fix" data-testid="unverteilt-minuten">${(unverteilt / 100).toFixed(2).replace('.', ',')}</span>
+          <div class="zeit-verteilung__taetigkeit">
+            <span class="zeit-verteilung__name" data-testid="unverteilt-name">${UNVERTEILTE_ZEIT}</span>
+            <span class="zeit-verteilung__indizes" data-testid="unverteilt-industriezeit">${formatIndustrial(unverteilt)} / ${formatIndustrialQuarterPrecision(unverteilt)}</span>
+          </div>
+          <span class="zeit-verteilung__input zeit-verteilung__input--readonly" data-testid="unverteilt-minuten">${formatIndustrial(unverteilt)}</span>
+          <span class="zeit-verteilung__input zeit-verteilung__input--readonly zeit-verteilung__input--percent" data-testid="unverteilt-prozent">${formatPercent(unverteilt, gesamt)}</span>
           <span class="zeit-verteilung__delete"></span>
         </li>
       </ul>
       ${fehlermeldung ? `<div class="zeit-verteilung__fehler" data-testid="zeitverteilung-fehler" role="alert">${fehlermeldung}</div>` : ''}
-      <button type="button" class="mat-button zeit-verteilung__back" data-action="back" data-testid="back-to-dayplan">${icon('logout')}Zurück zum Tagesplan</button>`;
+      <button type="button" class="mat-button zeit-verteilung__back-label" data-action="back" data-testid="back-to-dayplan-label">Zurück zum Tagesplan</button>`;
 
     const freitextInput = el.querySelector<HTMLInputElement>(
       '[data-neue-taetigkeit]',
@@ -181,15 +229,27 @@ export function createZeitVerteilung(
       neueTaetigkeit = (e.target as HTMLInputElement).value;
     });
 
-    el.querySelectorAll<HTMLInputElement>('[data-minuten-index]').forEach(
+    el.querySelectorAll<HTMLInputElement>('[data-industriezeit-index]').forEach(
       (input) => {
-        const index = parseInt(input.dataset.minutenIndex ?? '', 10);
+        const index = parseInt(input.dataset.industriezeitIndex ?? '', 10);
         input.addEventListener('change', (e) => {
-          aendereMinuten(
+          aendereDauer(
             index,
             hoursToIndustrialMinutes(
-              parseHours((e.target as HTMLInputElement).value),
+              parseDecimal((e.target as HTMLInputElement).value),
             ),
+          );
+        });
+      },
+    );
+
+    el.querySelectorAll<HTMLInputElement>('[data-prozent-index]').forEach(
+      (input) => {
+        const index = parseInt(input.dataset.prozentIndex ?? '', 10);
+        input.addEventListener('change', (e) => {
+          aendereProzent(
+            index,
+            parseDecimal((e.target as HTMLInputElement).value),
           );
         });
       },

@@ -1,6 +1,7 @@
 import type { Component } from '../../component';
 import { viewUrl } from '../../model/routing';
 import type { Section } from '../../model/Section';
+import { icon } from '../icons';
 import {
   type AbschnittListeComponent,
   createAbschnittListe,
@@ -29,7 +30,7 @@ export function createDayPlan(
     el.innerHTML = `
       <header class="day-plan__header">
         <h1 data-testid="dayplan-title"></h1>
-        <a class="day-plan__verteilung-link mat-button" data-testid="open-zeitverteilung" href="${viewUrl(day, 'zeit-verteilung')}">Zeit verteilen</a>
+        <a class="day-plan__verteilung-link mat-button" data-testid="open-zeitverteilung" href="${viewUrl(day, 'zeit-verteilung')}" title="Zeit verteilen" aria-label="Zeitverteilung öffnen">${icon('chart')}</a>
       </header>`;
 
     el.querySelector('[data-testid="open-zeitverteilung"]')?.addEventListener(

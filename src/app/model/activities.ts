@@ -21,8 +21,9 @@ export class Activity {
   }
 }
 
-// Industrial time is entered in decimal hours ("Industrieminuten": 100
-// units per hour, e.g. 7,5 for seven and a half hours).
+// "Industriezeit" is entered as decimal hours (7,75 for 7 h 45 min); it is
+// stored internally as industrial minutes (100 per hour) to avoid float
+// artifacts.
 export function hoursToIndustrialMinutes(hours: number): number {
   return Math.round(100 * hours);
 }
@@ -31,13 +32,4 @@ export function hoursToIndustrialMinutes(hours: number): number {
 // industrial minutes for the distribution screen.
 export function calendarMinutesToIndustrial(minutes: number): number {
   return Math.round((minutes * 100) / 60);
-}
-
-export function industrialMinutesToHours(minutes: number): number {
-  return minutes / 100;
-}
-
-export function formatIndustrialMinutes(minutes: number): string {
-  const value = industrialMinutesToHours(minutes);
-  return (Math.round(value * 100) / 100).toFixed(2).replace('.', ',');
 }

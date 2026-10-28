@@ -297,7 +297,7 @@ Scenario: The version information dialog closes again
     And I log out
     And I open the time distribution
     Then I see "Zeitverteilung für den 17.02.2025" on the heading
-    And I see the total duration of "800,00" industrial minutes
+    And I see the total duration of "8,00" industrial time
     And I see an entry for unassigned time
 
   Scenario: Distributing the day's total duration across activities
@@ -307,12 +307,53 @@ Scenario: The version information dialog closes again
     And time moves forward to "2025-02-17" at "16:00:00"
     And I log out
     And I open the time distribution
-    And I add the free text activity "Review" with "2,5" industrial minutes
+    And I add the free text activity "Review" with "2,5" industrial time
     And I choose the predefined activity "Programmierung"
-    And I set the duration of activity "1" to "1,25" industrial minutes
-    Then activity "0" is "Review" with "250" industrial minutes
-    And activity "1" is "Programmierung" with "125" industrial minutes
-    And the unassigned time shows "425,00" industrial minutes
+    And I set the duration of activity "1" to "1,25" industrial time
+    Then activity "0" is "Review" with "2,50" industrial time
+    And activity "1" is "Programmierung" with "1,25" industrial time
+    And the unassigned time shows "4,25" industrial time
+
+  Scenario: An activity duration can also be entered as a percentage
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "25" percent of the day
+    Then activity "0" is "Review" with "2,00" industrial time
+
+  Scenario: Changing an activity duration via the percentage input
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I set the percentage of activity "0" to "50"
+    Then activity "0" is "Review" with "4,00" industrial time
+
+  Scenario: Activity durations stay visible after being confirmed
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    Then the duration input of activity "0" shows "2,50"
+
+  Scenario: Activity rows show exact and quarter-hour-rounded industrial time
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,38" industrial time
+    Then activity "0" shows "2,38 / 2,50" exact and rounded industrial time
 
   Scenario: An activity cannot take more time than is left
     Given today's date is "2025-02-17" and the current time is "08:00:00"
@@ -321,7 +362,7 @@ Scenario: The version information dialog closes again
     And time moves forward to "2025-02-17" at "09:00:00"
     And I log out
     And I open the time distribution
-    And I add the free text activity "Alles" with "9" industrial minutes
+    And I add the free text activity "Alles" with "9" industrial time
     Then I see the time distribution error message
 
   Scenario: Returning from the time distribution to the day plan
@@ -338,10 +379,10 @@ Scenario: The version information dialog closes again
     And time moves forward to "2025-02-17" at "16:00:00"
     And I log out
     And I open the time distribution
-    And I add the free text activity "Review" with "2,5" industrial minutes
+    And I add the free text activity "Review" with "2,5" industrial time
     And I reload the page
     Then I see "Zeitverteilung für den 17.02.2025" on the heading
-    And activity "0" is "Review" with "250" industrial minutes
+    And activity "0" is "Review" with "2,50" industrial time
 
   Scenario: Days without a time distribution keep working
     Given today's date is "2025-02-17" and the current time is "08:00:00"
@@ -350,11 +391,21 @@ Scenario: The version information dialog closes again
     And time moves forward to "2025-02-17" at "16:00:00"
     And I log out
     And I open the time distribution
-    And I add the free text activity "Review" with "2,5" industrial minutes
+    And I add the free text activity "Review" with "2,5" industrial time
     When I go back to the day plan
     And I go to the previous day
     Then I see "Tagesplan für den 17.02.2025" on the heading
     And the day still shows the log button
+
+  @stable-layout
+  Scenario: The time distribution title is fully visible on a narrow viewport
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    Then the time distribution title is fully visible
 
   @stable-layout
   Scenario: Opening the time distribution does not move the summary and navigation
@@ -386,5 +437,5 @@ Scenario: The version information dialog closes again
     And I log out
     And I open the time distribution
     And I remember the position of the back button
-    And I add the free text activity "Review" with "2,5" industrial minutes
+    And I add the free text activity "Review" with "2,5" industrial time
     Then the back button has not moved
