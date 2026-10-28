@@ -288,3 +288,103 @@ Scenario: The version information dialog closes again
   And I see the version information dialog
   And I close the version information dialog
   Then the version information dialog is gone
+
+  Scenario: Opening the time distribution screen from the day plan
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    Then I see "Zeitverteilung für den 17.02.2025" on the heading
+    And I see the total duration of "800,00" industrial minutes
+    And I see an entry for unassigned time
+
+  Scenario: Distributing the day's total duration across activities
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial minutes
+    And I choose the predefined activity "Programmierung"
+    And I set the duration of activity "1" to "1,25" industrial minutes
+    Then activity "0" is "Review" with "250" industrial minutes
+    And activity "1" is "Programmierung" with "125" industrial minutes
+    And the unassigned time shows "425,00" industrial minutes
+
+  Scenario: An activity cannot take more time than is left
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "09:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Alles" with "9" industrial minutes
+    Then I see the time distribution error message
+
+  Scenario: Returning from the time distribution to the day plan
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I open the time distribution
+    And I go back to the day plan
+    Then I see "Tagesplan für den 17.02.2025" on the heading
+
+  Scenario: The time distribution survives a reload
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial minutes
+    And I reload the page
+    Then I see "Zeitverteilung für den 17.02.2025" on the heading
+    And activity "0" is "Review" with "250" industrial minutes
+
+  Scenario: Days without a time distribution keep working
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial minutes
+    When I go back to the day plan
+    And I go to the previous day
+    Then I see "Tagesplan für den 17.02.2025" on the heading
+    And the day still shows the log button
+
+  @stable-layout
+  Scenario: Opening the time distribution does not move the summary and navigation
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I remember the position of the summary and the navigation row
+    And I open the time distribution
+    Then the summary and the navigation row have not moved
+
+  @stable-layout
+  Scenario: The time distribution page itself never scrolls
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    Then the page itself does not scroll
+
+  @stable-layout
+  Scenario: Adding an activity does not move the back button
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I remember the position of the back button
+    And I add the free text activity "Review" with "2,5" industrial minutes
+    Then the back button has not moved

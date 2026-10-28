@@ -27,6 +27,15 @@
   margin: 0;
 }
 
+/* A plain mat-button link on the title line: pinned to the icon's 24px
+   line height so opening it never changes the header row's height. */
+.day-plan__verteilung-link {
+  flex: 0 0 auto;
+  height: 24px;
+  padding: 0 var(--spacing-md);
+  white-space: nowrap;
+}
+
 .day-plan__clock,
 .day-plan__list {
   flex: 0 0 auto;
