@@ -1,4 +1,5 @@
 import type { Component } from '../../component';
+import { viewUrl } from '../../model/routing';
 import type { Section } from '../../model/Section';
 import {
   type AbschnittListeComponent,
@@ -16,6 +17,7 @@ export interface DayPlanComponent extends Component {
 export function createDayPlan(
   day: string,
   onAbschnitteChange?: (sections: Section[]) => void,
+  onOpenZeitVerteilung?: () => void,
 ): DayPlanComponent {
   const el = document.createElement('section');
   el.className = 'day-plan';
@@ -27,7 +29,17 @@ export function createDayPlan(
     el.innerHTML = `
       <header class="day-plan__header">
         <h1 data-testid="dayplan-title"></h1>
+        <a class="day-plan__verteilung-link mat-button" data-testid="open-zeitverteilung" href="${viewUrl(day, 'zeit-verteilung')}">Zeit verteilen</a>
       </header>`;
+
+    el.querySelector('[data-testid="open-zeitverteilung"]')?.addEventListener(
+      'click',
+      (e) => {
+        if (!onOpenZeitVerteilung) return;
+        e.preventDefault();
+        onOpenZeitVerteilung();
+      },
+    );
 
     el.querySelector('[data-testid="dayplan-title"]')!.textContent =
       `Tagesplan für den ${day}`;
@@ -48,6 +60,12 @@ export function createDayPlan(
     day = newDay;
     el.querySelector('[data-testid="dayplan-title"]')!.textContent =
       `Tagesplan für den ${day}`;
+    const verteilungsLink = el.querySelector<HTMLAnchorElement>(
+      '[data-testid="open-zeitverteilung"]',
+    );
+    if (verteilungsLink) {
+      verteilungsLink.href = viewUrl(day, 'zeit-verteilung');
+    }
     stempeluhr?.update(newDay);
     abschnittListe?.update(newDay);
   }

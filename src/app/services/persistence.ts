@@ -1,9 +1,12 @@
+import { Activity, type ActivityJson } from '../model/activities';
 import { Section, type SectionJson } from '../model/Section';
 import { Time, type TimeJson } from '../model/Time';
 
 export interface DayPlan {
   startTime?: TimeJson;
   sections?: SectionJson[];
+  activities?: string[];
+  timeDistribution?: ActivityJson[];
 }
 
 class PersistenceService {
@@ -72,6 +75,32 @@ class PersistenceService {
     } else {
       return undefined;
     }
+  }
+
+  saveActivities(day: string, activities: string[]) {
+    const plans = this.loadDayPlan(day);
+    plans[day].activities = activities;
+    localStorage.setItem('plans', JSON.stringify(plans));
+  }
+
+  loadActivities(day: string): string[] | undefined {
+    return this.loadDayPlan(day)[day].activities;
+  }
+
+  saveTimeDistribution(day: string, distribution: Activity[]) {
+    const plans = this.loadDayPlan(day);
+    plans[day].timeDistribution = distribution.map((activity) =>
+      activity.toJSON(),
+    );
+    localStorage.setItem('plans', JSON.stringify(plans));
+  }
+
+  loadTimeDistribution(day: string): Activity[] | undefined {
+    const distribution = this.loadDayPlan(day)[day].timeDistribution;
+    if (distribution) {
+      return distribution.map((a) => Activity.fromJSON(a));
+    }
+    return undefined;
   }
 
   // previousDay/nextDay jump to the closest day that actually has stored

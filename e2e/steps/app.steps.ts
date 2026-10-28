@@ -728,3 +728,129 @@ Then(
     await expect(link).toHaveAttribute('target', '_blank');
   },
 );
+
+When('I open the time distribution', async ({ page }) => {
+  await page.getByTestId('open-zeitverteilung').click();
+  await page.getByTestId('zeitverteilung-title').waitFor();
+});
+
+When('I go back to the day plan', async ({ page }) => {
+  await page.getByTestId('back-to-dayplan').click();
+  await page.getByTestId('dayplan-title').waitFor();
+});
+
+Then(
+  'I see the total duration of {string} industrial minutes',
+  async ({ page }, minutes: string) => {
+    await hasElementWithText(page, 'zeitverteilung-gesamt', minutes);
+  },
+);
+
+Then('I see an entry for unassigned time', async ({ page }) => {
+  await expect(page.getByTestId('unverteilt-name')).toHaveText(
+    'nicht verteilte Zeit',
+  );
+});
+
+Then(
+  'the unassigned time shows {string} industrial minutes',
+  async ({ page }, minutes: string) => {
+    await expect(page.getByTestId('unverteilt-minuten')).toHaveText(minutes);
+  },
+);
+
+When(
+  'I add the free text activity {string} with {string} industrial minutes',
+  async ({ page }, name: string, minutes: string) => {
+    await page.getByTestId('neue-taetigkeit').fill(name);
+    await page.getByTestId('neue-taetigkeit-minuten').fill(minutes);
+    await page.getByTestId('add-taetigkeit').click();
+    await page.locator('[data-testid="taetigkeit-0"]').waitFor();
+  },
+);
+
+When(
+  'I choose the predefined activity {string}',
+  async ({ page }, name: string) => {
+    await page.locator('[data-vorschlag]', { hasText: name }).click();
+  },
+);
+
+When(
+  'I set the duration of activity {string} to {string} industrial minutes',
+  async ({ page }, index: string, minutes: string) => {
+    await page.locator(`[data-minuten-index="${index}"]`).fill(minutes);
+    await page.locator(`[data-minuten-index="${index}"]`).blur();
+  },
+);
+
+Then(
+  'activity {string} is {string} with {string} industrial minutes',
+  async ({ page }, index: string, name: string, minutes: string) => {
+    await expect(page.getByTestId(`taetigkeit-${index}`)).toHaveText(name);
+    await expect(page.locator(`[data-minuten-index="${index}"]`)).toHaveValue(
+      minutes,
+    );
+  },
+);
+
+Then('I see the time distribution error message', async ({ page }) => {
+  await expect(page.getByTestId('zeitverteilung-fehler')).toBeVisible();
+});
+
+Then('the day still shows the log button', async ({ page }) => {
+  await expect(page.getByTestId('log-button')).toBeVisible();
+});
+
+When(
+  'I remember the position of the summary and the navigation row',
+  async ({ page }) => {
+    rememberedBoxes.set(
+      page,
+      await readNamedBoxes(page, {
+        summary: '.abschnitt-summe',
+        navigation: '.app-navigation__row',
+      }),
+    );
+  },
+);
+
+Then('the summary and the navigation row have not moved', async ({ page }) => {
+  const before = rememberedBoxes.get(page);
+  if (!before) {
+    throw new Error(
+      'No remembered position — call the "I remember the position of the summary and the navigation row" step first.',
+    );
+  }
+  const after = await readNamedBoxes(page, {
+    summary: '.abschnitt-summe',
+    navigation: '.app-navigation__row',
+  });
+  for (const name of ['summary', 'navigation'] as const) {
+    expect(after[name].x, `${name} x`).toBeCloseTo(before[name].x, 0);
+    expect(after[name].y, `${name} y`).toBeCloseTo(before[name].y, 0);
+  }
+});
+
+When('I remember the position of the back button', async ({ page }) => {
+  rememberedBoxes.set(
+    page,
+    await readNamedBoxes(page, {
+      backButton: '[data-testid="back-to-dayplan"]',
+    }),
+  );
+});
+
+Then('the back button has not moved', async ({ page }) => {
+  const before = rememberedBoxes.get(page);
+  if (!before) {
+    throw new Error(
+      'No remembered position — call the "I remember the position of the back button" step first.',
+    );
+  }
+  const after = await readNamedBoxes(page, {
+    backButton: '[data-testid="back-to-dayplan"]',
+  });
+  expect(after.backButton.x).toBeCloseTo(before.backButton.x, 0);
+  expect(after.backButton.y).toBeCloseTo(before.backButton.y, 0);
+});
