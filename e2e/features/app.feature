@@ -254,6 +254,16 @@ Feature: Day plan page
     When I click the undo button
     Then the page itself does not scroll
 
+  @stable-layout
+  Scenario: The navigation row stays visible after a reload with a shrunk viewport
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in and out 3 times starting at "08:00:00" for 30 minutes each
+    And I reload the page
+    And the viewport shrinks like the browser toolbar reappearing
+    Then the page itself does not scroll
+    And the navigation row is fully visible
+
 @stable-layout
 Scenario: The version information opens in a centered dialog
   Given today's date is "2025-02-17" and the current time is "08:00:00"
