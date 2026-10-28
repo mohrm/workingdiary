@@ -1,15 +1,17 @@
 /* The body's var(--gap-page) padding shrinks the area the shell can fill
-   to 100vh - 2 * var(--gap-page) (border-box body with height: 100%), so
-   a full-viewport min-height makes the page itself scroll on viewports
-   wider than 480px, where `body { overflow: hidden }` no longer masks it
-   (see issue #595). */
+   to the viewport minus 2 * var(--gap-page) (border-box body with
+   height: 100%), so a full-viewport min-height makes the page itself
+   scroll on viewports wider than 480px, where `body { overflow: hidden }`
+   no longer masks it (see issue #595). Percent resolves against body's
+   content box — html/body both have height: 100% — so it tracks the real
+   layout viewport, unlike vh/svh/dvh, which Android Chrome reports stale
+   (URL-bar hidden) after a pull-to-refresh, making a unit-sized shell
+   stick out below the fold so "Zurück"/"Vor" needed scrolling (#610). */
 .app-shell {
   display: flex;
   flex-direction: column;
   gap: var(--gap-medium);
-  min-height: calc(100vh - 2 * var(--gap-page));
-  min-height: calc(100svh - 2 * var(--gap-page));
-  min-height: calc(100dvh - 2 * var(--gap-page));
+  min-height: 100%;
   width: 100%;
 }
 
@@ -67,10 +69,10 @@
      height made the shell stick out by 2 * --spacing-xl — and since the
      body clips overflow on mobile, that cut the navigation row off the
      bottom of the screen entirely (see #595). Fit the shell into the
-     padded content box instead, so every row down to the navigation
-     stays visible. */
+     padded content box instead (percent, not vh/svh/dvh — see the shell
+     comment above and #610), so every row down to the navigation stays
+     visible. */
   .app-shell {
-    height: calc(100dvh - 2 * var(--spacing-xl));
-    height: calc(100svh - 2 * var(--spacing-xl));
+    height: 100%;
   }
 }

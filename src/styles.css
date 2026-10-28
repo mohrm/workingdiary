@@ -53,9 +53,13 @@ body {
   margin: 0;
   padding: var(--gap-page);
   height: 100%;
-  min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
+  /* Percent, not viewport units: html and body both carry height: 100%, so
+     this fills the real layout viewport. Viewport units (vh/svh/dvh) go
+     stale on Android Chrome after a pull-to-refresh — they then report
+     the URL-bar-hidden large viewport while the bar is visible, and a
+     unit-sized body sticks out below the fold so the navigation row
+     needs scrolling to reach (#610). */
+  min-height: 100%;
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
 }

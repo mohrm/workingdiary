@@ -634,6 +634,36 @@ Then('the page itself does not scroll', async ({ page }) => {
   expect(scrolled.y, 'page vertical scroll').toBe(0);
 });
 
+When('I reload the page', async ({ page }) => {
+  await page.reload();
+});
+
+When(
+  'the viewport shrinks like the browser toolbar reappearing',
+  async ({ page }) => {
+    const viewport = page.viewportSize();
+    if (!viewport) {
+      throw new Error('Viewport size is not set.');
+    }
+    await page.setViewportSize({
+      width: viewport.width,
+      height: viewport.height - 56,
+    });
+  },
+);
+
+Then('the navigation row is fully visible', async ({ page }) => {
+  const viewport = page.viewportSize();
+  const row = page.locator('.app-navigation__row');
+  await row.waitFor();
+  const box = await row.boundingBox();
+  if (!box || !viewport) {
+    throw new Error('Navigation row or viewport size is not available.');
+  }
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+});
+
 When('I click the version info icon', async ({ page }) => {
   await page.getByTestId('version-info').click();
 });
