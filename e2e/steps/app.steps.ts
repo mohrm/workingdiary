@@ -740,9 +740,9 @@ When('I go back to the day plan', async ({ page }) => {
 });
 
 Then(
-  'I see the total duration of {string} industrial minutes',
-  async ({ page }, minutes: string) => {
-    await hasElementWithText(page, 'zeitverteilung-gesamt', minutes);
+  'I see the total duration of {string} industrial time',
+  async ({ page }, industrialTime: string) => {
+    await hasElementWithText(page, 'zeitverteilung-gesamt', industrialTime);
   },
 );
 
@@ -753,17 +753,31 @@ Then('I see an entry for unassigned time', async ({ page }) => {
 });
 
 Then(
-  'the unassigned time shows {string} industrial minutes',
-  async ({ page }, minutes: string) => {
-    await expect(page.getByTestId('unverteilt-minuten')).toHaveText(minutes);
+  'the unassigned time shows {string} industrial time',
+  async ({ page }, industrialTime: string) => {
+    await expect(page.getByTestId('unverteilt-minuten')).toHaveText(
+      industrialTime,
+    );
   },
 );
 
 When(
-  'I add the free text activity {string} with {string} industrial minutes',
-  async ({ page }, name: string, minutes: string) => {
+  'I add the free text activity {string} with {string} industrial time',
+  async ({ page }, name: string, industrialTime: string) => {
     await page.getByTestId('neue-taetigkeit').fill(name);
-    await page.getByTestId('neue-taetigkeit-minuten').fill(minutes);
+    await page
+      .getByTestId('neue-taetigkeit-industriezeit')
+      .fill(industrialTime);
+    await page.getByTestId('add-taetigkeit').click();
+    await page.locator('[data-testid="taetigkeit-0"]').waitFor();
+  },
+);
+
+When(
+  'I add the free text activity {string} with {string} percent of the day',
+  async ({ page }, name: string, percent: string) => {
+    await page.getByTestId('neue-taetigkeit').fill(name);
+    await page.getByTestId('neue-taetigkeit-prozent').fill(percent);
     await page.getByTestId('add-taetigkeit').click();
     await page.locator('[data-testid="taetigkeit-0"]').waitFor();
   },
@@ -777,20 +791,47 @@ When(
 );
 
 When(
-  'I set the duration of activity {string} to {string} industrial minutes',
-  async ({ page }, index: string, minutes: string) => {
-    await page.locator(`[data-minuten-index="${index}"]`).fill(minutes);
-    await page.locator(`[data-minuten-index="${index}"]`).blur();
+  'I set the duration of activity {string} to {string} industrial time',
+  async ({ page }, index: string, industrialTime: string) => {
+    await page
+      .locator(`[data-industriezeit-index="${index}"]`)
+      .fill(industrialTime);
+    await page.locator(`[data-industriezeit-index="${index}"]`).blur();
+  },
+);
+
+When(
+  'I set the percentage of activity {string} to {string}',
+  async ({ page }, index: string, percent: string) => {
+    await page.locator(`[data-prozent-index="${index}"]`).fill(percent);
+    await page.locator(`[data-prozent-index="${index}"]`).blur();
   },
 );
 
 Then(
-  'activity {string} is {string} with {string} industrial minutes',
-  async ({ page }, index: string, name: string, minutes: string) => {
+  'activity {string} is {string} with {string} industrial time',
+  async ({ page }, index: string, name: string, industrialTime: string) => {
     await expect(page.getByTestId(`taetigkeit-${index}`)).toHaveText(name);
-    await expect(page.locator(`[data-minuten-index="${index}"]`)).toHaveValue(
-      minutes,
-    );
+    await expect(
+      page.locator(`[data-industriezeit-index="${index}"]`),
+    ).toHaveValue(industrialTime);
+  },
+);
+
+Then(
+  'the duration input of activity {string} shows {string}',
+  async ({ page }, index: string, industrialTime: string) => {
+    await expect(
+      page.locator(`[data-industriezeit-index="${index}"]`),
+    ).toHaveValue(industrialTime);
+  },
+);
+
+Then(
+  'activity {string} shows {string} exact and rounded industrial time',
+  async ({ page }, index: string, combined: string) => {
+    const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+    await expect(row.locator('.zeit-verteilung__indizes')).toHaveText(combined);
   },
 );
 
@@ -800,6 +841,20 @@ Then('I see the time distribution error message', async ({ page }) => {
 
 Then('the day still shows the log button', async ({ page }) => {
   await expect(page.getByTestId('log-button')).toBeVisible();
+});
+
+Then('the time distribution title is fully visible', async ({ page }) => {
+  const title = page.getByTestId('zeitverteilung-title');
+  await expect(title).toBeVisible();
+  const box = await title.boundingBox();
+  expect(box).not.toBeNull();
+  const viewport = page.viewportSize();
+  if (box && viewport) {
+    expect(box.x, 'title x').toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width, 'title right edge').toBeLessThanOrEqual(
+      viewport.width,
+    );
+  }
 });
 
 When(
