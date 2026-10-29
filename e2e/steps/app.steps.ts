@@ -969,3 +969,11 @@ Then(
     expect(notClipped, 'percent value must fit the cell').toBe(true);
   },
 );
+
+When('I delete activity {string}', async ({ page }, index: string) => {
+  await page
+    .locator('.zeit-verteilung__row')
+    .nth(Number(index))
+    .locator('[data-action="delete"]')
+    .click();
+});

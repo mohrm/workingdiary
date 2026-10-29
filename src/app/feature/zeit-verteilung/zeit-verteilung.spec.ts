@@ -317,6 +317,36 @@ describe('ZeitVerteilung', () => {
     );
   });
 
+  it('bearbeitet und löscht jede Zeile einzeln, auch bei mehreren Tätigkeiten', () => {
+    saveHourDay('01.01.2024', 4);
+    persistence.saveTimeDistribution('01.01.2024', [
+      new Activity('Review', 100),
+      new Activity('Meetings', 100),
+      new Activity('Support', 100),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    // edit icon of the first row still works when later rows exist
+    const rows = verteilung.element.querySelectorAll('[data-index]');
+    assert.equal(rows.length, 3);
+    fireClick(rows[0] as unknown as Element, '[data-action="edit"]');
+    assert.ok(verteilung.element.innerHTML.includes('data-edit-industriezeit'));
+    setInput(verteilung.element, '[data-edit-industriezeit]', '1,5');
+    fireClick(verteilung.element, '[data-action="finish"]');
+    const nachEdit = persistence.loadTimeDistribution('01.01.2024');
+    assert.equal(nachEdit?.[0].minutes, 150);
+    assert.equal(nachEdit?.[1].minutes, 100);
+
+    // delete icon of the middle row
+    const rows2 = verteilung.element.querySelectorAll('[data-index]');
+    fireClick(rows2[1] as unknown as Element, '[data-action="delete"]');
+    const nachDelete = persistence.loadTimeDistribution('01.01.2024');
+    assert.deepEqual(
+      nachDelete?.map((a) => a.name),
+      ['Review', 'Support'],
+    );
+  });
+
   it('ruft onBack beim Zurück-Button auf', () => {
     let backCalled = false;
     const verteilung = createZeitVerteilung('01.01.2024', () => {

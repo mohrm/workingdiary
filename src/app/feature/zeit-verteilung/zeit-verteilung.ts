@@ -252,56 +252,64 @@ export function createZeitVerteilung(
       });
     });
 
-    const rowActions: Record<string, () => void> = {};
     aktivitaeten.forEach((activity, index) => {
-      rowActions.edit = () => {
-        editIndex = index;
-        editIndustriezeit = formatIndustrial(activity.minutes);
-        editProzent = '';
-        fehlermeldung = undefined;
-        render();
-      };
-      rowActions.abort = () => {
-        editIndex = -1;
-        editIndustriezeit = '';
-        editProzent = '';
-        render();
-      };
-      rowActions.finish = () => {
-        const aktivitaetenNow = persistence.loadTimeDistribution(day) ?? [];
-        const rest = aktivitaetenNow
-          .filter((_, i) => i !== editIndex)
-          .map((a) => a.minutes)
-          .reduce((prev, cur) => prev + cur, 0);
-        let minutes: number;
-        if (editProzent !== '') {
-          minutes = Math.round((gesamt() * parseDecimal(editProzent)) / 100);
-        } else {
-          minutes = hoursToIndustrialMinutes(parseDecimal(editIndustriezeit));
-        }
-        const maxMinutes = gesamt() - rest;
-        if (minutes > maxMinutes) {
-          fehlermeldung = 'So viel Zeit ist nicht mehr frei.';
+      const row = el.querySelector(`[data-index="${index}"]`);
+      if (!row) return;
+      row
+        .querySelector('[data-action="edit"]')
+        ?.addEventListener('click', () => {
+          editIndex = index;
+          editIndustriezeit = formatIndustrial(activity.minutes);
+          editProzent = '';
+          fehlermeldung = undefined;
           render();
-          return;
-        }
-        fehlermeldung = undefined;
-        persist(
-          aktivitaetenNow.map((a, i) =>
-            i === editIndex ? new Activity(a.name, minutes) : a,
-          ),
-        );
-        editIndex = -1;
-        editIndustriezeit = '';
-        editProzent = '';
-        render();
-      };
-      rowActions.delete = () => entferneTaetigkeit(index);
+        });
+      row
+        .querySelector('[data-action="abort"]')
+        ?.addEventListener('click', () => {
+          editIndex = -1;
+          editIndustriezeit = '';
+          editProzent = '';
+          render();
+        });
+      row
+        .querySelector('[data-action="finish"]')
+        ?.addEventListener('click', () => {
+          const aktivitaetenNow = persistence.loadTimeDistribution(day) ?? [];
+          const rest = aktivitaetenNow
+            .filter((_, i) => i !== index)
+            .map((a) => a.minutes)
+            .reduce((prev, cur) => prev + cur, 0);
+          let minutes: number;
+          if (editProzent !== '') {
+            minutes = Math.round((gesamt() * parseDecimal(editProzent)) / 100);
+          } else {
+            minutes = hoursToIndustrialMinutes(parseDecimal(editIndustriezeit));
+          }
+          const maxMinutes = gesamt() - rest;
+          if (minutes > maxMinutes) {
+            fehlermeldung = 'So viel Zeit ist nicht mehr frei.';
+            render();
+            return;
+          }
+          fehlermeldung = undefined;
+          persist(
+            aktivitaetenNow.map((a, i) =>
+              i === index ? new Activity(a.name, minutes) : a,
+            ),
+          );
+          editIndex = -1;
+          editIndustriezeit = '';
+          editProzent = '';
+          render();
+        });
+      row
+        .querySelector('[data-action="delete"]')
+        ?.addEventListener('click', () => entferneTaetigkeit(index));
     });
     bindActions(el, {
       'add-freitext': addFreitextTaetigkeit,
       back: () => onBack?.(),
-      ...rowActions,
     });
   }
 
