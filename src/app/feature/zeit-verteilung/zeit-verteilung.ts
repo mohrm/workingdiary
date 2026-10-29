@@ -108,6 +108,9 @@ export function createZeitVerteilung(
     return hoursToIndustrialMinutes(parseDecimal(neueIndustriezeit));
   }
 
+  // A quick-pick chip reuses the duration entered in the "neue Tätigkeit"
+  // row (percent field takes precedence when filled) so a picked activity
+  // lands in the list with its time in one go instead of at 0.
   function waehleVorgeschlagene(name: string): void {
     const aktivitaeten = persistence.loadTimeDistribution(day) ?? [];
     if (aktivitaeten.some((activity) => activity.name === name)) {
@@ -115,7 +118,13 @@ export function createZeitVerteilung(
       render();
       return;
     }
-    addTaetigkeit(name, 0);
+    const minutes = minutesFromNewInputs();
+    const added = addTaetigkeit(name, minutes);
+    if (added) {
+      neueIndustriezeit = '';
+      neueProzent = '';
+      render();
+    }
   }
 
   function parseDecimal(value: string): number {

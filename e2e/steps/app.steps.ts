@@ -977,3 +977,19 @@ When('I delete activity {string}', async ({ page }, index: string) => {
     .locator('[data-action="delete"]')
     .click();
 });
+
+When(
+  'I fill the new activity duration with {string} industrial time',
+  async ({ page }, industrialTime: string) => {
+    await page
+      .getByTestId('neue-taetigkeit-industriezeit')
+      .fill(industrialTime);
+  },
+);
+
+When(
+  'I fill the new activity percentage with {string}',
+  async ({ page }, percent: string) => {
+    await page.getByTestId('neue-taetigkeit-prozent').fill(percent);
+  },
+);

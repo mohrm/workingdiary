@@ -169,6 +169,70 @@ describe('ZeitVerteilung', () => {
     assert.deepEqual(namen, ['Review', 'Meetings']);
   });
 
+  it('übernimmt die vorgegebene Dauer direkt beim Schnellwahl-Chip', () => {
+    saveHourDay('01.01.2024', 4);
+    persistence.saveTimeDistribution('01.12.2023', [
+      new Activity('Review', 100),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    setInput(
+      verteilung.element,
+      '[data-testid="neue-taetigkeit-industriezeit"]',
+      '1,5',
+    );
+    fireClick(verteilung.element, '[data-vorschlag]');
+
+    const gespeichert = persistence.loadTimeDistribution('01.01.2024');
+    assert.equal(gespeichert?.[0].name, 'Review');
+    assert.equal(gespeichert?.[0].minutes, 150);
+    assert.ok(
+      verteilung.element.innerHTML.includes(
+        'data-testid="taetigkeit-industriezeit-0">1,50',
+      ),
+    );
+    // die Dauerfelder werden nach dem Übernehmen zurückgesetzt
+    const dauerFeld = verteilung.element.querySelector(
+      '[data-testid="neue-taetigkeit-industriezeit"]',
+    ) as unknown as { value: string };
+    assert.equal(dauerFeld.value, '');
+  });
+
+  it('übernimmt beim Schnellwahl-Chip auch eine Prozent-Vorgabe', () => {
+    saveHourDay('01.01.2024', 8);
+    persistence.saveTimeDistribution('01.12.2023', [
+      new Activity('Review', 100),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    setInput(
+      verteilung.element,
+      '[data-testid="neue-taetigkeit-prozent"]',
+      '25',
+    );
+    fireClick(verteilung.element, '[data-vorschlag]');
+
+    assert.equal(
+      persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
+      200,
+    );
+  });
+
+  it('fügt einen Schnellwahl-Chip mit 0 hinzu, wenn keine Dauer vorgegeben ist', () => {
+    saveHourDay('01.01.2024', 4);
+    persistence.saveTimeDistribution('01.12.2023', [
+      new Activity('Review', 100),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    fireClick(verteilung.element, '[data-vorschlag]');
+
+    assert.equal(
+      persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
+      0,
+    );
+  });
+
   it('bietet keine Tätigkeiten an, die älter als N Monate sind, und keine bereits gewählten', () => {
     saveHourDay('01.01.2024', 4);
     persistence.saveTimeDistribution('01.08.2023', [
