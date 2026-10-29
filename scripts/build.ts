@@ -71,7 +71,7 @@ export function generateServiceWorker(
   return `const PRECACHE='${cacheKey}';const PRECACHE_URLS=${JSON.stringify(prefixedFiles)};
 self.addEventListener('install',e=>{e.waitUntil(caches.open(PRECACHE).then(c=>c.addAll(PRECACHE_URLS)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(k=>k!==PRECACHE).map(k=>caches.delete(k)))));self.clientsClaim()});
-self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(caches.match('${basePath}index.html').then(r=>r||fetch(e.request)))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`;
+self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(fetch(e.request).then(r=>{if(r.ok){caches.open(PRECACHE).then(c=>c.put('${basePath}index.html',r.clone()))}return r}).catch(()=>caches.match('${basePath}index.html').then(r=>{if(r)return r;throw new Error('offline and not cached')})))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`;
 }
 
 async function scanDir(dir: string, prefix?: string): Promise<string[]> {
