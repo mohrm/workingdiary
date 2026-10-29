@@ -8,8 +8,8 @@ const SRC = 'src';
 const PUBLIC = 'public';
 
 const MANIFEST = {
-  name: 'Workingdiary',
-  short_name: 'Workingdiary',
+  name: 'ProStempeluhr',
+  short_name: 'ProStempeluhr',
   description: 'Time tracking application',
   theme_color: '#1976d2',
   display: 'standalone',
@@ -43,7 +43,7 @@ export function generateHtml(
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Workingdiary</title>
+  <title>ProStempeluhr</title>
   <base href="${basePath}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
