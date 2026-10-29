@@ -784,9 +784,13 @@ When(
 );
 
 When(
-  'I choose the previously used activity {string}',
+  'I pick the previously used activity {string}',
   async ({ page }, name: string) => {
-    await page.getByTestId('taetigkeit-auswahl').selectOption({ label: name });
+    const options = await page
+      .locator('#zeit-verteilung-verlauf option')
+      .evaluateAll((els) => els.map((el) => (el as HTMLOptionElement).value));
+    expect(options, 'activity must be offered in the datalist').toContain(name);
+    await page.getByTestId('neue-taetigkeit').fill(name);
   },
 );
 
@@ -993,3 +997,8 @@ When(
     await page.getByTestId('neue-taetigkeit-prozent').fill(percent);
   },
 );
+
+When('I confirm the new activity', async ({ page }) => {
+  await page.getByTestId('add-taetigkeit').click();
+  await page.locator('[data-testid="taetigkeit-0"]').waitFor();
+});

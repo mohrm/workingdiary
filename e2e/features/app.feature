@@ -321,7 +321,8 @@ Scenario: The version information dialog closes again
     And I log out
     And I open the time distribution
     And I fill the new activity duration with "1,5" industrial time
-    And I choose the previously used activity "Programmierung"
+    And I pick the previously used activity "Programmierung"
+    And I confirm the new activity
     Then activity "0" is "Programmierung" with "1,50" industrial time
 
   Scenario: A quick pick takes the percentage entered for a new activity
@@ -333,7 +334,8 @@ Scenario: The version information dialog closes again
     And I log out
     And I open the time distribution
     And I fill the new activity percentage with "25"
-    And I choose the previously used activity "Programmierung"
+    And I pick the previously used activity "Programmierung"
+    And I confirm the new activity
     Then activity "0" is "Programmierung" with "2,00" industrial time
 
   Scenario: An activity duration can also be entered as a percentage

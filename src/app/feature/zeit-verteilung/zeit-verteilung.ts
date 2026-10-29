@@ -108,25 +108,6 @@ export function createZeitVerteilung(
     return hoursToIndustrialMinutes(parseDecimal(neueIndustriezeit));
   }
 
-  // A quick-pick chip reuses the duration entered in the "neue Tätigkeit"
-  // row (percent field takes precedence when filled) so a picked activity
-  // lands in the list with its time in one go instead of at 0.
-  function waehleVorgeschlagene(name: string): void {
-    const aktivitaeten = persistence.loadTimeDistribution(day) ?? [];
-    if (aktivitaeten.some((activity) => activity.name === name)) {
-      fehlermeldung = 'Diese Tätigkeit gibt es schon.';
-      render();
-      return;
-    }
-    const minutes = minutesFromNewInputs();
-    const added = addTaetigkeit(name, minutes);
-    if (added) {
-      neueIndustriezeit = '';
-      neueProzent = '';
-      render();
-    }
-  }
-
   function parseDecimal(value: string): number {
     return parseFloat(value.replace(',', '.')) || 0;
   }
@@ -196,22 +177,14 @@ export function createZeitVerteilung(
         Industriezeit
       </p>
       <div class="zeit-verteilung__neu">
-        <input class="zeit-verteilung__input" type="text" placeholder="Neue Tätigkeit" value="${neueTaetigkeit}" data-testid="neue-taetigkeit" data-neue-taetigkeit />
+        <input class="zeit-verteilung__input" type="text" placeholder="z. B. Regulatorik" value="${neueTaetigkeit}" data-testid="neue-taetigkeit" data-neue-taetigkeit list="zeit-verteilung-verlauf" />
+        <datalist id="zeit-verteilung-verlauf">
+          ${vorschlaege.map((name) => `<option value="${name}"></option>`).join('')}
+        </datalist>
         <input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" placeholder="Industriezeit" value="${neueIndustriezeit}" data-testid="neue-taetigkeit-industriezeit" aria-label="Industriezeit" />
         <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" placeholder="%" value="${neueProzent}" data-testid="neue-taetigkeit-prozent" aria-label="Prozent" />
         <button type="button" class="zeit-verteilung__add" data-action="add-freitext" data-testid="add-taetigkeit" aria-label="Tätigkeit hinzufügen">${icon('check')}</button>
       </div>
-      ${
-        vorschlaege.length > 0
-          ? `<div class="zeit-verteilung__auswahl">
-        <select class="zeit-verteilung__select" data-testid="taetigkeit-auswahl" aria-label="Tätigkeit auswählen und mit der vorgegebenen Zeit hinzufügen">
-          <option value="" selected>Tätigkeit auswählen…</option>
-          ${vorschlaege.map((name) => `<option value="${name}">${name}</option>`).join('')}
-        </select>
-        <span class="zeit-verteilung__auswahl-hinweis">wird mit der vorgegebenen Zeit hinzugefügt</span>
-      </div>`
-          : ''
-      }
       <ul class="zeit-verteilung__liste mat-list">
         ${aktivitaeten
           .map((activity, index) =>
@@ -258,14 +231,6 @@ export function createZeitVerteilung(
         editProzent = (e.target as HTMLInputElement).value;
       },
     );
-
-    el.querySelector<HTMLSelectElement>(
-      '[data-testid="taetigkeit-auswahl"]',
-    )?.addEventListener('change', (e) => {
-      const name = (e.target as HTMLSelectElement).value;
-      if (!name) return;
-      waehleVorgeschlagene(name);
-    });
 
     aktivitaeten.forEach((activity, index) => {
       const row = el.querySelector(`[data-index="${index}"]`);

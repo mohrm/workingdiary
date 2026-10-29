@@ -19,19 +19,6 @@ function setInput(el: Element, selector: string, value: string): void {
   input.dispatchEvent({ type: 'input' });
 }
 
-interface FakeSelectLike {
-  value: string;
-  dispatchEvent: (event: { type: string }) => void;
-}
-
-function waehleInAuswahl(el: Element, name: string): void {
-  const select = el.querySelector(
-    '[data-testid="taetigkeit-auswahl"]',
-  ) as unknown as FakeSelectLike;
-  select.value = name;
-  select.dispatchEvent({ type: 'change' });
-}
-
 function fireClick(el: Element, selector: string): void {
   const target = el.querySelector(selector) as unknown as {
     dispatchEvent: (event: { type: string }) => void;
@@ -176,9 +163,10 @@ describe('ZeitVerteilung', () => {
     const verteilung = createZeitVerteilung('01.01.2024');
 
     const html = verteilung.element.innerHTML;
-    assert.ok(html.includes('<option value="Review">Review</option>'));
-    assert.ok(html.includes('<option value="Meetings">Meetings</option>'));
-    assert.ok(html.includes('Tätigkeit auswählen…'));
+    assert.ok(html.includes('<option value="Review"></option>'));
+    assert.ok(html.includes('<option value="Meetings"></option>'));
+    assert.ok(html.includes('list="zeit-verteilung-verlauf"'));
+    assert.ok(html.includes('z. B. Regulatorik'));
   });
 
   it('übernimmt die vorgegebene Dauer direkt bei der Auswahl aus der Combobox', () => {
@@ -193,7 +181,8 @@ describe('ZeitVerteilung', () => {
       '[data-testid="neue-taetigkeit-industriezeit"]',
       '1,5',
     );
-    waehleInAuswahl(verteilung.element, 'Review');
+    setInput(verteilung.element, '[data-testid="neue-taetigkeit"]', 'Review');
+    fireClick(verteilung.element, '[data-testid="add-taetigkeit"]');
 
     const gespeichert = persistence.loadTimeDistribution('01.01.2024');
     assert.equal(gespeichert?.[0].name, 'Review');
@@ -222,7 +211,8 @@ describe('ZeitVerteilung', () => {
       '[data-testid="neue-taetigkeit-prozent"]',
       '25',
     );
-    waehleInAuswahl(verteilung.element, 'Review');
+    setInput(verteilung.element, '[data-testid="neue-taetigkeit"]', 'Review');
+    fireClick(verteilung.element, '[data-testid="add-taetigkeit"]');
 
     assert.equal(
       persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
@@ -237,7 +227,8 @@ describe('ZeitVerteilung', () => {
     ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    waehleInAuswahl(verteilung.element, 'Review');
+    setInput(verteilung.element, '[data-testid="neue-taetigkeit"]', 'Review');
+    fireClick(verteilung.element, '[data-testid="add-taetigkeit"]');
 
     assert.equal(
       persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
