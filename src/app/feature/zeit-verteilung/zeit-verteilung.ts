@@ -203,8 +203,12 @@ export function createZeitVerteilung(
       </div>
       ${
         vorschlaege.length > 0
-          ? `<div class="zeit-verteilung__vorschlaege">
-        ${vorschlaege.map((name) => `<button type="button" class="mat-button zeit-verteilung__vorschlag" data-vorschlag="${name}">${name}</button>`).join('')}
+          ? `<div class="zeit-verteilung__auswahl">
+        <select class="zeit-verteilung__select" data-testid="taetigkeit-auswahl" aria-label="Tätigkeit auswählen und mit der vorgegebenen Zeit hinzufügen">
+          <option value="" selected>Tätigkeit auswählen…</option>
+          ${vorschlaege.map((name) => `<option value="${name}">${name}</option>`).join('')}
+        </select>
+        <span class="zeit-verteilung__auswahl-hinweis">wird mit der vorgegebenen Zeit hinzugefügt</span>
       </div>`
           : ''
       }
@@ -255,10 +259,12 @@ export function createZeitVerteilung(
       },
     );
 
-    el.querySelectorAll('[data-vorschlag]').forEach((button) => {
-      button.addEventListener('click', () => {
-        waehleVorgeschlagene(button.getAttribute('data-vorschlag') ?? '');
-      });
+    el.querySelector<HTMLSelectElement>(
+      '[data-testid="taetigkeit-auswahl"]',
+    )?.addEventListener('change', (e) => {
+      const name = (e.target as HTMLSelectElement).value;
+      if (!name) return;
+      waehleVorgeschlagene(name);
     });
 
     aktivitaeten.forEach((activity, index) => {

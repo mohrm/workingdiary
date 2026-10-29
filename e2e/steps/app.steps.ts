@@ -786,7 +786,7 @@ When(
 When(
   'I choose the previously used activity {string}',
   async ({ page }, name: string) => {
-    await page.locator('[data-vorschlag]', { hasText: name }).click();
+    await page.getByTestId('taetigkeit-auswahl').selectOption({ label: name });
   },
 );
 
