@@ -490,6 +490,49 @@ describe('ZeitVerteilung', () => {
     );
   });
 
+  it('zeigt den Rundungs-Check als „ok", wenn die gerundeten Posten der gerundeten Summe entsprechen', () => {
+    saveHourDay('01.01.2024', 8);
+    persistence.saveTimeDistribution('01.01.2024', [
+      new Activity('Programmierung', 400),
+      new Activity('Meetings', 200),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    const html = verteilung.element.innerHTML;
+    assert.ok(html.includes('zeit-verteilung__rundung--ok'));
+    assert.ok(html.includes('entsprechen der gerundeten Summe'));
+  });
+
+  it('zeigt den Rundungs-Check mit Abweichung, wenn die gerundeten Posten nicht auf die gerundete Summe passen', () => {
+    saveHourDay('01.01.2024', 8);
+    persistence.saveTimeDistribution('01.01.2024', [
+      new Activity('Programmierung', 112),
+      new Activity('Meetings', 112),
+      new Activity('Support', 112),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    const html = verteilung.element.innerHTML;
+    assert.ok(html.includes('zeit-verteilung__rundung--abweichung'));
+    assert.ok(html.includes('weichen von der gerundeten Summe'));
+    // je 112 -> 100 gerundet (Summe 300), unverteilt 464 -> 475 gerundet,
+    // Summe 775 gegen gerundete Gesamtsumme 800: Abweichung 25 (= 0,25)
+    assert.ok(html.includes('um 0,25 ab.'));
+  });
+
+  it('schließt die unverteilte Zeit in den Rundungs-Check ein', () => {
+    saveHourDay('01.01.2024', 8);
+    persistence.saveTimeDistribution('01.01.2024', [
+      new Activity('Programmierung', 112),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    // 112 -> 100 gerundet, 688 unverteilt -> 700 gerundet: 800 = 800, ok
+    assert.ok(
+      verteilung.element.innerHTML.includes('zeit-verteilung__rundung--ok'),
+    );
+  });
+
   it('ruft onBack beim Zurück-Button auf', () => {
     let backCalled = false;
     const verteilung = createZeitVerteilung('01.01.2024', () => {

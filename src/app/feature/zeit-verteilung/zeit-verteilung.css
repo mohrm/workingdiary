@@ -160,6 +160,17 @@
   cursor: pointer;
 }
 
+/* List area = scrollable activity rows + a pinned "unassigned time"
+   footer below them. The footer sits outside the scrolling list, so adding
+   or removing an activity never moves it — only the scrollable rows
+   change, the footer keeps its place (AGENTS.md layout stability). */
+.zeit-verteilung__liste-bereich {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .zeit-verteilung__liste {
   flex: 1 1 auto;
   min-height: 0;
@@ -169,6 +180,26 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+}
+
+/* Rounded-items vs. rounded-total feedback for transferring the values
+   to a downstream system: a single quiet line under the list area, so it
+   never reflows anything above. */
+.zeit-verteilung__rundung {
+  margin: 0;
+  font-size: var(--font-size-mobile);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zeit-verteilung__rundung--ok {
+  color: #2e7d32;
+}
+
+.zeit-verteilung__rundung--abweichung {
+  color: #b00020;
+  font-weight: var(--font-weight-medium);
 }
 
 /* Single-line grid, same stability approach as .abschnitt-row: fixed
@@ -211,7 +242,9 @@
 }
 
 .zeit-verteilung__row--unverteilt {
+  flex: 0 0 auto;
   font-weight: var(--font-weight-semibold);
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 /* Reserves 3 fixed-size slots regardless of how many are filled: view
