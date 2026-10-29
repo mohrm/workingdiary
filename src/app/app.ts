@@ -13,7 +13,7 @@ import {
   createZeitVerteilung,
   type ZeitVerteilungComponent,
 } from './feature/zeit-verteilung/zeit-verteilung';
-import { type AppView, getViewFromURL, viewUrl } from './model/routing';
+import { type AppView, dayUrl, getViewFromURL, viewUrl } from './model/routing';
 import { persistence } from './services/persistence';
 
 function today(): string {
@@ -140,8 +140,8 @@ export function createApp(): AppComponent {
   function updateNavigationLinks() {
     const prevLink = el.querySelector<HTMLAnchorElement>('[data-prev-link]');
     const nextLink = el.querySelector<HTMLAnchorElement>('[data-next-link]');
-    if (prevLink) prevLink.href = `/?day=${persistence.previousDay(day)}`;
-    if (nextLink) nextLink.href = `/?day=${persistence.nextDay(day)}`;
+    if (prevLink) prevLink.href = dayUrl(persistence.previousDay(day));
+    if (nextLink) nextLink.href = dayUrl(persistence.nextDay(day));
   }
 
   render();
