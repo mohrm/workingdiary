@@ -562,3 +562,39 @@ Scenario: The version information dialog closes again
     Then the back button has not moved
     When I delete activity "0"
     Then the back button has not moved
+
+  Scenario: The rounding check confirms when the rounded items match the rounded total
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    Then the rounding check says the rounded items match the rounded total
+
+  Scenario: The rounding check reports a deviation with its amount
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1,12" industrial time
+    And I add the free text activity "Meetings" with "1,12" industrial time
+    And I add the free text activity "Support" with "1,12" industrial time
+    Then the rounding check reports a deviation of "0,25"
+
+  @stable-layout
+  Scenario: The unassigned time row does not move when adding or deleting activities
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I remember the position of the unassigned time row
+    And I add the free text activity "Review" with "1" industrial time
+    Then the unassigned time row has not moved
+    When I delete activity "0"
+    Then the unassigned time row has not moved

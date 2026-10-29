@@ -124,6 +124,26 @@ export function createZeitVerteilung(
     if (total === 0) return '0,0 %';
     return `${((100 * minutes) / total).toFixed(1).replace('.', ',')} %`;
   }
+  // The rounded single items must add up to the rounded total for the
+  // values to transfer cleanly to a downstream system; the footer states
+  // how well they match.
+  function renderRundungsCheck(
+    aktivitaeten: Activity[],
+    total: number,
+  ): string {
+    const summeGerundet =
+      aktivitaeten.reduce(
+        (prev, activity) => prev + Math.round(activity.minutes / 25) * 25,
+        0,
+      ) +
+      Math.round(Math.max(0, total - verteilteMinuten(aktivitaeten)) / 25) * 25;
+    const gesamtGerundet = Math.round(total / 25) * 25;
+    const differenz = summeGerundet - gesamtGerundet;
+    if (differenz === 0) {
+      return `<p class="zeit-verteilung__rundung zeit-verteilung__rundung--ok" data-testid="rundungs-check">Gerundete Einzelposten (${formatIndustrial(summeGerundet)}) entsprechen der gerundeten Summe (${formatIndustrial(gesamtGerundet)}).</p>`;
+    }
+    return `<p class="zeit-verteilung__rundung zeit-verteilung__rundung--abweichung" data-testid="rundungs-check" role="status">Gerundete Einzelposten (${formatIndustrial(summeGerundet)}) weichen von der gerundeten Summe (${formatIndustrial(gesamtGerundet)}) um ${formatIndustrial(Math.abs(differenz))} ab.</p>`;
+  }
 
   function renderRow(
     activity: Activity,
@@ -182,13 +202,15 @@ export function createZeitVerteilung(
         <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" placeholder="%" value="${neueProzent}" data-testid="neue-taetigkeit-prozent" aria-label="Prozent" />
         <button type="button" class="zeit-verteilung__add" data-action="add-freitext" data-testid="add-taetigkeit" aria-label="Tätigkeit hinzufügen">${icon('check')}</button>
       </div>
-      <ul class="zeit-verteilung__liste mat-list">
-        ${aktivitaeten
-          .map((activity, index) =>
-            renderRow(activity, index, index === editIndex, total),
-          )
-          .join('')}
-        <li class="zeit-verteilung__row zeit-verteilung__row--unverteilt mat-list-item">
+      <div class="zeit-verteilung__liste-bereich">
+        <ul class="zeit-verteilung__liste mat-list">
+          ${aktivitaeten
+            .map((activity, index) =>
+              renderRow(activity, index, index === editIndex, total),
+            )
+            .join('')}
+        </ul>
+        <div class="zeit-verteilung__row zeit-verteilung__row--unverteilt mat-list-item">
           <div class="zeit-verteilung__taetigkeit">
             <span class="zeit-verteilung__name" data-testid="unverteilt-name">${UNVERTEILTE_ZEIT}</span>
             <span class="zeit-verteilung__indizes" data-testid="unverteilt-industriezeit">${formatIndustrial(unverteilt)} / ${formatIndustrialQuarterPrecision(unverteilt)}</span>
@@ -196,8 +218,9 @@ export function createZeitVerteilung(
           <span class="zeit-verteilung__value zeit-verteilung__input--industrial" data-testid="unverteilt-minuten">${formatIndustrial(unverteilt)}</span>
           <span class="zeit-verteilung__value zeit-verteilung__input--percent" data-testid="unverteilt-prozent">${formatPercent(unverteilt, total)}</span>
           <div class="zeit-verteilung__icon-zone zeit-verteilung__icon-zone--leer"></div>
-        </li>
-      </ul>
+        </div>
+      </div>
+      ${renderRundungsCheck(aktivitaeten, total)}
       ${fehlermeldung ? `<div class="zeit-verteilung__fehler" data-testid="zeitverteilung-fehler" role="alert">${fehlermeldung}</div>` : ''}`;
 
     const freitextInput = el.querySelector<HTMLInputElement>(

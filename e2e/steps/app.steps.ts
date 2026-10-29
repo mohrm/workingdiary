@@ -1134,3 +1134,47 @@ Then('the delete icons of all activity rows are aligned', async ({ page }) => {
     expect(x, `delete icon x of row ${i}`).toBeCloseTo(xs[0], 0);
   }
 });
+
+Then(
+  'the rounding check says the rounded items match the rounded total',
+  async ({ page }) => {
+    await expect(page.getByTestId('rundungs-check')).toContainText(
+      'entsprechen der gerundeten Summe',
+    );
+  },
+);
+
+Then(
+  'the rounding check reports a deviation of {string}',
+  async ({ page }, deviation: string) => {
+    const check = page.getByTestId('rundungs-check');
+    await expect(check).toContainText('weichen von der gerundeten Summe');
+    await expect(check).toContainText(`um ${deviation} ab.`);
+  },
+);
+
+When('I remember the position of the unassigned time row', async ({ page }) => {
+  const row = page.locator('.zeit-verteilung__row--unverteilt');
+  await row.waitFor();
+  const box = await row.boundingBox();
+  if (!box) {
+    throw new Error('Could not find the unassigned time row.');
+  }
+  rememberedBoxes.set(page, {
+    unassignedRow: { x: box.x, y: box.y },
+  });
+});
+
+Then('the unassigned time row has not moved', async ({ page }) => {
+  const before = rememberedBoxes.get(page)?.unassignedRow;
+  if (!before) {
+    throw new Error(
+      'No remembered position — call the "I remember the position of the unassigned time row" step first.',
+    );
+  }
+  const box = await page
+    .locator('.zeit-verteilung__row--unverteilt')
+    .boundingBox();
+  expect(box?.x, 'unassigned row x').toBeCloseTo(before.x, 0);
+  expect(box?.y, 'unassigned row y').toBeCloseTo(before.y, 0);
+});
