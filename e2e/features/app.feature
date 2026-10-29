@@ -474,6 +474,23 @@ Scenario: The version information dialog closes again
     And I add the free text activity "Review" with "2,5" industrial time
     Then the back button has not moved
 
+  Scenario: Editing and deleting works for every row when several activities exist
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I add the free text activity "Meetings" with "1" industrial time
+    And I add the free text activity "Support" with "1" industrial time
+    And I open the editor for activity "0"
+    And I set the duration of activity "0" to "1,5" industrial time
+    Then activity "0" is "Review" with "1,50" industrial time
+    And activity "2" is "Support" with "1,00" industrial time
+    When I delete activity "1"
+    Then activity "1" is "Support" with "1,00" industrial time
+
   @stable-layout
   Scenario: Opening the activity editor does not move the row
     Given today's date is "2025-02-17" and the current time is "08:00:00"
