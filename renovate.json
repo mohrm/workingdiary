@@ -18,6 +18,10 @@
       "automerge": true
     },
     {
+      "matchManagers": ["dockerfile"],
+      "pinDigests": true
+    },
+    {
       "groupName": "Angular",
       "groupSlug": "angular",
       "matchPackageNames": [
