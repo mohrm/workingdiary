@@ -79,7 +79,13 @@ When('I open the day plan for today', async ({ page }) => {
 Then(
   'I see {string} on the heading',
   async ({ page }, expectedHeadingText: string) => {
-    await hasElementWithText(page, 'dayplan-title', expectedHeadingText);
+    // The heading belongs to whichever screen is mounted — match either
+    // title so the assertion also survives the brief moment right after
+    // a reload, before the app has rendered either screen.
+    const heading = page.locator(
+      '[data-testid="dayplan-title"], [data-testid="zeitverteilung-title"]',
+    );
+    await expect(heading.first()).toContainText(expectedHeadingText);
   },
 );
 
@@ -728,3 +734,460 @@ Then(
     await expect(link).toHaveAttribute('target', '_blank');
   },
 );
+
+When('I open the time distribution', async ({ page }) => {
+  await page.getByTestId('open-zeitverteilung').click();
+  await page.getByTestId('zeitverteilung-title').waitFor();
+});
+
+When('I go back to the day plan', async ({ page }) => {
+  await page.getByTestId('back-to-dayplan').click();
+  await page.getByTestId('dayplan-title').waitFor();
+});
+
+Then(
+  'I see the total duration of {string} industrial time',
+  async ({ page }, industrialTime: string) => {
+    await hasElementWithText(page, 'zeitverteilung-gesamt', industrialTime);
+  },
+);
+
+Then('I see an entry for unassigned time', async ({ page }) => {
+  await expect(page.getByTestId('unverteilt-name')).toHaveText(
+    'nicht verteilte Zeit',
+  );
+});
+
+Then(
+  'the unassigned time shows {string} industrial time',
+  async ({ page }, industrialTime: string) => {
+    await expect(page.getByTestId('unverteilt-minuten')).toHaveText(
+      industrialTime,
+    );
+  },
+);
+
+When(
+  'I add the free text activity {string} with {string} industrial time',
+  async ({ page }, name: string, industrialTime: string) => {
+    await page.getByTestId('neue-taetigkeit').fill(name);
+    await page
+      .getByTestId('neue-taetigkeit-industriezeit')
+      .fill(industrialTime);
+    await page.getByTestId('add-taetigkeit').click();
+    // A rejected activity never creates the list entry — the error toast
+    // appearing instead is the success signal in that case.
+    await Promise.race([
+      page.locator('[data-testid="taetigkeit-0"]').waitFor(),
+      page.getByTestId('zeitverteilung-fehler').waitFor(),
+    ]);
+  },
+);
+
+When(
+  'I add the free text activity {string} with {string} percent of the day',
+  async ({ page }, name: string, percent: string) => {
+    await page.getByTestId('neue-taetigkeit').fill(name);
+    await page.getByTestId('neue-taetigkeit-prozent').fill(percent);
+    await page.getByTestId('add-taetigkeit').click();
+    await Promise.race([
+      page.locator('[data-testid="taetigkeit-0"]').waitFor(),
+      page.getByTestId('zeitverteilung-fehler').waitFor(),
+    ]);
+  },
+);
+
+When(
+  'I pick the previously used activity {string}',
+  async ({ page }, name: string) => {
+    const input = page.getByTestId('neue-taetigkeit');
+    await input.click();
+    const option = page.locator(`[data-verlauf-name="${name}"]`);
+    await expect(
+      option,
+      'activity must be offered in the dropdown',
+    ).toBeVisible();
+    await option.click();
+    await expect(input).toHaveValue(name);
+  },
+);
+
+When(
+  'I open the editor for activity {string}',
+  async ({ page }, index: string) => {
+    const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+    await row.locator('[data-action="edit"]').click();
+  },
+);
+
+When('I abort the activity edit', async ({ page }) => {
+  await page.locator('[data-action="abort"]').click();
+});
+
+When(
+  'I set the duration of activity {string} to {string} industrial time',
+  async ({ page }, _index: string, industrialTime: string) => {
+    await page.locator('[data-edit-industriezeit]').waitFor();
+    await page.locator('[data-edit-industriezeit]').fill(industrialTime);
+    await page.locator('[data-action="finish"]').click();
+  },
+);
+
+When(
+  'I set the percentage of activity {string} to {string}',
+  async ({ page }, _index: string, percent: string) => {
+    await page.locator('[data-edit-prozent]').waitFor();
+    await page.locator('[data-edit-prozent]').fill(percent);
+    await page.locator('[data-action="finish"]').click();
+  },
+);
+
+Then(
+  'activity {string} is {string} with {string} industrial time',
+  async ({ page }, index: string, name: string, industrialTime: string) => {
+    await expect(page.getByTestId(`taetigkeit-${index}`)).toHaveText(name);
+    await expect(
+      page.getByTestId(`taetigkeit-industriezeit-${index}`),
+    ).toHaveText(industrialTime);
+  },
+);
+
+Then(
+  'the duration input of activity {string} shows {string}',
+  async ({ page }, index: string, industrialTime: string) => {
+    await expect(
+      page.getByTestId(`taetigkeit-industriezeit-${index}`),
+    ).toHaveText(industrialTime);
+  },
+);
+
+Then(
+  'activity {string} shows {string} exact and rounded industrial time',
+  async ({ page }, index: string, combined: string) => {
+    const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+    await expect(row.locator('.zeit-verteilung__indizes')).toHaveText(combined);
+  },
+);
+
+Then('I see the time distribution error message', async ({ page }) => {
+  await expect(page.getByTestId('zeitverteilung-fehler')).toBeVisible();
+});
+
+Then('the day still shows the log button', async ({ page }) => {
+  await expect(page.getByTestId('log-button')).toBeVisible();
+});
+
+Then('the time distribution title is fully visible', async ({ page }) => {
+  const title = page.getByTestId('zeitverteilung-title');
+  await expect(title).toBeVisible();
+  const box = await title.boundingBox();
+  expect(box).not.toBeNull();
+  const viewport = page.viewportSize();
+  if (box && viewport) {
+    expect(box.x, 'title x').toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width, 'title right edge').toBeLessThanOrEqual(
+      viewport.width,
+    );
+  }
+});
+
+When(
+  'I remember the position of the summary and the navigation row',
+  async ({ page }) => {
+    rememberedBoxes.set(
+      page,
+      await readNamedBoxes(page, {
+        summary: '.abschnitt-summe',
+        navigation: '.app-navigation__row',
+      }),
+    );
+  },
+);
+
+Then('the summary and the navigation row have not moved', async ({ page }) => {
+  const before = rememberedBoxes.get(page);
+  if (!before) {
+    throw new Error(
+      'No remembered position — call the "I remember the position of the summary and the navigation row" step first.',
+    );
+  }
+  const after = await readNamedBoxes(page, {
+    summary: '.abschnitt-summe',
+    navigation: '.app-navigation__row',
+  });
+  for (const name of ['summary', 'navigation'] as const) {
+    expect(after[name].x, `${name} x`).toBeCloseTo(before[name].x, 0);
+    expect(after[name].y, `${name} y`).toBeCloseTo(before[name].y, 0);
+  }
+});
+
+When('I remember the position of the back button', async ({ page }) => {
+  rememberedBoxes.set(
+    page,
+    await readNamedBoxes(page, {
+      backButton: '[data-testid="back-to-dayplan"]',
+    }),
+  );
+});
+
+Then('the back button has not moved', async ({ page }) => {
+  const before = rememberedBoxes.get(page);
+  if (!before) {
+    throw new Error(
+      'No remembered position — call the "I remember the position of the back button" step first.',
+    );
+  }
+  const after = await readNamedBoxes(page, {
+    backButton: '[data-testid="back-to-dayplan"]',
+  });
+  expect(after.backButton.x).toBeCloseTo(before.backButton.x, 0);
+  expect(after.backButton.y).toBeCloseTo(before.backButton.y, 0);
+});
+
+Given(
+  'the previous day {string} has the activity {string} with {string} industrial time',
+  async ({ page }, day: string, name: string, minutes: string) => {
+    const germanDay = day
+      .split('-')
+      .reverse()
+      .map((p) => parseInt(p, 10).toString().padStart(2, '0'))
+      .join('.');
+    // localStorage is only accessible on an app origin (about:blank
+    // denies it), so navigate to the app once before seeding.
+    if (!page.url().startsWith('http')) {
+      await navigateTo(page, '/');
+    }
+    await page.evaluate(
+      ([gDay, aName, aMinutes]) => {
+        const plans = JSON.parse(localStorage.getItem('plans') ?? '{}');
+        plans[gDay] = plans[gDay] ?? {};
+        plans[gDay].timeDistribution = [{ name: aName, minutes: aMinutes }];
+        localStorage.setItem('plans', JSON.stringify(plans));
+      },
+      [
+        germanDay,
+        name,
+        Math.round(parseFloat(minutes.replace(',', '.')) * 100),
+      ],
+    );
+  },
+);
+
+When(
+  'I set the edit duration to {string}',
+  async ({ page }, industrialTime: string) => {
+    await page.locator('[data-edit-industriezeit]').fill(industrialTime);
+  },
+);
+
+Then(
+  'the percent value of activity {string} is not clipped',
+  async ({ page }, index: string) => {
+    const cell = page.getByTestId(`taetigkeit-prozent-${index}`);
+    await expect(cell).toBeVisible();
+    const notClipped = await cell.evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const textWidth = range.getBoundingClientRect().width;
+      return (
+        el.scrollWidth <= el.clientWidth + 1 && textWidth <= el.clientWidth + 1
+      );
+    });
+    expect(notClipped, 'percent value must fit the cell').toBe(true);
+  },
+);
+
+When('I delete activity {string}', async ({ page }, index: string) => {
+  await page
+    .locator('.zeit-verteilung__row')
+    .nth(Number(index))
+    .locator('[data-action="delete"]')
+    .click();
+});
+
+When(
+  'I fill the new activity duration with {string} industrial time',
+  async ({ page }, industrialTime: string) => {
+    await page
+      .getByTestId('neue-taetigkeit-industriezeit')
+      .fill(industrialTime);
+  },
+);
+
+When(
+  'I fill the new activity percentage with {string}',
+  async ({ page }, percent: string) => {
+    await page.getByTestId('neue-taetigkeit-prozent').fill(percent);
+  },
+);
+
+When('I confirm the new activity', async ({ page }) => {
+  await page.getByTestId('add-taetigkeit').click();
+  await page.locator('[data-testid="taetigkeit-0"]').waitFor();
+});
+
+async function readIconPositions(
+  page: Page,
+  index: string,
+): Promise<{
+  delete: { x: number; y: number } | null;
+}> {
+  const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+  await row.waitFor();
+  const boxOf = async (selector: string) => {
+    const box = await row.locator(selector).first().boundingBox();
+    return box ? { x: box.x, y: box.y } : null;
+  };
+  return {
+    delete: await boxOf('[data-action="delete"]'),
+  };
+}
+
+When(
+  "I remember the position of activity {string}'s edit and delete icons",
+  async ({ page }, index: string) => {
+    rememberedBoxes.set(page, {
+      icons: (await readIconPositions(page, index)) as unknown as {
+        x: number;
+        y: number;
+      },
+    });
+  },
+);
+
+Then(
+  "activity {string}'s delete icon has not moved",
+  async ({ page }, index: string) => {
+    const before = rememberedBoxes.get(page)?.icons as unknown as
+      | {
+          delete: { x: number; y: number } | null;
+        }
+      | undefined;
+    if (!before) {
+      throw new Error(
+        'No remembered position — call the "I remember the position of activity ...\'s edit and delete icons" step first.',
+      );
+    }
+    const after = await readIconPositions(page, index);
+    expect(after.delete?.x, 'delete icon x').toBeCloseTo(
+      before.delete?.x ?? -1,
+      0,
+    );
+    expect(after.delete?.y, 'delete icon y').toBeCloseTo(
+      before.delete?.y ?? -1,
+      0,
+    );
+  },
+);
+
+When(
+  "I remember the position of activity {string}'s name",
+  async ({ page }, index: string) => {
+    const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+    const box = await row
+      .locator('.zeit-verteilung__name')
+      .first()
+      .boundingBox();
+    if (!box) {
+      throw new Error(`Could not find activity ${index}'s name.`);
+    }
+    rememberedBoxes.set(page, {
+      siblingName: { x: box.x, y: box.y },
+    });
+  },
+);
+
+Then(
+  "activity {string}'s name has not moved",
+  async ({ page }, index: string) => {
+    const before = rememberedBoxes.get(page)?.siblingName;
+    if (!before) {
+      throw new Error(
+        'No remembered position — call the "I remember the position of activity ...\'s name" step first.',
+      );
+    }
+    const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+    const box = await row
+      .locator('.zeit-verteilung__name')
+      .first()
+      .boundingBox();
+    expect(box?.x, 'name x').toBeCloseTo(before.x, 0);
+    expect(box?.y, 'name y').toBeCloseTo(before.y, 0);
+  },
+);
+
+Then('the edit icons of all activity rows are aligned', async ({ page }) => {
+  const rows = page.locator('.zeit-verteilung__row[data-index]');
+  const count = await rows.count();
+  for (let i = 0; i < count; i++) {
+    const box = await rows.nth(i).locator('[data-action="edit"]').boundingBox();
+    expect(box, `edit icon of row ${i}`).not.toBeNull();
+    if (i === 0) continue;
+    const first = await rows
+      .nth(0)
+      .locator('[data-action="edit"]')
+      .boundingBox();
+    expect(box!.x, `edit icon x of row ${i}`).toBeCloseTo(first!.x, 0);
+  }
+});
+
+Then('the delete icons of all activity rows are aligned', async ({ page }) => {
+  const rows = page.locator('.zeit-verteilung__row[data-index]');
+  const count = await rows.count();
+  const xs: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const box = await rows
+      .nth(i)
+      .locator('[data-action="delete"]')
+      .boundingBox();
+    expect(box, `delete icon of row ${i}`).not.toBeNull();
+    xs.push(box!.x);
+  }
+  for (const [i, x] of xs.entries()) {
+    expect(x, `delete icon x of row ${i}`).toBeCloseTo(xs[0], 0);
+  }
+});
+
+Then(
+  'the rounding check says the rounded items match the rounded total',
+  async ({ page }) => {
+    await expect(page.getByTestId('rundungs-check')).toContainText(
+      'Rundung passt',
+    );
+  },
+);
+
+Then(
+  'the rounding check reports a deviation of {string}',
+  async ({ page }, deviation: string) => {
+    const check = page.getByTestId('rundungs-check');
+    await expect(check).toContainText('Rundung weicht um');
+    await expect(check).toContainText(`um ${deviation} ab (`);
+  },
+);
+
+When('I remember the position of the unassigned time row', async ({ page }) => {
+  const row = page.locator('.zeit-verteilung__row--unverteilt');
+  await row.waitFor();
+  const box = await row.boundingBox();
+  if (!box) {
+    throw new Error('Could not find the unassigned time row.');
+  }
+  rememberedBoxes.set(page, {
+    unassignedRow: { x: box.x, y: box.y },
+  });
+});
+
+Then('the unassigned time row has not moved', async ({ page }) => {
+  const before = rememberedBoxes.get(page)?.unassignedRow;
+  if (!before) {
+    throw new Error(
+      'No remembered position — call the "I remember the position of the unassigned time row" step first.',
+    );
+  }
+  const box = await page
+    .locator('.zeit-verteilung__row--unverteilt')
+    .boundingBox();
+  expect(box?.x, 'unassigned row x').toBeCloseTo(before.x, 0);
+  expect(box?.y, 'unassigned row y').toBeCloseTo(before.y, 0);
+});

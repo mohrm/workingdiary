@@ -1,0 +1,331 @@
+.zeit-verteilung {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  position: relative;
+}
+
+/* Title line: the title wraps instead of shrinking, so the full date
+   stays readable; the back button is pinned and never pushed off-screen
+   (AGENTS.md layout stability — FP4 title truncation). */
+.zeit-verteilung__header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.zeit-verteilung__header h1 {
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.zeit-verteilung__back {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: var(--spacing-xs);
+  border: none;
+  border-radius: var(--spacing-sm);
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.zeit-verteilung__back:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.zeit-verteilung__gesamt {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zeit-verteilung__gesamt-rund {
+  font-weight: var(--font-weight-base);
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.zeit-verteilung__neu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.zeit-verteilung__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  padding: 0 var(--spacing-sm);
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Name field with its own suggestion dropdown: the wrapper is the
+   positioning context (position: relative) for the absolutely placed
+   list, which overlays the rows below instead of pushing them (layout
+   stability). Native datalists only open while typing on Android, so
+   the list opens on focus as well. */
+.zeit-verteilung__name-feld {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+}
+
+.zeit-verteilung__name-feld .zeit-verteilung__input {
+  width: 100%;
+}
+
+.zeit-verteilung__verlauf {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 40vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: var(--spacing-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.zeit-verteilung__verlauf-eintrag {
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zeit-verteilung__verlauf-eintrag:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.zeit-verteilung__input--industrial {
+  flex: 0 0 84px;
+  width: 84px;
+  text-align: right;
+}
+
+.zeit-verteilung__input--percent {
+  flex: 0 0 84px;
+  width: 84px;
+  text-align: right;
+}
+
+/* View-mode value cell: an inline-flex box with the same height as the
+   edit-mode input above, so toggling edit mode never changes the row's
+   height. Padding (not box-sizing tricks) matches the input so the
+   digits sit at the same position in both modes. */
+.zeit-verteilung__value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 32px;
+  padding: 0 var(--spacing-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.zeit-verteilung__add {
+  flex: 0 0 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--spacing-sm);
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* List area = scrollable activity rows + a pinned "unassigned time"
+   footer below them. The footer sits outside the scrolling list, so adding
+   or removing an activity never moves it — only the scrollable rows
+   change, the footer keeps its place (AGENTS.md layout stability). */
+.zeit-verteilung__liste-bereich {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.zeit-verteilung__liste {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Rounded-items vs. rounded-total feedback for transferring the values
+   to a downstream system: a single quiet line under the list area, so it
+   never reflows anything above. */
+.zeit-verteilung__rundung {
+  margin: 0;
+  font-size: var(--font-size-mobile);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zeit-verteilung__rundung--ok {
+  color: #2e7d32;
+}
+
+.zeit-verteilung__rundung--abweichung {
+  color: #b00020;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Single-line grid, same stability approach as .abschnitt-row: fixed
+   numeric tracks (never auto-sized) so editing a value never reflows the
+   name column or any sibling row. The value columns fit the percent
+   string including the " %" suffix ("100,0 %") so it is never clipped. */
+.zeit-verteilung__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px 84px auto;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Name and the exact/rounded pair share one cell (like the section
+   row's single line), so rows keep one stable line in view AND edit
+   mode. */
+.zeit-verteilung__taetigkeit {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  min-height: 44px;
+}
+
+.zeit-verteilung__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Exact / quarter-hour-rounded pair, mirroring the day plan summary. */
+.zeit-verteilung__indizes {
+  font-size: var(--font-size-mobile);
+  color: rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zeit-verteilung__row--unverteilt {
+  flex: 0 0 auto;
+  font-weight: var(--font-weight-semibold);
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Reserves 3 fixed-size slots regardless of how many are filled: view
+   mode only places `edit` (slot 2) and `delete` (slot 3), leaving slot 1
+   empty, so `delete` never moves and `edit`/`finish` share the same
+   slot — the exact mechanic of .abschnitt-icon-zone, so pen and bin
+   sit at identical positions in every row and mode. */
+.zeit-verteilung__icon-zone {
+  display: grid;
+  grid-template-columns: repeat(3, 24px);
+  column-gap: var(--spacing-xs);
+  align-items: center;
+  justify-items: center;
+  margin-left: auto;
+}
+
+.zeit-verteilung__icon-zone [data-action='abort'] {
+  grid-column: 1;
+}
+
+.zeit-verteilung__icon-zone [data-action='edit'],
+.zeit-verteilung__icon-zone [data-action='finish'] {
+  grid-column: 2;
+}
+
+.zeit-verteilung__icon-zone [data-action='delete'] {
+  grid-column: 3;
+}
+
+.zeit-verteilung__icon-zone--leer {
+  visibility: hidden;
+}
+
+/* The error toast overlays the list instead of joining the flex column
+   (same approach as .abschnitt-liste__undo-toast): its appearance never
+   reflows any row, so add/edit/delete never make the layout wobble. */
+.zeit-verteilung__fehler {
+  position: absolute;
+  bottom: var(--spacing-xs);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: calc(100% - 2 * var(--spacing-md));
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-mobile);
+  border-radius: var(--spacing-sm);
+  background: #323232;
+  color: #ff8a80;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* mirrors --bp-tablet in styles.css */
+@container app (max-width: 600px) {
+  .zeit-verteilung__row {
+    grid-template-columns: minmax(0, 1fr) 76px 76px auto;
+  }
+
+  .zeit-verteilung__input--industrial,
+  .zeit-verteilung__input--percent {
+    flex-basis: 76px;
+    width: 76px;
+  }
+}
+
+/* mirrors --bp-mobile in styles.css */
+@container app (max-width: 480px) {
+  .zeit-verteilung__row {
+    grid-template-columns: minmax(0, 1fr) 72px 72px auto;
+  }
+
+  .zeit-verteilung__input--industrial,
+  .zeit-verteilung__input--percent {
+    flex-basis: 72px;
+    width: 72px;
+  }
+}

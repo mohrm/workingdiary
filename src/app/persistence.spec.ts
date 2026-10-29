@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
+import { Activity } from './model/activities';
 import { Section } from './model/Section';
 import { Time } from './model/Time';
 import { persistence } from './services/persistence';
@@ -47,6 +48,36 @@ describe('PersistenceService', () => {
 
   it('returns undefined when no sections are available', () => {
     assert.strictEqual(persistence.loadSections('01.01.2024'), undefined);
+  });
+
+  it('saves and loads the time distribution', () => {
+    const day = '01.01.2024';
+    const distribution = [
+      new Activity('Programmierung', 500),
+      new Activity('Meetings', 250),
+    ];
+
+    persistence.saveTimeDistribution(day, distribution);
+
+    assert.deepEqual(persistence.loadTimeDistribution(day), distribution);
+  });
+
+  it('returns undefined when no time distribution is available', () => {
+    assert.strictEqual(
+      persistence.loadTimeDistribution('01.01.2024'),
+      undefined,
+    );
+  });
+
+  it('saves and loads the activity list', () => {
+    const day = '01.01.2024';
+
+    persistence.saveActivities(day, ['Programmierung', 'Meetings']);
+
+    assert.deepEqual(persistence.loadActivities(day), [
+      'Programmierung',
+      'Meetings',
+    ]);
   });
 
   it('returns previous day if available, otherwise current day', () => {

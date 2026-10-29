@@ -288,3 +288,314 @@ Scenario: The version information dialog closes again
   And I see the version information dialog
   And I close the version information dialog
   Then the version information dialog is gone
+
+  Scenario: Opening the time distribution screen from the day plan
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    Then I see "Zeitverteilung für den 17.02.2025" on the heading
+    And I see the total duration of "8,00" industrial time
+    And I see an entry for unassigned time
+  Scenario: Distributing the day's total duration across activities
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    And I add the free text activity "Programmierung" with "1,25" industrial time
+    Then activity "0" is "Review" with "2,50" industrial time
+    And activity "1" is "Programmierung" with "1,25" industrial time
+    And the unassigned time shows "4,25" industrial time
+
+  Scenario: Previously used activities are offered for selection again
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    And the previous day "2025-02-10" has the activity "Programmierung" with "100" industrial time
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I fill the new activity duration with "1,5" industrial time
+    And I pick the previously used activity "Programmierung"
+    And I confirm the new activity
+    Then activity "0" is "Programmierung" with "1,50" industrial time
+
+  Scenario: A quick pick takes the percentage entered for a new activity
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    And the previous day "2025-02-10" has the activity "Programmierung" with "100" industrial time
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I fill the new activity percentage with "25"
+    And I pick the previously used activity "Programmierung"
+    And I confirm the new activity
+    Then activity "0" is "Programmierung" with "2,00" industrial time
+
+  Scenario: An activity duration can also be entered as a percentage
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "25" percent of the day
+    Then activity "0" is "Review" with "2,00" industrial time
+
+  Scenario: Changing an activity duration via the editor and the percentage input
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I open the editor for activity "0"
+    And I set the percentage of activity "0" to "50"
+    Then activity "0" is "Review" with "4,00" industrial time
+
+  Scenario: Aborting the activity editor keeps the stored duration
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I open the editor for activity "0"
+    And I set the edit duration to "2,5"
+    And I abort the activity edit
+    Then activity "0" is "Review" with "1,00" industrial time
+
+  Scenario: Activity durations stay visible after being confirmed
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    Then the duration input of activity "0" shows "2,50"
+
+  Scenario: Activity rows show exact and quarter-hour-rounded industrial time
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,38" industrial time
+    Then activity "0" shows "2,38 / 2,50" exact and rounded industrial time
+
+  Scenario: An activity cannot take more time than is left
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "09:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Alles" with "9" industrial time
+    Then I see the time distribution error message
+
+  Scenario: Returning from the time distribution to the day plan
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I open the time distribution
+    And I go back to the day plan
+    Then I see "Tagesplan für den 17.02.2025" on the heading
+
+  Scenario: The time distribution survives leaving and re-entering the screen
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    And I go back to the day plan
+    And I open the time distribution
+    Then I see "Zeitverteilung für den 17.02.2025" on the heading
+    And activity "0" is "Review" with "2,50" industrial time
+
+  Scenario: Days without a time distribution keep working
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    When I go back to the day plan
+    And I go to the previous day
+    Then I see "Tagesplan für den 17.02.2025" on the heading
+    And the day still shows the log button
+
+  @stable-layout
+  Scenario: The time distribution title is fully visible on a narrow viewport
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    Then the time distribution title is fully visible
+
+  @stable-layout
+  Scenario: The percent values including the percent sign are fully visible
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    Then the percent value of activity "0" is not clipped
+
+  @stable-layout
+  Scenario: Opening the time distribution does not move the summary and navigation
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I remember the position of the summary and the navigation row
+    And I open the time distribution
+    Then the summary and the navigation row have not moved
+
+  @stable-layout
+  Scenario: The time distribution page itself never scrolls
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    Then the page itself does not scroll
+
+  @stable-layout
+  Scenario: Adding an activity does not move the back button
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I remember the position of the back button
+    And I add the free text activity "Review" with "2,5" industrial time
+    Then the back button has not moved
+
+  Scenario: Editing and deleting works for every row when several activities exist
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I add the free text activity "Meetings" with "1" industrial time
+    And I add the free text activity "Support" with "1" industrial time
+    And I open the editor for activity "0"
+    And I set the duration of activity "0" to "1,5" industrial time
+    Then activity "0" is "Review" with "1,50" industrial time
+    And activity "2" is "Support" with "1,00" industrial time
+    When I delete activity "1"
+    Then activity "1" is "Support" with "1,00" industrial time
+
+  @stable-layout
+  Scenario: Opening the activity editor does not move the row
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    And I remember the position of the back button
+    And I open the editor for activity "0"
+    Then the back button has not moved
+
+  @stable-layout
+  Scenario: Editing an activity does not move the row icons or sibling rows
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I add the free text activity "Meetings" with "1" industrial time
+    And I remember the position of activity "0"'s edit and delete icons
+    And I open the editor for activity "0"
+    Then activity "0"'s delete icon has not moved
+    When I remember the position of activity "1"'s name
+    And I abort the activity edit
+    Then activity "1"'s name has not moved
+
+  @stable-layout
+  Scenario: The pen and bin icons align across rows
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I add the free text activity "Meetings" with "1" industrial time
+    Then the edit icons of all activity rows are aligned
+    And the delete icons of all activity rows are aligned
+
+  @stable-layout
+  Scenario: Adding and deleting activities does not move the header, back button or unassigned row
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I remember the position of the back button
+    And I add the free text activity "Review" with "1" industrial time
+    Then the back button has not moved
+    When I delete activity "0"
+    Then the back button has not moved
+
+  Scenario: The rounding check confirms when the rounded items match the rounded total
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    Then the rounding check says the rounded items match the rounded total
+
+  Scenario: The rounding check reports a deviation with its amount
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1,12" industrial time
+    And I add the free text activity "Meetings" with "1,12" industrial time
+    And I add the free text activity "Support" with "1,12" industrial time
+    Then the rounding check reports a deviation of "0,25"
+
+  @stable-layout
+  Scenario: The unassigned time row does not move when adding or deleting activities
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I remember the position of the unassigned time row
+    And I add the free text activity "Review" with "1" industrial time
+    Then the unassigned time row has not moved
+    When I delete activity "0"
+    Then the unassigned time row has not moved

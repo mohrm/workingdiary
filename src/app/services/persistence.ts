@@ -1,9 +1,12 @@
+import { Activity, type ActivityJson } from '../model/activities';
 import { Section, type SectionJson } from '../model/Section';
 import { Time, type TimeJson } from '../model/Time';
 
 export interface DayPlan {
   startTime?: TimeJson;
   sections?: SectionJson[];
+  activities?: string[];
+  timeDistribution?: ActivityJson[];
 }
 
 class PersistenceService {
@@ -72,6 +75,69 @@ class PersistenceService {
     } else {
       return undefined;
     }
+  }
+
+  saveActivities(day: string, activities: string[]) {
+    const plans = this.loadDayPlan(day);
+    plans[day].activities = activities;
+    localStorage.setItem('plans', JSON.stringify(plans));
+  }
+
+  loadActivities(day: string): string[] | undefined {
+    return this.loadDayPlan(day)[day].activities;
+  }
+
+  saveTimeDistribution(day: string, distribution: Activity[]) {
+    const plans = this.loadDayPlan(day);
+    plans[day].timeDistribution = distribution.map((activity) =>
+      activity.toJSON(),
+    );
+    localStorage.setItem('plans', JSON.stringify(plans));
+  }
+
+  loadTimeDistribution(day: string): Activity[] | undefined {
+    const distribution = this.loadDayPlan(day)[day].timeDistribution;
+    if (distribution) {
+      return distribution.map((a) => Activity.fromJSON(a));
+    }
+    return undefined;
+  }
+
+  // Previously used activity names, most recent first, from days within
+  // the last `months` months (relative to `day`). Powered by the per-day
+  // time distributions, so free-text activities a user once assigned
+  // become selectable suggestions again.
+  recentActivityNames(day: string, months: number): string[] {
+    const plans = this.loadPlans();
+    const reference = this.parseGermanDate(day);
+    const cutoff = new Date(
+      reference.getFullYear(),
+      reference.getMonth() - months,
+      reference.getDate(),
+    );
+
+    const dayNames: { day: Date; names: string[] }[] = [];
+    for (const pDay in plans) {
+      const d = this.parseGermanDate(pDay);
+      if (d < cutoff || d > reference) continue;
+      const names = (plans[pDay].timeDistribution ?? [])
+        .map((a) => a.name)
+        .filter((name) => name.length > 0);
+      if (names.length > 0) dayNames.push({ day: d, names });
+    }
+    dayNames.sort((a, b) => b.day.getTime() - a.day.getTime());
+
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const entry of dayNames) {
+      for (const name of entry.names) {
+        if (!seen.has(name)) {
+          seen.add(name);
+          result.push(name);
+        }
+      }
+    }
+    return result;
   }
 
   // previousDay/nextDay jump to the closest day that actually has stored
