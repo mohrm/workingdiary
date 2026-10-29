@@ -776,7 +776,12 @@ When(
       .getByTestId('neue-taetigkeit-industriezeit')
       .fill(industrialTime);
     await page.getByTestId('add-taetigkeit').click();
-    await page.locator('[data-testid="taetigkeit-0"]').waitFor();
+    // A rejected activity never creates the list entry — the error toast
+    // appearing instead is the success signal in that case.
+    await Promise.race([
+      page.locator('[data-testid="taetigkeit-0"]').waitFor(),
+      page.getByTestId('zeitverteilung-fehler').waitFor(),
+    ]);
   },
 );
 
@@ -786,7 +791,10 @@ When(
     await page.getByTestId('neue-taetigkeit').fill(name);
     await page.getByTestId('neue-taetigkeit-prozent').fill(percent);
     await page.getByTestId('add-taetigkeit').click();
-    await page.locator('[data-testid="taetigkeit-0"]').waitFor();
+    await Promise.race([
+      page.locator('[data-testid="taetigkeit-0"]').waitFor(),
+      page.getByTestId('zeitverteilung-fehler').waitFor(),
+    ]);
   },
 );
 
