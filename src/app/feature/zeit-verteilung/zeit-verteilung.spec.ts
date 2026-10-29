@@ -500,7 +500,7 @@ describe('ZeitVerteilung', () => {
 
     const html = verteilung.element.innerHTML;
     assert.ok(html.includes('zeit-verteilung__rundung--ok'));
-    assert.ok(html.includes('entsprechen der gerundeten Summe'));
+    assert.ok(html.includes('Rundung passt'));
   });
 
   it('zeigt den Rundungs-Check mit Abweichung, wenn die gerundeten Posten nicht auf die gerundete Summe passen', () => {
@@ -514,10 +514,10 @@ describe('ZeitVerteilung', () => {
 
     const html = verteilung.element.innerHTML;
     assert.ok(html.includes('zeit-verteilung__rundung--abweichung'));
-    assert.ok(html.includes('weichen von der gerundeten Summe'));
+    assert.ok(html.includes('Rundung weicht um'));
     // je 112 -> 100 gerundet (Summe 300), unverteilt 464 -> 475 gerundet,
     // Summe 775 gegen gerundete Gesamtsumme 800: Abweichung 25 (= 0,25)
-    assert.ok(html.includes('um 0,25 ab.'));
+    assert.ok(html.includes('um 0,25 ab ('));
   });
 
   it('schließt die unverteilte Zeit in den Rundungs-Check ein', () => {
