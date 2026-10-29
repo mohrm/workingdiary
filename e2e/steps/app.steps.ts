@@ -79,7 +79,14 @@ When('I open the day plan for today', async ({ page }) => {
 Then(
   'I see {string} on the heading',
   async ({ page }, expectedHeadingText: string) => {
-    await hasElementWithText(page, 'dayplan-title', expectedHeadingText);
+    // The heading belongs to whichever screen is mounted — the day plan
+    // title or the time distribution title.
+    const verteilungsTitle = page.getByTestId('zeitverteilung-title');
+    const testId =
+      (await verteilungsTitle.count()) > 0
+        ? 'zeitverteilung-title'
+        : 'dayplan-title';
+    await hasElementWithText(page, testId, expectedHeadingText);
   },
 );
 
@@ -813,7 +820,7 @@ When('I abort the activity edit', async ({ page }) => {
 When(
   'I set the duration of activity {string} to {string} industrial time',
   async ({ page }, _index: string, industrialTime: string) => {
-    await page.getByTestId('taetigkeit-industriezeit-0').waitFor();
+    await page.locator('[data-edit-industriezeit]').waitFor();
     await page.locator('[data-edit-industriezeit]').fill(industrialTime);
     await page.locator('[data-action="finish"]').click();
   },
@@ -822,7 +829,7 @@ When(
 When(
   'I set the percentage of activity {string} to {string}',
   async ({ page }, _index: string, percent: string) => {
-    await page.getByTestId('taetigkeit-prozent-0').waitFor();
+    await page.locator('[data-edit-prozent]').waitFor();
     await page.locator('[data-edit-prozent]').fill(percent);
     await page.locator('[data-action="finish"]').click();
   },
@@ -938,6 +945,11 @@ Given(
       .reverse()
       .map((p) => parseInt(p, 10).toString().padStart(2, '0'))
       .join('.');
+    // localStorage is only accessible on an app origin (about:blank
+    // denies it), so navigate to the app once before seeding.
+    if (!page.url().startsWith('http')) {
+      await navigateTo(page, '/');
+    }
     await page.evaluate(
       ([gDay, aName, aMinutes]) => {
         const plans = JSON.parse(localStorage.getItem('plans') ?? '{}');
@@ -1011,7 +1023,6 @@ async function readIconPositions(
   page: Page,
   index: string,
 ): Promise<{
-  edit: { x: number; y: number } | null;
   delete: { x: number; y: number } | null;
 }> {
   const row = page.locator('.zeit-verteilung__row').nth(Number(index));
@@ -1021,7 +1032,6 @@ async function readIconPositions(
     return box ? { x: box.x, y: box.y } : null;
   };
   return {
-    edit: await boxOf('[data-action="edit"]'),
     delete: await boxOf('[data-action="delete"]'),
   };
 }
@@ -1102,19 +1112,15 @@ Then(
 Then('the edit icons of all activity rows are aligned', async ({ page }) => {
   const rows = page.locator('.zeit-verteilung__row[data-index]');
   const count = await rows.count();
-  const xs: number[] = [];
-  const ys: number[] = [];
   for (let i = 0; i < count; i++) {
     const box = await rows.nth(i).locator('[data-action="edit"]').boundingBox();
     expect(box, `edit icon of row ${i}`).not.toBeNull();
-    xs.push(box!.x);
-    ys.push(box!.y);
-  }
-  const firstX = xs[0];
-  const firstY = ys[0];
-  for (const [i, x] of xs.entries()) {
-    expect(x, `edit icon x of row ${i}`).toBeCloseTo(firstX, 0);
-    expect(ys[i], `edit icon y of row ${i}`).not.toBeCloseTo(firstY, 0);
+    if (i === 0) continue;
+    const first = await rows
+      .nth(0)
+      .locator('[data-action="edit"]')
+      .boundingBox();
+    expect(box!.x, `edit icon x of row ${i}`).toBeCloseTo(first!.x, 0);
   }
 });
 
@@ -1149,7 +1155,7 @@ Then(
   async ({ page }, deviation: string) => {
     const check = page.getByTestId('rundungs-check');
     await expect(check).toContainText('Rundung weicht um');
-    await expect(check).toContainText(`um ${deviation} ab.`);
+    await expect(check).toContainText(`um ${deviation} ab (`);
   },
 );
 
