@@ -7,9 +7,18 @@ export function getViewFromURL(): AppView {
     : 'day-plan';
 }
 
+// Query-relative URLs (no leading slash): the app also runs under a
+// non-root base path (branch previews on GitHub Pages), where a
+// root-relative "/?day=…" would navigate off the preview entirely.
+// "index.html?day=…" keeps the current path under both / and /sub/.
 export function viewUrl(day: string, view: AppView): string {
-  if (view === 'zeit-verteilung') {
-    return `/?day=${day}&view=zeit-verteilung`;
-  }
-  return `/?day=${day}`;
+  const query =
+    view === 'zeit-verteilung'
+      ? `?day=${day}&view=zeit-verteilung`
+      : `?day=${day}`;
+  return `index.html${query}`;
+}
+
+export function dayUrl(day: string): string {
+  return `index.html?day=${day}`;
 }
