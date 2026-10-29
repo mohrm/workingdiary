@@ -1139,7 +1139,7 @@ Then(
   'the rounding check says the rounded items match the rounded total',
   async ({ page }) => {
     await expect(page.getByTestId('rundungs-check')).toContainText(
-      'entsprechen der gerundeten Summe',
+      'Rundung passt',
     );
   },
 );
@@ -1148,7 +1148,7 @@ Then(
   'the rounding check reports a deviation of {string}',
   async ({ page }, deviation: string) => {
     const check = page.getByTestId('rundungs-check');
-    await expect(check).toContainText('weichen von der gerundeten Summe');
+    await expect(check).toContainText('Rundung weicht um');
     await expect(check).toContainText(`um ${deviation} ab.`);
   },
 );

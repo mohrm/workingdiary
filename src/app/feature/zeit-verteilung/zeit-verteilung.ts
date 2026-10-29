@@ -140,9 +140,9 @@ export function createZeitVerteilung(
     const gesamtGerundet = Math.round(total / 25) * 25;
     const differenz = summeGerundet - gesamtGerundet;
     if (differenz === 0) {
-      return `<p class="zeit-verteilung__rundung zeit-verteilung__rundung--ok" data-testid="rundungs-check">Gerundete Einzelposten (${formatIndustrial(summeGerundet)}) entsprechen der gerundeten Summe (${formatIndustrial(gesamtGerundet)}).</p>`;
+      return `<p class="zeit-verteilung__rundung zeit-verteilung__rundung--ok" data-testid="rundungs-check">Rundung passt (${formatIndustrial(summeGerundet)} = ${formatIndustrial(gesamtGerundet)}).</p>`;
     }
-    return `<p class="zeit-verteilung__rundung zeit-verteilung__rundung--abweichung" data-testid="rundungs-check" role="status">Gerundete Einzelposten (${formatIndustrial(summeGerundet)}) weichen von der gerundeten Summe (${formatIndustrial(gesamtGerundet)}) um ${formatIndustrial(Math.abs(differenz))} ab.</p>`;
+    return `<p class="zeit-verteilung__rundung zeit-verteilung__rundung--abweichung" data-testid="rundungs-check" role="status">Rundung weicht um ${formatIndustrial(Math.abs(differenz))} ab (${formatIndustrial(summeGerundet)} ≠ ${formatIndustrial(gesamtGerundet)}).</p>`;
   }
 
   function renderRow(
