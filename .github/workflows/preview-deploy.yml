@@ -35,7 +35,7 @@ jobs:
           publish_dir: dist
           destination_dir: preview/${{ github.ref_name }}
       - name: comment preview link on PR
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const branch = context.ref.replace('refs/heads/', '');
