@@ -74,6 +74,50 @@
   font-size: inherit;
 }
 
+/* Name field with its own suggestion dropdown: the wrapper is the
+   positioning context (position: relative) for the absolutely placed
+   list, which overlays the rows below instead of pushing them (layout
+   stability). Native datalists only open while typing on Android, so
+   the list opens on focus as well. */
+.zeit-verteilung__name-feld {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+}
+
+.zeit-verteilung__name-feld .zeit-verteilung__input {
+  width: 100%;
+}
+
+.zeit-verteilung__verlauf {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 40vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: var(--spacing-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.zeit-verteilung__verlauf-eintrag {
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zeit-verteilung__verlauf-eintrag:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .zeit-verteilung__input--industrial {
   flex: 0 0 84px;
   width: 84px;

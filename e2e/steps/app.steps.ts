@@ -786,11 +786,15 @@ When(
 When(
   'I pick the previously used activity {string}',
   async ({ page }, name: string) => {
-    const options = await page
-      .locator('#zeit-verteilung-verlauf option')
-      .evaluateAll((els) => els.map((el) => (el as HTMLOptionElement).value));
-    expect(options, 'activity must be offered in the datalist').toContain(name);
-    await page.getByTestId('neue-taetigkeit').fill(name);
+    const input = page.getByTestId('neue-taetigkeit');
+    await input.click();
+    const option = page.locator(`[data-verlauf-name="${name}"]`);
+    await expect(
+      option,
+      'activity must be offered in the dropdown',
+    ).toBeVisible();
+    await option.click();
+    await expect(input).toHaveValue(name);
   },
 );
 

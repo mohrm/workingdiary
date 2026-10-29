@@ -60,6 +60,19 @@ class FakeElement {
     return this._open;
   }
 
+  focus(): void {}
+
+  // Boolean attribute mirror: the HTML parser (see _parseHTML) records
+  // "hidden" as an attribute; real DOM elements expose it as a property.
+  get hidden(): boolean {
+    return this.hasAttribute('hidden');
+  }
+
+  set hidden(value: boolean) {
+    if (value) this.setAttribute('hidden', '');
+    else this._attrs.delete('hidden');
+  }
+
   get dataset(): Record<string, string> {
     const self = this;
     return new Proxy({} as Record<string, string>, {
