@@ -1006,3 +1006,131 @@ When('I confirm the new activity', async ({ page }) => {
   await page.getByTestId('add-taetigkeit').click();
   await page.locator('[data-testid="taetigkeit-0"]').waitFor();
 });
+
+async function readIconPositions(
+  page: Page,
+  index: string,
+): Promise<{
+  edit: { x: number; y: number } | null;
+  delete: { x: number; y: number } | null;
+}> {
+  const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+  await row.waitFor();
+  const boxOf = async (selector: string) => {
+    const box = await row.locator(selector).first().boundingBox();
+    return box ? { x: box.x, y: box.y } : null;
+  };
+  return {
+    edit: await boxOf('[data-action="edit"]'),
+    delete: await boxOf('[data-action="delete"]'),
+  };
+}
+
+When(
+  "I remember the position of activity {string}'s edit and delete icons",
+  async ({ page }, index: string) => {
+    rememberedBoxes.set(page, {
+      icons: (await readIconPositions(page, index)) as unknown as {
+        x: number;
+        y: number;
+      },
+    });
+  },
+);
+
+Then(
+  "activity {string}'s delete icon has not moved",
+  async ({ page }, index: string) => {
+    const before = rememberedBoxes.get(page)?.icons as unknown as
+      | {
+          delete: { x: number; y: number } | null;
+        }
+      | undefined;
+    if (!before) {
+      throw new Error(
+        'No remembered position — call the "I remember the position of activity ...\'s edit and delete icons" step first.',
+      );
+    }
+    const after = await readIconPositions(page, index);
+    expect(after.delete?.x, 'delete icon x').toBeCloseTo(
+      before.delete?.x ?? -1,
+      0,
+    );
+    expect(after.delete?.y, 'delete icon y').toBeCloseTo(
+      before.delete?.y ?? -1,
+      0,
+    );
+  },
+);
+
+When(
+  "I remember the position of activity {string}'s name",
+  async ({ page }, index: string) => {
+    const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+    const box = await row
+      .locator('.zeit-verteilung__name')
+      .first()
+      .boundingBox();
+    if (!box) {
+      throw new Error(`Could not find activity ${index}'s name.`);
+    }
+    rememberedBoxes.set(page, {
+      siblingName: { x: box.x, y: box.y },
+    });
+  },
+);
+
+Then(
+  "activity {string}'s name has not moved",
+  async ({ page }, index: string) => {
+    const before = rememberedBoxes.get(page)?.siblingName;
+    if (!before) {
+      throw new Error(
+        'No remembered position — call the "I remember the position of activity ...\'s name" step first.',
+      );
+    }
+    const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+    const box = await row
+      .locator('.zeit-verteilung__name')
+      .first()
+      .boundingBox();
+    expect(box?.x, 'name x').toBeCloseTo(before.x, 0);
+    expect(box?.y, 'name y').toBeCloseTo(before.y, 0);
+  },
+);
+
+Then('the edit icons of all activity rows are aligned', async ({ page }) => {
+  const rows = page.locator('.zeit-verteilung__row[data-index]');
+  const count = await rows.count();
+  const xs: number[] = [];
+  const ys: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const box = await rows.nth(i).locator('[data-action="edit"]').boundingBox();
+    expect(box, `edit icon of row ${i}`).not.toBeNull();
+    xs.push(box!.x);
+    ys.push(box!.y);
+  }
+  const firstX = xs[0];
+  const firstY = ys[0];
+  for (const [i, x] of xs.entries()) {
+    expect(x, `edit icon x of row ${i}`).toBeCloseTo(firstX, 0);
+    expect(ys[i], `edit icon y of row ${i}`).not.toBeCloseTo(firstY, 0);
+  }
+});
+
+Then('the delete icons of all activity rows are aligned', async ({ page }) => {
+  const rows = page.locator('.zeit-verteilung__row[data-index]');
+  const count = await rows.count();
+  const xs: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const box = await rows
+      .nth(i)
+      .locator('[data-action="delete"]')
+      .boundingBox();
+    expect(box, `delete icon of row ${i}`).not.toBeNull();
+    xs.push(box!.x);
+  }
+  for (const [i, x] of xs.entries()) {
+    expect(x, `delete icon x of row ${i}`).toBeCloseTo(xs[0], 0);
+  }
+});
