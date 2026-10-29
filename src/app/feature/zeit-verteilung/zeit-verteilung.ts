@@ -11,6 +11,7 @@ import {
 } from '../../model/time-distribution';
 import { persistence } from '../../services/persistence';
 import { bindActions } from '../../util/bind-actions';
+import { escapeHtml } from '../../util/escape-html';
 import { icon } from '../icons';
 
 export interface ZeitVerteilungComponent extends Component {
@@ -156,13 +157,13 @@ export function createZeitVerteilung(
     return `
       <li class="zeit-verteilung__row mat-list-item" data-index="${index}">
         <div class="zeit-verteilung__taetigkeit">
-          <span class="zeit-verteilung__name" data-testid="taetigkeit-${index}">${activity.name}</span>
+          <span class="zeit-verteilung__name" data-testid="taetigkeit-${index}">${escapeHtml(activity.name)}</span>
           <span class="zeit-verteilung__indizes" data-testid="taetigkeit-indizes-${index}">${industrial} / ${formatIndustrialQuarterPrecision(activity.minutes)}</span>
         </div>
         ${
           isEdit
-            ? `<input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" value="${industrial}" data-edit-industriezeit aria-label="Industriezeit für ${activity.name}" />
-               <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" value="${percent}" data-edit-prozent aria-label="Prozent für ${activity.name}" />`
+            ? `<input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" value="${industrial}" data-edit-industriezeit aria-label="Industriezeit für ${escapeHtml(activity.name)}" />
+               <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" value="${percent}" data-edit-prozent aria-label="Prozent für ${escapeHtml(activity.name)}" />`
             : `<span class="zeit-verteilung__value zeit-verteilung__input--industrial" data-testid="taetigkeit-industriezeit-${index}">${industrial}</span>
                <span class="zeit-verteilung__value zeit-verteilung__input--percent" data-testid="taetigkeit-prozent-${index}">${percent}</span>`
         }
@@ -173,7 +174,7 @@ export function createZeitVerteilung(
                  <span data-action="finish" role="button" aria-label="Übernehmen">${icon('check')}</span>`
               : `<span data-action="edit" role="button" aria-label="Bearbeiten">${icon('edit')}</span>`
           }
-          <span data-action="delete" role="button" aria-label="${activity.name} entfernen">${icon('delete')}</span>
+          <span data-action="delete" role="button" aria-label="${escapeHtml(activity.name)} entfernen">${icon('delete')}</span>
         </div>
       </li>`;
   }
@@ -185,7 +186,7 @@ export function createZeitVerteilung(
 
     el.innerHTML = `
       <header class="zeit-verteilung__header">
-        <h1 data-testid="zeitverteilung-title">Zeitverteilung für den ${day}</h1>
+        <h1 data-testid="zeitverteilung-title">Zeitverteilung für den ${escapeHtml(day)}</h1>
         <button type="button" class="zeit-verteilung__back" data-action="back" data-testid="back-to-dayplan" aria-label="Zurück zum Tagesplan">${icon('arrow-back')}</button>
       </header>
       <p class="zeit-verteilung__gesamt">
@@ -195,11 +196,11 @@ export function createZeitVerteilung(
       </p>
       <div class="zeit-verteilung__neu">
         <div class="zeit-verteilung__name-feld">
-          <input class="zeit-verteilung__input" type="text" placeholder="z. B. Regulatorik" value="${neueTaetigkeit}" data-testid="neue-taetigkeit" data-neue-taetigkeit role="combobox" aria-expanded="false" aria-controls="zeit-verteilung-verlauf" aria-autocomplete="list" />
+          <input class="zeit-verteilung__input" type="text" placeholder="z. B. Regulatorik" value="${escapeHtml(neueTaetigkeit)}" data-testid="neue-taetigkeit" data-neue-taetigkeit role="combobox" aria-expanded="false" aria-controls="zeit-verteilung-verlauf" aria-autocomplete="list" />
           <ul class="zeit-verteilung__verlauf" id="zeit-verteilung-verlauf" data-testid="taetigkeit-verlauf" role="listbox" hidden></ul>
         </div>
-        <input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" placeholder="Industriezeit" value="${neueIndustriezeit}" data-testid="neue-taetigkeit-industriezeit" aria-label="Industriezeit" />
-        <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" placeholder="%" value="${neueProzent}" data-testid="neue-taetigkeit-prozent" aria-label="Prozent" />
+        <input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" placeholder="Industriezeit" value="${escapeHtml(neueIndustriezeit)}" data-testid="neue-taetigkeit-industriezeit" aria-label="Industriezeit" />
+        <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" placeholder="%" value="${escapeHtml(neueProzent)}" data-testid="neue-taetigkeit-prozent" aria-label="Prozent" />
         <button type="button" class="zeit-verteilung__add" data-action="add-freitext" data-testid="add-taetigkeit" aria-label="Tätigkeit hinzufügen">${icon('check')}</button>
       </div>
       <div class="zeit-verteilung__liste-bereich">
@@ -221,7 +222,7 @@ export function createZeitVerteilung(
         </div>
       </div>
       ${renderRundungsCheck(aktivitaeten, total)}
-      ${fehlermeldung ? `<div class="zeit-verteilung__fehler" data-testid="zeitverteilung-fehler" role="alert">${fehlermeldung}</div>` : ''}`;
+      ${fehlermeldung ? `<div class="zeit-verteilung__fehler" data-testid="zeitverteilung-fehler" role="alert">${escapeHtml(fehlermeldung)}</div>` : ''}`;
 
     const freitextInput = el.querySelector<HTMLInputElement>(
       '[data-neue-taetigkeit]',
@@ -243,7 +244,7 @@ export function createZeitVerteilung(
       verlaufListe.innerHTML = aktuelleVorschlaege()
         .map(
           (name) =>
-            `<li class="zeit-verteilung__verlauf-eintrag" role="option" data-verlauf-name="${name}">${name}</li>`,
+            `<li class="zeit-verteilung__verlauf-eintrag" role="option" data-verlauf-name="${escapeHtml(name)}">${escapeHtml(name)}</li>`,
         )
         .join('');
       verlaufListe
