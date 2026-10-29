@@ -410,7 +410,7 @@ Scenario: The version information dialog closes again
     And I go back to the day plan
     Then I see "Tagesplan für den 17.02.2025" on the heading
 
-  Scenario: The time distribution survives a reload
+  Scenario: The time distribution survives leaving and re-entering the screen
     Given today's date is "2025-02-17" and the current time is "08:00:00"
     When I open the day plan for today
     And I log in
@@ -418,7 +418,8 @@ Scenario: The version information dialog closes again
     And I log out
     And I open the time distribution
     And I add the free text activity "Review" with "2,5" industrial time
-    And I reload the page
+    And I go back to the day plan
+    And I open the time distribution
     Then I see "Zeitverteilung für den 17.02.2025" on the heading
     And activity "0" is "Review" with "2,50" industrial time
 
