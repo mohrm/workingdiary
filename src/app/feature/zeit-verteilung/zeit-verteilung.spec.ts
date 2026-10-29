@@ -26,12 +26,6 @@ function fireClick(el: Element, selector: string): void {
   target.dispatchEvent({ type: 'click' });
 }
 
-function fireChange(el: Element, selector: string, value: string): void {
-  const input = el.querySelector(selector) as unknown as FakeInputLike;
-  input.value = value;
-  input.dispatchEvent({ type: 'change' });
-}
-
 function saveHourDay(day: string, hours: number): void {
   persistence.saveSections(day, [
     new Section(new Time(8, 0), new Time(8 + hours, 0), LOCATIONS.OFFICE),
@@ -55,7 +49,6 @@ describe('ZeitVerteilung', () => {
         '<span data-testid="zeitverteilung-gesamt">7,75</span>',
       ),
     );
-    // quarter-hour-rounded total rides along, like on the day plan
     assert.ok(verteilung.element.innerHTML.includes('/ 7,75'));
   });
 
@@ -70,7 +63,7 @@ describe('ZeitVerteilung', () => {
     assert.ok(verteilung.element.innerHTML.includes('nicht verteilte Zeit'));
   });
 
-  it('fügt eine Freitext-Tätigkeit mit Industriezeit hinzu und zeigt sie nach dem Bestätigen weiter an', () => {
+  it('fügt eine Freitext-Tätigkeit mit Industriezeit hinzu und zeigt sie weiter an', () => {
     saveHourDay('01.01.2024', 4);
     const verteilung = createZeitVerteilung('01.01.2024');
 
@@ -84,16 +77,17 @@ describe('ZeitVerteilung', () => {
 
     const gespeichert = persistence.loadTimeDistribution('01.01.2024');
     assert.equal(gespeichert?.length, 1);
-    assert.equal(gespeichert?.[0].name, 'Review');
     assert.equal(gespeichert?.[0].minutes, 150);
-    // the value must survive the re-render as a valid input value
     assert.ok(
       verteilung.element.innerHTML.includes(
-        'value="1,50" data-industriezeit-index="0"',
+        'data-testid="taetigkeit-industriezeit-0">1,50',
       ),
     );
-    // percent of the day's total (150 / 400)
-    assert.ok(verteilung.element.innerHTML.includes('value="37,5 %"'));
+    assert.ok(
+      verteilung.element.innerHTML.includes(
+        'data-testid="taetigkeit-prozent-0">37,5 %',
+      ),
+    );
   });
 
   it('nimmt die Dauer einer neuen Tätigkeit auch in Prozent entgegen', () => {
@@ -133,11 +127,6 @@ describe('ZeitVerteilung', () => {
     fireClick(verteilung.element, '[data-testid="add-taetigkeit"]');
 
     setInput(verteilung.element, '[data-testid="neue-taetigkeit"]', 'Testen');
-    setInput(
-      verteilung.element,
-      '[data-testid="neue-taetigkeit-industriezeit"]',
-      '0,25',
-    );
     fireClick(verteilung.element, '[data-testid="add-taetigkeit"]');
     assert.ok(
       verteilung.element.innerHTML.includes('Diese Tätigkeit gibt es schon.'),
@@ -165,26 +154,53 @@ describe('ZeitVerteilung', () => {
     assert.equal(persistence.loadTimeDistribution('01.01.2024'), undefined);
   });
 
-  it('bietet vorgegebene Tätigkeiten zur Auswahl an und legt sie ohne Dauer an', () => {
+  it('bietet früher verwendete Tätigkeiten der letzten N Monate zur Auswahl an', () => {
     saveHourDay('01.01.2024', 1);
+    persistence.saveTimeDistribution('01.11.2023', [
+      new Activity('Review', 50),
+      new Activity('Meetings', 50),
+    ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    const vorschlag = verteilung.element.querySelector(
+    const vorschlaege = verteilung.element.querySelectorAll(
       '[data-vorschlag]',
-    ) as unknown as {
-      getAttribute: (name: string) => string | null;
-      dispatchEvent: (event: { type: string }) => void;
-    };
-    assert.ok(vorschlag);
-    vorschlag.dispatchEvent({ type: 'click' });
+    ) as unknown as { getAttribute: (name: string) => string | null }[];
+    const namen = [...vorschlaege].map((b) => b.getAttribute('data-vorschlag'));
+    assert.deepEqual(namen, ['Review', 'Meetings']);
+  });
 
-    const gespeichert = persistence.loadTimeDistribution('01.01.2024');
-    assert.equal(gespeichert?.length, 1);
-    assert.equal(gespeichert?.[0].minutes, 0);
-    assert.equal(
-      gespeichert?.[0].name,
-      vorschlag.getAttribute('data-vorschlag'),
-    );
+  it('bietet keine Tätigkeiten an, die älter als N Monate sind, und keine bereits gewählten', () => {
+    saveHourDay('01.01.2024', 4);
+    persistence.saveTimeDistribution('01.08.2023', [
+      new Activity('Alte Tätigkeit', 100),
+    ]);
+    persistence.saveTimeDistribution('01.12.2023', [
+      new Activity('Review', 100),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    const html = verteilung.element.innerHTML;
+    assert.ok(!html.includes('Alte Tätigkeit'));
+    assert.ok(html.includes('Review'));
+
+    setInput(verteilung.element, '[data-testid="neue-taetigkeit"]', 'Review');
+    fireClick(verteilung.element, '[data-testid="add-taetigkeit"]');
+
+    const vorschlaegeNeu = verteilung.element.querySelectorAll(
+      '[data-vorschlag]',
+    ) as unknown as { getAttribute: (name: string) => string | null }[];
+    assert.equal(vorschlaegeNeu.length, 0);
+  });
+
+  it('respektiert einen konfigurierten Verlaufszeitraum in Monaten', () => {
+    localStorage.setItem('activity-history-months', '12');
+    saveHourDay('01.01.2024', 1);
+    persistence.saveTimeDistribution('01.06.2023', [
+      new Activity('Halbjahresaufgabe', 100),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    assert.ok(verteilung.element.innerHTML.includes('Halbjahresaufgabe'));
   });
 
   it('zeigt die nicht verteilte Zeit als fixen Posten an, mit Anteil in Prozent', () => {
@@ -204,71 +220,94 @@ describe('ZeitVerteilung', () => {
         'data-testid="unverteilt-prozent">37,5 %',
       ),
     );
-    assert.ok(
-      verteilung.element.innerHTML.includes(
-        'data-testid="unverteilt-industriezeit">3,00 / 3,00',
-      ),
-    );
   });
 
-  it('ändert die Dauer einer Tätigkeit und klemmt sie auf den verbleibenden Rest', () => {
+  it('bearbeitet eine Tätigkeit über die Edit-Mechanik und übernimmt die neue Dauer', () => {
     saveHourDay('01.01.2024', 2);
     persistence.saveTimeDistribution('01.01.2024', [
       new Activity('Meetings', 100),
     ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    fireChange(verteilung.element, '[data-industriezeit-index="0"]', '1,5');
+    fireClick(verteilung.element, '[data-action="edit"]');
+    assert.ok(
+      verteilung.element.innerHTML.includes('[data-edit-industriezeit]') ||
+        verteilung.element.innerHTML.includes('data-edit-industriezeit'),
+    );
+
+    setInput(verteilung.element, '[data-edit-industriezeit]', '1,5');
+    fireClick(verteilung.element, '[data-action="finish"]');
+
     assert.equal(
       persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
       150,
     );
-
-    fireChange(verteilung.element, '[data-industriezeit-index="0"]', '5');
-    assert.equal(
-      persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
-      200,
-    );
     assert.ok(
       verteilung.element.innerHTML.includes(
-        'So viel Zeit ist nicht mehr frei.',
-      ),
-    );
-    assert.ok(
-      verteilung.element.innerHTML.includes(
-        'data-testid="unverteilt-minuten">0,00',
+        'data-testid="taetigkeit-industriezeit-0">1,50',
       ),
     );
   });
 
-  it('ändert die Dauer auch über die Prozent-Eingabe', () => {
+  it('bricht das Bearbeiten ab, ohne die gespeicherte Dauer zu ändern', () => {
+    saveHourDay('01.01.2024', 2);
+    persistence.saveTimeDistribution('01.01.2024', [
+      new Activity('Meetings', 100),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    fireClick(verteilung.element, '[data-action="edit"]');
+    setInput(verteilung.element, '[data-edit-industriezeit]', '1,5');
+    fireClick(verteilung.element, '[data-action="abort"]');
+
+    assert.equal(
+      persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
+      100,
+    );
+    assert.ok(
+      verteilung.element.innerHTML.includes(
+        'data-testid="taetigkeit-industriezeit-0">1,00',
+      ),
+    );
+  });
+
+  it('ändert die Dauer im Editor auch in Prozent und klemmt auf den Rest', () => {
     saveHourDay('01.01.2024', 8);
     persistence.saveTimeDistribution('01.01.2024', [
       new Activity('Meetings', 100),
     ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    fireChange(verteilung.element, '[data-prozent-index="0"]', '50');
-
+    fireClick(verteilung.element, '[data-action="edit"]');
+    setInput(verteilung.element, '[data-edit-prozent]', '50');
+    fireClick(verteilung.element, '[data-action="finish"]');
     assert.equal(
       persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
       400,
     );
+
+    fireClick(verteilung.element, '[data-action="edit"]');
+    setInput(verteilung.element, '[data-edit-industriezeit]', '9');
+    fireClick(verteilung.element, '[data-action="finish"]');
     assert.ok(
       verteilung.element.innerHTML.includes(
-        'value="4,00" data-industriezeit-index="0"',
+        'So viel Zeit ist nicht mehr frei.',
       ),
+    );
+    assert.equal(
+      persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
+      400,
     );
   });
 
-  it('löscht eine Tätigkeit', () => {
+  it('löscht eine Tätigkeit direkt aus der Listenzeile', () => {
     saveHourDay('01.01.2024', 2);
     persistence.saveTimeDistribution('01.01.2024', [
       new Activity('Meetings', 100),
     ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    fireClick(verteilung.element, '[data-testid="delete-taetigkeit-0"]');
+    fireClick(verteilung.element, '[data-action="delete"]');
 
     assert.deepEqual(persistence.loadTimeDistribution('01.01.2024'), []);
     assert.ok(

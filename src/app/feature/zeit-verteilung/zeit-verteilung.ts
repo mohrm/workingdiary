@@ -5,7 +5,8 @@ import {
   hoursToIndustrialMinutes,
 } from '../../model/activities';
 import {
-  DEFAULT_ACTIVITIES,
+  ACTIVITY_HISTORY_MONTHS_KEY,
+  DEFAULT_ACTIVITY_HISTORY_MONTHS,
   UNVERTEILTE_ZEIT,
 } from '../../model/time-distribution';
 import { persistence } from '../../services/persistence';
@@ -24,6 +25,14 @@ function totalIndustrialMinutes(day: string): number {
   return calendarMinutesToIndustrial(calendarMinutes);
 }
 
+function historyMonths(): number {
+  const raw = localStorage.getItem(ACTIVITY_HISTORY_MONTHS_KEY);
+  const parsed = raw === null ? Number.NaN : parseInt(raw, 10);
+  return Number.isInteger(parsed) && parsed > 0
+    ? parsed
+    : DEFAULT_ACTIVITY_HISTORY_MONTHS;
+}
+
 export function createZeitVerteilung(
   day: string,
   onBack?: () => void,
@@ -32,6 +41,8 @@ export function createZeitVerteilung(
   el.className = 'zeit-verteilung';
 
   let neueTaetigkeit = '';
+  let neueIndustriezeit = '';
+  let neueProzent = '';
   let fehlermeldung: string | undefined;
 
   function verteilteMinuten(aktivitaeten: Activity[]): number {
@@ -42,6 +53,14 @@ export function createZeitVerteilung(
 
   function persist(aktivitaeten: Activity[]): void {
     persistence.saveTimeDistribution(day, aktivitaeten);
+  }
+
+  function gesamt(): number {
+    return totalIndustrialMinutes(day);
+  }
+
+  function frei(aktivitaeten: Activity[]): number {
+    return gesamt() - verteilteMinuten(aktivitaeten);
   }
 
   function addTaetigkeit(name: string, minutes: number): boolean {
@@ -62,9 +81,7 @@ export function createZeitVerteilung(
       render();
       return false;
     }
-    const gesamt = totalIndustrialMinutes(day);
-    const frei = gesamt - verteilteMinuten(aktivitaeten);
-    if (minutes > frei) {
+    if (minutes > frei(aktivitaeten)) {
       fehlermeldung = 'So viel Zeit ist nicht mehr frei.';
       render();
       return false;
@@ -76,29 +93,22 @@ export function createZeitVerteilung(
   }
 
   function addFreitextTaetigkeit(): void {
-    const input = el.querySelector<HTMLInputElement>(
-      '[data-testid="neue-taetigkeit"]',
-    );
-    const hoursInput = el.querySelector<HTMLInputElement>(
-      '[data-testid="neue-taetigkeit-industriezeit"]',
-    );
-    const percentInput = el.querySelector<HTMLInputElement>(
-      '[data-testid="neue-taetigkeit-prozent"]',
-    );
-    const name = input?.value ?? neueTaetigkeit;
-    const gesamt = totalIndustrialMinutes(day);
-    let minutes: number;
-    if ((percentInput?.value ?? '') !== '') {
-      const percent = parseDecimal(percentInput?.value ?? '');
-      minutes = Math.round((gesamt * percent) / 100);
-    } else {
-      minutes = hoursToIndustrialMinutes(parseDecimal(hoursInput?.value ?? ''));
-    }
+    const name = neueTaetigkeit;
+    const minutes = minutesFromNewInputs();
     neueTaetigkeit = '';
+    neueIndustriezeit = '';
+    neueProzent = '';
     addTaetigkeit(name, minutes);
   }
 
-  function addVorgegebeneTaetigkeit(name: string): void {
+  function minutesFromNewInputs(): number {
+    if (neueProzent !== '') {
+      return Math.round((gesamt() * parseDecimal(neueProzent)) / 100);
+    }
+    return hoursToIndustrialMinutes(parseDecimal(neueIndustriezeit));
+  }
+
+  function waehleVorgeschlagene(name: string): void {
     const aktivitaeten = persistence.loadTimeDistribution(day) ?? [];
     if (aktivitaeten.some((activity) => activity.name === name)) {
       fehlermeldung = 'Diese Tätigkeit gibt es schon.';
@@ -106,38 +116,6 @@ export function createZeitVerteilung(
       return;
     }
     addTaetigkeit(name, 0);
-  }
-
-  function entferneTaetigkeit(index: number): void {
-    const aktivitaeten = persistence.loadTimeDistribution(day) ?? [];
-    persist(aktivitaeten.filter((_, i) => i !== index));
-    render();
-  }
-
-  function aendereDauer(index: number, minutes: number): void {
-    const aktivitaeten = persistence.loadTimeDistribution(day) ?? [];
-    const gesamt = totalIndustrialMinutes(day);
-    const rest = aktivitaeten
-      .filter((_, i) => i !== index)
-      .map((activity) => activity.minutes)
-      .reduce((prev, cur) => prev + cur, 0);
-    if (minutes > gesamt - rest) {
-      fehlermeldung = 'So viel Zeit ist nicht mehr frei.';
-      minutes = Math.max(0, gesamt - rest);
-    } else {
-      fehlermeldung = undefined;
-    }
-    persist(
-      aktivitaeten.map((activity, i) =>
-        i === index ? new Activity(activity.name, minutes) : activity,
-      ),
-    );
-    render();
-  }
-
-  function aendereProzent(index: number, percent: number): void {
-    const gesamt = totalIndustrialMinutes(day);
-    aendereDauer(index, Math.round((gesamt * percent) / 100));
   }
 
   function parseDecimal(value: string): number {
@@ -152,36 +130,51 @@ export function createZeitVerteilung(
     return formatIndustrial(Math.round(minutes / 25) * 25);
   }
 
-  function formatPercent(minutes: number, gesamt: number): string {
-    if (gesamt === 0) return '0 %';
-    return `${((100 * minutes) / gesamt).toFixed(1).replace('.', ',')} %`;
+  function formatPercent(minutes: number, total: number): string {
+    if (total === 0) return '0,0 %';
+    return `${((100 * minutes) / total).toFixed(1).replace('.', ',')} %`;
   }
 
   function renderRow(
     activity: Activity,
     index: number,
-    gesamt: number,
+    isEdit: boolean,
+    total: number,
   ): string {
+    const industrial = formatIndustrial(activity.minutes);
+    const percent = formatPercent(activity.minutes, total);
     return `
       <li class="zeit-verteilung__row mat-list-item" data-index="${index}">
-        <div class="zeit-verteilung__taetigkeit">
-          <span class="zeit-verteilung__name" data-testid="taetigkeit-${index}">${activity.name}</span>
-          <span class="zeit-verteilung__indizes">${formatIndustrial(activity.minutes)} / ${formatIndustrialQuarterPrecision(activity.minutes)}</span>
+        <span class="zeit-verteilung__name" data-testid="taetigkeit-${index}">${activity.name}</span>
+        <span class="zeit-verteilung__indizes" data-testid="taetigkeit-indizes-${index}">${industrial} / ${formatIndustrialQuarterPrecision(activity.minutes)}</span>
+        ${
+          isEdit
+            ? `<input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" value="${industrial}" data-edit-industriezeit aria-label="Industriezeit für ${activity.name}" />
+               <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" value="${percent}" data-edit-prozent aria-label="Prozent für ${activity.name}" />`
+            : `<span class="zeit-verteilung__value zeit-verteilung__input--industrial" data-testid="taetigkeit-industriezeit-${index}">${industrial}</span>
+               <span class="zeit-verteilung__value zeit-verteilung__input--percent" data-testid="taetigkeit-prozent-${index}">${percent}</span>`
+        }
+        <div class="zeit-verteilung__icon-zone">
+          ${
+            isEdit
+              ? `<span data-action="abort" role="button" aria-label="Abbrechen">${icon('close')}</span>
+                 <span data-action="finish" role="button" aria-label="Übernehmen">${icon('check')}</span>`
+              : `<span data-action="edit" role="button" aria-label="Bearbeiten">${icon('edit')}</span>`
+          }
+          <span data-action="delete" role="button" aria-label="${activity.name} entfernen">${icon('delete')}</span>
         </div>
-        <input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" value="${formatIndustrial(activity.minutes)}" data-industriezeit-index="${index}" aria-label="Dauer in Industriezeit für ${activity.name}" />
-        <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" value="${formatPercent(activity.minutes, gesamt)}" data-prozent-index="${index}" aria-label="Dauer in Prozent für ${activity.name}" />
-        <button type="button" class="zeit-verteilung__delete" data-action="delete-${index}" data-testid="delete-taetigkeit-${index}" aria-label="${activity.name} entfernen">${icon('delete')}</button>
       </li>`;
   }
 
   function render(): void {
-    const gesamt = totalIndustrialMinutes(day);
+    const total = gesamt();
     const aktivitaeten = persistence.loadTimeDistribution(day) ?? [];
-    const verplant = verteilteMinuten(aktivitaeten);
-    const unverteilt = Math.max(0, gesamt - verplant);
-    const vorschlaege = DEFAULT_ACTIVITIES.filter(
-      (name) => !aktivitaeten.some((activity) => activity.name === name),
-    );
+    const unverteilt = Math.max(0, frei(aktivitaeten));
+    const vorschlaege = persistence
+      .recentActivityNames(day, historyMonths())
+      .filter(
+        (name) => !aktivitaeten.some((activity) => activity.name === name),
+      );
 
     el.innerHTML = `
       <header class="zeit-verteilung__header">
@@ -189,38 +182,38 @@ export function createZeitVerteilung(
         <button type="button" class="zeit-verteilung__back" data-action="back" data-testid="back-to-dayplan" aria-label="Zurück zum Tagesplan">${icon('arrow-back')}</button>
       </header>
       <p class="zeit-verteilung__gesamt">
-        Gesamtdauer: <span data-testid="zeitverteilung-gesamt">${formatIndustrial(gesamt)}</span>
-        <span class="zeit-verteilung__gesamt-rund">/ ${formatIndustrialQuarterPrecision(gesamt)}</span>
+        Gesamtdauer: <span data-testid="zeitverteilung-gesamt">${formatIndustrial(total)}</span>
+        <span class="zeit-verteilung__gesamt-rund">/ ${formatIndustrialQuarterPrecision(total)}</span>
         Industriezeit
       </p>
       <div class="zeit-verteilung__neu">
         <input class="zeit-verteilung__input" type="text" placeholder="Neue Tätigkeit" value="${neueTaetigkeit}" data-testid="neue-taetigkeit" data-neue-taetigkeit />
-        <input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" placeholder="Industriezeit" data-testid="neue-taetigkeit-industriezeit" aria-label="Dauer in Industriezeit" />
-        <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" placeholder="%" data-testid="neue-taetigkeit-prozent" aria-label="Dauer in Prozent" />
+        <input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" placeholder="Industriezeit" value="${neueIndustriezeit}" data-testid="neue-taetigkeit-industriezeit" aria-label="Industriezeit" />
+        <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" placeholder="%" value="${neueProzent}" data-testid="neue-taetigkeit-prozent" aria-label="Prozent" />
         <button type="button" class="zeit-verteilung__add" data-action="add-freitext" data-testid="add-taetigkeit" aria-label="Tätigkeit hinzufügen">${icon('check')}</button>
       </div>
       ${
         vorschlaege.length > 0
-          ? `
-      <div class="zeit-verteilung__vorschlaege">
+          ? `<div class="zeit-verteilung__vorschlaege">
         ${vorschlaege.map((name) => `<button type="button" class="mat-button zeit-verteilung__vorschlag" data-vorschlag="${name}">${name}</button>`).join('')}
       </div>`
           : ''
       }
       <ul class="zeit-verteilung__liste mat-list">
-        ${aktivitaeten.map((activity, index) => renderRow(activity, index, gesamt)).join('')}
+        ${aktivitaeten
+          .map((activity, index) =>
+            renderRow(activity, index, index === editIndex, total),
+          )
+          .join('')}
         <li class="zeit-verteilung__row zeit-verteilung__row--unverteilt mat-list-item">
-          <div class="zeit-verteilung__taetigkeit">
-            <span class="zeit-verteilung__name" data-testid="unverteilt-name">${UNVERTEILTE_ZEIT}</span>
-            <span class="zeit-verteilung__indizes" data-testid="unverteilt-industriezeit">${formatIndustrial(unverteilt)} / ${formatIndustrialQuarterPrecision(unverteilt)}</span>
-          </div>
-          <span class="zeit-verteilung__input zeit-verteilung__input--readonly" data-testid="unverteilt-minuten">${formatIndustrial(unverteilt)}</span>
-          <span class="zeit-verteilung__input zeit-verteilung__input--readonly zeit-verteilung__input--percent" data-testid="unverteilt-prozent">${formatPercent(unverteilt, gesamt)}</span>
-          <span class="zeit-verteilung__delete"></span>
+          <span class="zeit-verteilung__name" data-testid="unverteilt-name">${UNVERTEILTE_ZEIT}</span>
+          <span class="zeit-verteilung__indizes" data-testid="unverteilt-industriezeit">${formatIndustrial(unverteilt)} / ${formatIndustrialQuarterPrecision(unverteilt)}</span>
+          <span class="zeit-verteilung__value zeit-verteilung__input--industrial" data-testid="unverteilt-minuten">${formatIndustrial(unverteilt)}</span>
+          <span class="zeit-verteilung__value zeit-verteilung__input--percent" data-testid="unverteilt-prozent">${formatPercent(unverteilt, total)}</span>
+          <div class="zeit-verteilung__icon-zone zeit-verteilung__icon-zone--leer"></div>
         </li>
       </ul>
-      ${fehlermeldung ? `<div class="zeit-verteilung__fehler" data-testid="zeitverteilung-fehler" role="alert">${fehlermeldung}</div>` : ''}
-      <button type="button" class="mat-button zeit-verteilung__back-label" data-action="back" data-testid="back-to-dayplan-label">Zurück zum Tagesplan</button>`;
+      ${fehlermeldung ? `<div class="zeit-verteilung__fehler" data-testid="zeitverteilung-fehler" role="alert">${fehlermeldung}</div>` : ''}`;
 
     const freitextInput = el.querySelector<HTMLInputElement>(
       '[data-neue-taetigkeit]',
@@ -228,53 +221,110 @@ export function createZeitVerteilung(
     freitextInput?.addEventListener('input', (e) => {
       neueTaetigkeit = (e.target as HTMLInputElement).value;
     });
-
-    el.querySelectorAll<HTMLInputElement>('[data-industriezeit-index]').forEach(
-      (input) => {
-        const index = parseInt(input.dataset.industriezeitIndex ?? '', 10);
-        input.addEventListener('change', (e) => {
-          aendereDauer(
-            index,
-            hoursToIndustrialMinutes(
-              parseDecimal((e.target as HTMLInputElement).value),
-            ),
-          );
-        });
-      },
+    const industriezeitInput = el.querySelector<HTMLInputElement>(
+      '[data-testid="neue-taetigkeit-industriezeit"]',
     );
+    industriezeitInput?.addEventListener('input', (e) => {
+      neueIndustriezeit = (e.target as HTMLInputElement).value;
+    });
+    const prozentInput = el.querySelector<HTMLInputElement>(
+      '[data-testid="neue-taetigkeit-prozent"]',
+    );
+    prozentInput?.addEventListener('input', (e) => {
+      neueProzent = (e.target as HTMLInputElement).value;
+    });
 
-    el.querySelectorAll<HTMLInputElement>('[data-prozent-index]').forEach(
-      (input) => {
-        const index = parseInt(input.dataset.prozentIndex ?? '', 10);
-        input.addEventListener('change', (e) => {
-          aendereProzent(
-            index,
-            parseDecimal((e.target as HTMLInputElement).value),
-          );
-        });
+    el.querySelector<HTMLInputElement>(
+      '[data-edit-industriezeit]',
+    )?.addEventListener('input', (e) => {
+      editIndustriezeit = (e.target as HTMLInputElement).value;
+    });
+    el.querySelector<HTMLInputElement>('[data-edit-prozent]')?.addEventListener(
+      'input',
+      (e) => {
+        editProzent = (e.target as HTMLInputElement).value;
       },
     );
 
     el.querySelectorAll('[data-vorschlag]').forEach((button) => {
       button.addEventListener('click', () => {
-        addVorgegebeneTaetigkeit(button.getAttribute('data-vorschlag') ?? '');
+        waehleVorgeschlagene(button.getAttribute('data-vorschlag') ?? '');
       });
     });
 
-    const actions: Record<string, () => void> = {
+    const rowActions: Record<string, () => void> = {};
+    aktivitaeten.forEach((activity, index) => {
+      rowActions.edit = () => {
+        editIndex = index;
+        editIndustriezeit = formatIndustrial(activity.minutes);
+        editProzent = '';
+        fehlermeldung = undefined;
+        render();
+      };
+      rowActions.abort = () => {
+        editIndex = -1;
+        editIndustriezeit = '';
+        editProzent = '';
+        render();
+      };
+      rowActions.finish = () => {
+        const aktivitaetenNow = persistence.loadTimeDistribution(day) ?? [];
+        const rest = aktivitaetenNow
+          .filter((_, i) => i !== editIndex)
+          .map((a) => a.minutes)
+          .reduce((prev, cur) => prev + cur, 0);
+        let minutes: number;
+        if (editProzent !== '') {
+          minutes = Math.round((gesamt() * parseDecimal(editProzent)) / 100);
+        } else {
+          minutes = hoursToIndustrialMinutes(parseDecimal(editIndustriezeit));
+        }
+        const maxMinutes = gesamt() - rest;
+        if (minutes > maxMinutes) {
+          fehlermeldung = 'So viel Zeit ist nicht mehr frei.';
+          render();
+          return;
+        }
+        fehlermeldung = undefined;
+        persist(
+          aktivitaetenNow.map((a, i) =>
+            i === editIndex ? new Activity(a.name, minutes) : a,
+          ),
+        );
+        editIndex = -1;
+        editIndustriezeit = '';
+        editProzent = '';
+        render();
+      };
+      rowActions.delete = () => entferneTaetigkeit(index);
+    });
+    bindActions(el, {
       'add-freitext': addFreitextTaetigkeit,
       back: () => onBack?.(),
-    };
-    aktivitaeten.forEach((_, index) => {
-      actions[`delete-${index}`] = () => entferneTaetigkeit(index);
+      ...rowActions,
     });
-    bindActions(el, actions);
+  }
+
+  let editIndex = -1;
+  let editIndustriezeit = '';
+  let editProzent = '';
+
+  function entferneTaetigkeit(index: number): void {
+    const aktivitaeten = persistence.loadTimeDistribution(day) ?? [];
+    persist(aktivitaeten.filter((_, i) => i !== index));
+    if (editIndex === index) {
+      editIndex = -1;
+    }
+    render();
   }
 
   function update(newDay: string): void {
     day = newDay;
     neueTaetigkeit = '';
+    neueIndustriezeit = '';
+    neueProzent = '';
     fehlermeldung = undefined;
+    editIndex = -1;
     render();
   }
 

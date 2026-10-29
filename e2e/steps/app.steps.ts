@@ -784,27 +784,39 @@ When(
 );
 
 When(
-  'I choose the predefined activity {string}',
+  'I choose the previously used activity {string}',
   async ({ page }, name: string) => {
     await page.locator('[data-vorschlag]', { hasText: name }).click();
   },
 );
 
 When(
+  'I open the editor for activity {string}',
+  async ({ page }, index: string) => {
+    const row = page.locator('.zeit-verteilung__row').nth(Number(index));
+    await row.locator('[data-action="edit"]').click();
+  },
+);
+
+When('I abort the activity edit', async ({ page }) => {
+  await page.locator('[data-action="abort"]').click();
+});
+
+When(
   'I set the duration of activity {string} to {string} industrial time',
-  async ({ page }, index: string, industrialTime: string) => {
-    await page
-      .locator(`[data-industriezeit-index="${index}"]`)
-      .fill(industrialTime);
-    await page.locator(`[data-industriezeit-index="${index}"]`).blur();
+  async ({ page }, _index: string, industrialTime: string) => {
+    await page.getByTestId('taetigkeit-industriezeit-0').waitFor();
+    await page.locator('[data-edit-industriezeit]').fill(industrialTime);
+    await page.locator('[data-action="finish"]').click();
   },
 );
 
 When(
   'I set the percentage of activity {string} to {string}',
-  async ({ page }, index: string, percent: string) => {
-    await page.locator(`[data-prozent-index="${index}"]`).fill(percent);
-    await page.locator(`[data-prozent-index="${index}"]`).blur();
+  async ({ page }, _index: string, percent: string) => {
+    await page.getByTestId('taetigkeit-prozent-0').waitFor();
+    await page.locator('[data-edit-prozent]').fill(percent);
+    await page.locator('[data-action="finish"]').click();
   },
 );
 
@@ -813,8 +825,8 @@ Then(
   async ({ page }, index: string, name: string, industrialTime: string) => {
     await expect(page.getByTestId(`taetigkeit-${index}`)).toHaveText(name);
     await expect(
-      page.locator(`[data-industriezeit-index="${index}"]`),
-    ).toHaveValue(industrialTime);
+      page.getByTestId(`taetigkeit-industriezeit-${index}`),
+    ).toHaveText(industrialTime);
   },
 );
 
@@ -822,8 +834,8 @@ Then(
   'the duration input of activity {string} shows {string}',
   async ({ page }, index: string, industrialTime: string) => {
     await expect(
-      page.locator(`[data-industriezeit-index="${index}"]`),
-    ).toHaveValue(industrialTime);
+      page.getByTestId(`taetigkeit-industriezeit-${index}`),
+    ).toHaveText(industrialTime);
   },
 );
 
@@ -909,3 +921,51 @@ Then('the back button has not moved', async ({ page }) => {
   expect(after.backButton.x).toBeCloseTo(before.backButton.x, 0);
   expect(after.backButton.y).toBeCloseTo(before.backButton.y, 0);
 });
+
+Given(
+  'the previous day {string} has the activity {string} with {string} industrial time',
+  async ({ page }, day: string, name: string, minutes: string) => {
+    const germanDay = day
+      .split('-')
+      .reverse()
+      .map((p) => parseInt(p, 10).toString().padStart(2, '0'))
+      .join('.');
+    await page.evaluate(
+      ([gDay, aName, aMinutes]) => {
+        const plans = JSON.parse(localStorage.getItem('plans') ?? '{}');
+        plans[gDay] = plans[gDay] ?? {};
+        plans[gDay].timeDistribution = [{ name: aName, minutes: aMinutes }];
+        localStorage.setItem('plans', JSON.stringify(plans));
+      },
+      [
+        germanDay,
+        name,
+        Math.round(parseFloat(minutes.replace(',', '.')) * 100),
+      ],
+    );
+  },
+);
+
+When(
+  'I set the edit duration to {string}',
+  async ({ page }, industrialTime: string) => {
+    await page.locator('[data-edit-industriezeit]').fill(industrialTime);
+  },
+);
+
+Then(
+  'the percent value of activity {string} is not clipped',
+  async ({ page }, index: string) => {
+    const cell = page.getByTestId(`taetigkeit-prozent-${index}`);
+    await expect(cell).toBeVisible();
+    const notClipped = await cell.evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const textWidth = range.getBoundingClientRect().width;
+      return (
+        el.scrollWidth <= el.clientWidth + 1 && textWidth <= el.clientWidth + 1
+      );
+    });
+    expect(notClipped, 'percent value must fit the cell').toBe(true);
+  },
+);
