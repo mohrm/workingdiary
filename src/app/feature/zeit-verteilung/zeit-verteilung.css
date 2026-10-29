@@ -6,6 +6,7 @@
   height: 100%;
   min-height: 0;
   flex: 1 1 auto;
+  position: relative;
 }
 
 /* Title line: the title wraps instead of shrinking, so the full date
@@ -170,15 +171,27 @@
   flex-direction: column;
 }
 
-/* Fixed numeric tracks (not auto-sized) so editing a value never reflows
-   the name column or any sibling row (layout stability). The value
-   columns are wide enough for the percent string including the " %"
-   suffix ("100,0 %") so the percent sign is never clipped. */
+/* Single-line grid, same stability approach as .abschnitt-row: fixed
+   numeric tracks (never auto-sized) so editing a value never reflows the
+   name column or any sibling row. The value columns fit the percent
+   string including the " %" suffix ("100,0 %") so it is never clipped. */
 .zeit-verteilung__row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 84px 84px auto;
   align-items: center;
   gap: var(--spacing-sm);
+}
+
+/* Name and the exact/rounded pair share one cell (like the section
+   row's single line), so rows keep one stable line in view AND edit
+   mode. */
+.zeit-verteilung__taetigkeit {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  min-height: 44px;
 }
 
 .zeit-verteilung__name {
@@ -193,8 +206,8 @@
   font-size: var(--font-size-mobile);
   color: rgba(0, 0, 0, 0.6);
   white-space: nowrap;
-  grid-column: 1;
-  grid-row: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .zeit-verteilung__row--unverteilt {
@@ -204,23 +217,54 @@
 /* Reserves 3 fixed-size slots regardless of how many are filled: view
    mode only places `edit` (slot 2) and `delete` (slot 3), leaving slot 1
    empty, so `delete` never moves and `edit`/`finish` share the same
-   slot — same mechanic as .abschnitt-icon-zone. */
+   slot — the exact mechanic of .abschnitt-icon-zone, so pen and bin
+   sit at identical positions in every row and mode. */
 .zeit-verteilung__icon-zone {
   display: grid;
   grid-template-columns: repeat(3, 24px);
   column-gap: var(--spacing-xs);
   align-items: center;
   justify-items: center;
-  grid-column: 4;
-  grid-row: 1 / span 2;
+  margin-left: auto;
+}
+
+.zeit-verteilung__icon-zone [data-action='abort'] {
+  grid-column: 1;
+}
+
+.zeit-verteilung__icon-zone [data-action='edit'],
+.zeit-verteilung__icon-zone [data-action='finish'] {
+  grid-column: 2;
+}
+
+.zeit-verteilung__icon-zone [data-action='delete'] {
+  grid-column: 3;
 }
 
 .zeit-verteilung__icon-zone--leer {
   visibility: hidden;
 }
 
+/* The error toast overlays the list instead of joining the flex column
+   (same approach as .abschnitt-liste__undo-toast): its appearance never
+   reflows any row, so add/edit/delete never make the layout wobble. */
 .zeit-verteilung__fehler {
-  color: #b00020;
+  position: absolute;
+  bottom: var(--spacing-xs);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: calc(100% - 2 * var(--spacing-md));
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-mobile);
+  border-radius: var(--spacing-sm);
+  background: #323232;
+  color: #ff8a80;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
   overflow: hidden;

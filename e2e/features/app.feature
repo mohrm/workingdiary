@@ -518,3 +518,47 @@ Scenario: The version information dialog closes again
     And I remember the position of the back button
     And I open the editor for activity "0"
     Then the back button has not moved
+
+  @stable-layout
+  Scenario: Editing an activity does not move the row icons or sibling rows
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I add the free text activity "Meetings" with "1" industrial time
+    And I remember the position of activity "0"'s edit and delete icons
+    And I open the editor for activity "0"
+    Then activity "0"'s delete icon has not moved
+    When I remember the position of activity "1"'s name
+    And I abort the activity edit
+    Then activity "1"'s name has not moved
+
+  @stable-layout
+  Scenario: The pen and bin icons align across rows
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I add the free text activity "Meetings" with "1" industrial time
+    Then the edit icons of all activity rows are aligned
+    And the delete icons of all activity rows are aligned
+
+  @stable-layout
+  Scenario: Adding and deleting activities does not move the header, back button or unassigned row
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I remember the position of the back button
+    And I add the free text activity "Review" with "1" industrial time
+    Then the back button has not moved
+    When I delete activity "0"
+    Then the back button has not moved

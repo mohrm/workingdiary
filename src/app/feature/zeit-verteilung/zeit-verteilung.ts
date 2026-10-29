@@ -135,8 +135,10 @@ export function createZeitVerteilung(
     const percent = formatPercent(activity.minutes, total);
     return `
       <li class="zeit-verteilung__row mat-list-item" data-index="${index}">
-        <span class="zeit-verteilung__name" data-testid="taetigkeit-${index}">${activity.name}</span>
-        <span class="zeit-verteilung__indizes" data-testid="taetigkeit-indizes-${index}">${industrial} / ${formatIndustrialQuarterPrecision(activity.minutes)}</span>
+        <div class="zeit-verteilung__taetigkeit">
+          <span class="zeit-verteilung__name" data-testid="taetigkeit-${index}">${activity.name}</span>
+          <span class="zeit-verteilung__indizes" data-testid="taetigkeit-indizes-${index}">${industrial} / ${formatIndustrialQuarterPrecision(activity.minutes)}</span>
+        </div>
         ${
           isEdit
             ? `<input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" value="${industrial}" data-edit-industriezeit aria-label="Industriezeit für ${activity.name}" />
@@ -187,8 +189,10 @@ export function createZeitVerteilung(
           )
           .join('')}
         <li class="zeit-verteilung__row zeit-verteilung__row--unverteilt mat-list-item">
-          <span class="zeit-verteilung__name" data-testid="unverteilt-name">${UNVERTEILTE_ZEIT}</span>
-          <span class="zeit-verteilung__indizes" data-testid="unverteilt-industriezeit">${formatIndustrial(unverteilt)} / ${formatIndustrialQuarterPrecision(unverteilt)}</span>
+          <div class="zeit-verteilung__taetigkeit">
+            <span class="zeit-verteilung__name" data-testid="unverteilt-name">${UNVERTEILTE_ZEIT}</span>
+            <span class="zeit-verteilung__indizes" data-testid="unverteilt-industriezeit">${formatIndustrial(unverteilt)} / ${formatIndustrialQuarterPrecision(unverteilt)}</span>
+          </div>
           <span class="zeit-verteilung__value zeit-verteilung__input--industrial" data-testid="unverteilt-minuten">${formatIndustrial(unverteilt)}</span>
           <span class="zeit-verteilung__value zeit-verteilung__input--percent" data-testid="unverteilt-prozent">${formatPercent(unverteilt, total)}</span>
           <div class="zeit-verteilung__icon-zone zeit-verteilung__icon-zone--leer"></div>
