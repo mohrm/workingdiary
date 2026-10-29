@@ -19,6 +19,19 @@ function setInput(el: Element, selector: string, value: string): void {
   input.dispatchEvent({ type: 'input' });
 }
 
+interface FakeSelectLike {
+  value: string;
+  dispatchEvent: (event: { type: string }) => void;
+}
+
+function waehleInAuswahl(el: Element, name: string): void {
+  const select = el.querySelector(
+    '[data-testid="taetigkeit-auswahl"]',
+  ) as unknown as FakeSelectLike;
+  select.value = name;
+  select.dispatchEvent({ type: 'change' });
+}
+
 function fireClick(el: Element, selector: string): void {
   const target = el.querySelector(selector) as unknown as {
     dispatchEvent: (event: { type: string }) => void;
@@ -162,14 +175,13 @@ describe('ZeitVerteilung', () => {
     ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    const vorschlaege = verteilung.element.querySelectorAll(
-      '[data-vorschlag]',
-    ) as unknown as { getAttribute: (name: string) => string | null }[];
-    const namen = [...vorschlaege].map((b) => b.getAttribute('data-vorschlag'));
-    assert.deepEqual(namen, ['Review', 'Meetings']);
+    const html = verteilung.element.innerHTML;
+    assert.ok(html.includes('<option value="Review">Review</option>'));
+    assert.ok(html.includes('<option value="Meetings">Meetings</option>'));
+    assert.ok(html.includes('Tätigkeit auswählen…'));
   });
 
-  it('übernimmt die vorgegebene Dauer direkt beim Schnellwahl-Chip', () => {
+  it('übernimmt die vorgegebene Dauer direkt bei der Auswahl aus der Combobox', () => {
     saveHourDay('01.01.2024', 4);
     persistence.saveTimeDistribution('01.12.2023', [
       new Activity('Review', 100),
@@ -181,7 +193,7 @@ describe('ZeitVerteilung', () => {
       '[data-testid="neue-taetigkeit-industriezeit"]',
       '1,5',
     );
-    fireClick(verteilung.element, '[data-vorschlag]');
+    waehleInAuswahl(verteilung.element, 'Review');
 
     const gespeichert = persistence.loadTimeDistribution('01.01.2024');
     assert.equal(gespeichert?.[0].name, 'Review');
@@ -198,7 +210,7 @@ describe('ZeitVerteilung', () => {
     assert.equal(dauerFeld.value, '');
   });
 
-  it('übernimmt beim Schnellwahl-Chip auch eine Prozent-Vorgabe', () => {
+  it('übernimmt bei der Combobox-Auswahl auch eine Prozent-Vorgabe', () => {
     saveHourDay('01.01.2024', 8);
     persistence.saveTimeDistribution('01.12.2023', [
       new Activity('Review', 100),
@@ -210,7 +222,7 @@ describe('ZeitVerteilung', () => {
       '[data-testid="neue-taetigkeit-prozent"]',
       '25',
     );
-    fireClick(verteilung.element, '[data-vorschlag]');
+    waehleInAuswahl(verteilung.element, 'Review');
 
     assert.equal(
       persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
@@ -218,14 +230,14 @@ describe('ZeitVerteilung', () => {
     );
   });
 
-  it('fügt einen Schnellwahl-Chip mit 0 hinzu, wenn keine Dauer vorgegeben ist', () => {
+  it('fügt eine Combobox-Auswahl mit 0 hinzu, wenn keine Dauer vorgegeben ist', () => {
     saveHourDay('01.01.2024', 4);
     persistence.saveTimeDistribution('01.12.2023', [
       new Activity('Review', 100),
     ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    fireClick(verteilung.element, '[data-vorschlag]');
+    waehleInAuswahl(verteilung.element, 'Review');
 
     assert.equal(
       persistence.loadTimeDistribution('01.01.2024')?.[0].minutes,
@@ -250,10 +262,7 @@ describe('ZeitVerteilung', () => {
     setInput(verteilung.element, '[data-testid="neue-taetigkeit"]', 'Review');
     fireClick(verteilung.element, '[data-testid="add-taetigkeit"]');
 
-    const vorschlaegeNeu = verteilung.element.querySelectorAll(
-      '[data-vorschlag]',
-    ) as unknown as { getAttribute: (name: string) => string | null }[];
-    assert.equal(vorschlaegeNeu.length, 0);
+    assert.ok(!verteilung.element.innerHTML.includes('taetigkeit-auswahl'));
   });
 
   it('respektiert einen konfigurierten Verlaufszeitraum in Monaten', () => {
