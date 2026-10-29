@@ -58,7 +58,12 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
     res.end('Bad Request');
     return;
   }
-  const url = reqUrl === '/' ? '/index.html' : reqUrl;
+  // The SPA routes via query strings (?day=…&view=…); the file lookup
+  // must ignore them, otherwise every reload of a routed URL 404s.
+  const url =
+    (reqUrl.split('?')[0] || '/') === '/'
+      ? '/index.html'
+      : reqUrl.split('?')[0];
   if (url.includes('..')) {
     res.writeHead(403);
     res.end('Forbidden');
