@@ -320,8 +320,21 @@ Scenario: The version information dialog closes again
     And time moves forward to "2025-02-17" at "16:00:00"
     And I log out
     And I open the time distribution
+    And I fill the new activity duration with "1,5" industrial time
     And I choose the previously used activity "Programmierung"
-    Then activity "0" is "Programmierung" with "0,00" industrial time
+    Then activity "0" is "Programmierung" with "1,50" industrial time
+
+  Scenario: A quick pick takes the percentage entered for a new activity
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    And the previous day "2025-02-10" has the activity "Programmierung" with "100" industrial time
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I fill the new activity percentage with "25"
+    And I choose the previously used activity "Programmierung"
+    Then activity "0" is "Programmierung" with "2,00" industrial time
 
   Scenario: An activity duration can also be entered as a percentage
     Given today's date is "2025-02-17" and the current time is "08:00:00"
