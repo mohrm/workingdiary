@@ -177,10 +177,12 @@ export function createZeitVerteilung(
         Industriezeit
       </p>
       <div class="zeit-verteilung__neu">
-        <input class="zeit-verteilung__input" type="text" placeholder="z. B. Regulatorik" value="${neueTaetigkeit}" data-testid="neue-taetigkeit" data-neue-taetigkeit list="zeit-verteilung-verlauf" />
-        <datalist id="zeit-verteilung-verlauf">
-          ${vorschlaege.map((name) => `<option value="${name}"></option>`).join('')}
-        </datalist>
+        <div class="zeit-verteilung__name-feld">
+          <input class="zeit-verteilung__input" type="text" placeholder="z. B. Regulatorik" value="${neueTaetigkeit}" data-testid="neue-taetigkeit" data-neue-taetigkeit role="combobox" aria-expanded="false" aria-controls="zeit-verteilung-verlauf" aria-autocomplete="list" />
+          <ul class="zeit-verteilung__verlauf" id="zeit-verteilung-verlauf" data-testid="taetigkeit-verlauf" role="listbox" hidden>
+            ${vorschlaege.map((name) => `<li class="zeit-verteilung__verlauf-eintrag" role="option" data-verlauf-name="${name}">${name}</li>`).join('')}
+          </ul>
+        </div>
         <input class="zeit-verteilung__input zeit-verteilung__input--industrial" type="text" inputmode="decimal" placeholder="Industriezeit" value="${neueIndustriezeit}" data-testid="neue-taetigkeit-industriezeit" aria-label="Industriezeit" />
         <input class="zeit-verteilung__input zeit-verteilung__input--percent" type="text" inputmode="decimal" placeholder="%" value="${neueProzent}" data-testid="neue-taetigkeit-prozent" aria-label="Prozent" />
         <button type="button" class="zeit-verteilung__add" data-action="add-freitext" data-testid="add-taetigkeit" aria-label="Tätigkeit hinzufügen">${icon('check')}</button>
@@ -204,8 +206,47 @@ export function createZeitVerteilung(
     const freitextInput = el.querySelector<HTMLInputElement>(
       '[data-neue-taetigkeit]',
     );
+    const verlaufListe = el.querySelector<HTMLElement>(
+      '[data-testid="taetigkeit-verlauf"]',
+    );
+    const verzeichneVerlauf = (): void => {
+      if (!freitextInput || !verlaufListe) return;
+      const alle = verlaufListe.querySelectorAll('[data-verlauf-name]');
+      const suchtext = freitextInput.value.trim().toLowerCase();
+      let sichtbar = 0;
+      alle.forEach((eintrag) => {
+        const name = eintrag.getAttribute('data-verlauf-name') ?? '';
+        const passt = suchtext === '' || name.toLowerCase().includes(suchtext);
+        (eintrag as HTMLElement).hidden = !passt;
+        if (passt) sichtbar++;
+      });
+      const zeigen = sichtbar > 0;
+      verlaufListe.hidden = !zeigen;
+      freitextInput.setAttribute('aria-expanded', zeigen ? 'true' : 'false');
+    };
+    freitextInput?.addEventListener('focus', verzeichneVerlauf);
     freitextInput?.addEventListener('input', (e) => {
       neueTaetigkeit = (e.target as HTMLInputElement).value;
+      verzeichneVerlauf();
+    });
+    freitextInput?.addEventListener('blur', () => {
+      window.setTimeout(() => {
+        if (verlaufListe) verlaufListe.hidden = true;
+        freitextInput?.setAttribute('aria-expanded', 'false');
+      }, 150);
+    });
+    verlaufListe?.querySelectorAll('[data-verlauf-name]').forEach((eintrag) => {
+      eintrag.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+      });
+      eintrag.addEventListener('click', () => {
+        const name = eintrag.getAttribute('data-verlauf-name') ?? '';
+        neueTaetigkeit = name;
+        if (freitextInput) freitextInput.value = name;
+        if (verlaufListe) verlaufListe.hidden = true;
+        freitextInput?.setAttribute('aria-expanded', 'false');
+        freitextInput?.focus();
+      });
     });
     const industriezeitInput = el.querySelector<HTMLInputElement>(
       '[data-testid="neue-taetigkeit-industriezeit"]',

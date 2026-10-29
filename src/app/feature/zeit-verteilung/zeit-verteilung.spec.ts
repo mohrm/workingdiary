@@ -163,10 +163,55 @@ describe('ZeitVerteilung', () => {
     const verteilung = createZeitVerteilung('01.01.2024');
 
     const html = verteilung.element.innerHTML;
-    assert.ok(html.includes('<option value="Review"></option>'));
-    assert.ok(html.includes('<option value="Meetings"></option>'));
-    assert.ok(html.includes('list="zeit-verteilung-verlauf"'));
+    assert.ok(html.includes('data-verlauf-name="Review"'));
+    assert.ok(html.includes('data-verlauf-name="Meetings"'));
     assert.ok(html.includes('z. B. Regulatorik'));
+  });
+
+  it('öffnet die Auswahlliste beim Fokussieren und übernimmt eine Auswahl ins Feld', () => {
+    saveHourDay('01.01.2024', 1);
+    persistence.saveTimeDistribution('01.12.2023', [
+      new Activity('Review', 50),
+      new Activity('Meetings', 50),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    const input = verteilung.element.querySelector(
+      '[data-testid="neue-taetigkeit"]',
+    ) as unknown as {
+      value: string;
+      dispatchEvent: (event: { type: string }) => void;
+      getAttribute: (name: string) => string | null;
+    };
+    const liste = verteilung.element.querySelector(
+      '[data-testid="taetigkeit-verlauf"]',
+    ) as unknown as { hidden: boolean };
+    assert.equal(liste.hidden, true);
+
+    input.dispatchEvent({ type: 'focus' });
+    assert.equal(liste.hidden, false);
+    assert.equal(input.getAttribute('aria-expanded'), 'true');
+
+    // Eingabe filtert die Liste
+    input.value = 'meet';
+    input.dispatchEvent({ type: 'input' });
+    const eintraege = verteilung.element.querySelectorAll(
+      '[data-verlauf-name]',
+    ) as unknown as {
+      getAttribute: (n: string) => string | null;
+      hidden: boolean;
+    }[];
+    assert.equal(eintraege[0].getAttribute('data-verlauf-name'), 'Review');
+    assert.equal(eintraege[0].hidden, true);
+    assert.equal(eintraege[1].hidden, false);
+
+    // Klick übernimmt den Namen ins Feld
+    const wahl = verteilung.element.querySelector(
+      '[data-verlauf-name="Meetings"]',
+    ) as unknown as { dispatchEvent: (e: { type: string }) => void };
+    wahl.dispatchEvent({ type: 'click' });
+    assert.equal(input.value, 'Meetings');
+    assert.equal(liste.hidden, true);
   });
 
   it('übernimmt die vorgegebene Dauer direkt bei der Auswahl aus der Combobox', () => {
