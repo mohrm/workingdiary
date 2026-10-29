@@ -19,11 +19,11 @@ describe('Service Worker', () => {
     );
   });
 
-  it('resolves navigation via /index.html with network fallback', () => {
-    const pattern = `caches.match('/index.html').then(r=>r||fetch(e.request)`;
+  it('resolves navigation network-first with /index.html cache fallback', () => {
+    const pattern = `fetch(e.request).then(r=>{if(r.ok){caches.open(PRECACHE).then(c=>c.put('/index.html',r.clone()))}return r}).catch(()=>caches.match('/index.html')`;
     assert.ok(
       sw.includes(pattern),
-      'navigation fetch handler must match /index.html with network fallback',
+      'navigation fetch handler must fetch network-first and fall back to cached /index.html',
     );
   });
 

@@ -63,7 +63,7 @@ describe('generateServiceWorker', () => {
       `const PRECACHE='workingdiary-vab12cd34';const PRECACHE_URLS=["/index.html","/assets/main-HASH.js"];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(PRECACHE).then(c=>c.addAll(PRECACHE_URLS)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(k=>k!==PRECACHE).map(k=>caches.delete(k)))));self.clientsClaim()});
-self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(caches.match('/index.html').then(r=>r||fetch(e.request)))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`,
+self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(fetch(e.request).then(r=>{if(r.ok){caches.open(PRECACHE).then(c=>c.put('/index.html',r.clone()))}return r}).catch(()=>caches.match('/index.html').then(r=>{if(r)return r;throw new Error('offline and not cached')})))}else{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))}});`,
     );
   });
 
@@ -80,5 +80,9 @@ self.addEventListener('fetch',e=>{if(e.request.mode==='navigate'){e.respondWith(
       ),
     );
     assert.ok(sw.includes(`caches.match('${base}index.html')`));
+    assert.ok(
+      sw.includes(`c.put('${base}index.html',r.clone())`),
+      'navigation network response must refresh the base-path index.html in the cache',
+    );
   });
 });
