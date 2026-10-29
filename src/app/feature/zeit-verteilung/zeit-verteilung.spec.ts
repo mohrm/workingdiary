@@ -533,6 +533,25 @@ describe('ZeitVerteilung', () => {
     );
   });
 
+  it('escaped Tätigkeitsnamen mit Sonderzeichen im HTML und speichert den Rohnamen', () => {
+    saveHourDay('01.01.2024', 4);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    setInput(
+      verteilung.element,
+      '[data-testid="neue-taetigkeit"]',
+      '<b>Regulatorik & Co</b>',
+    );
+    fireClick(verteilung.element, '[data-testid="add-taetigkeit"]');
+
+    const gespeichert = persistence.loadTimeDistribution('01.01.2024');
+    assert.equal(gespeichert?.[0].name, '<b>Regulatorik & Co</b>');
+
+    const html = verteilung.element.innerHTML;
+    assert.ok(html.includes('&lt;b&gt;Regulatorik &amp; Co&lt;/b&gt;'));
+    assert.ok(!html.includes('<b>Regulatorik'));
+  });
+
   it('ruft onBack beim Zurück-Button auf', () => {
     let backCalled = false;
     const verteilung = createZeitVerteilung('01.01.2024', () => {
