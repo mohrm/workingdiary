@@ -18,6 +18,20 @@ function setInput(el: Element, selector: string, value: string): void {
   input.value = value;
   input.dispatchEvent({ type: 'input' });
 }
+function oeffneVerlauf(el: Element): void {
+  const input = el.querySelector(
+    '[data-testid="neue-taetigkeit"]',
+  ) as unknown as {
+    dispatchEvent: (event: { type: string }) => void;
+  };
+  input.dispatchEvent({ type: 'focus' });
+}
+
+function verlaufNamen(el: Element): string[] {
+  return [...el.querySelectorAll('[data-verlauf-name]')].map(
+    (e) => (e as Element).getAttribute('data-verlauf-name') ?? '',
+  );
+}
 
 function fireClick(el: Element, selector: string): void {
   const target = el.querySelector(selector) as unknown as {
@@ -162,10 +176,29 @@ describe('ZeitVerteilung', () => {
     ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    const html = verteilung.element.innerHTML;
-    assert.ok(html.includes('data-verlauf-name="Review"'));
-    assert.ok(html.includes('data-verlauf-name="Meetings"'));
-    assert.ok(html.includes('z. B. Regulatorik'));
+    assert.ok(verteilung.element.innerHTML.includes('z. B. Regulatorik'));
+    oeffneVerlauf(verteilung.element);
+    assert.deepEqual(verlaufNamen(verteilung.element), ['Review', 'Meetings']);
+  });
+
+  it('zeigt beim erneuten Öffnen auch Posten, die unterdessen auf einem anderen Tag ergänzt wurden', () => {
+    saveHourDay('01.01.2024', 1);
+    persistence.saveTimeDistribution('31.12.2023', [
+      new Activity('Review', 100),
+    ]);
+    const verteilung = createZeitVerteilung('01.01.2024');
+
+    oeffneVerlauf(verteilung.element);
+    assert.deepEqual(verlaufNamen(verteilung.element), ['Review']);
+
+    // zweiter Posten entsteht, während dieser Bildschirm offen ist
+    persistence.saveTimeDistribution('31.12.2023', [
+      new Activity('Review', 100),
+      new Activity('Meetings', 200),
+    ]);
+
+    oeffneVerlauf(verteilung.element);
+    assert.deepEqual(verlaufNamen(verteilung.element), ['Review', 'Meetings']);
   });
 
   it('öffnet die Auswahlliste beim Fokussieren und übernimmt eine Auswahl ins Feld', () => {
@@ -291,14 +324,14 @@ describe('ZeitVerteilung', () => {
     ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    const html = verteilung.element.innerHTML;
-    assert.ok(!html.includes('Alte Tätigkeit'));
-    assert.ok(html.includes('Review'));
+    oeffneVerlauf(verteilung.element);
+    assert.deepEqual(verlaufNamen(verteilung.element), ['Review']);
 
     setInput(verteilung.element, '[data-testid="neue-taetigkeit"]', 'Review');
     fireClick(verteilung.element, '[data-testid="add-taetigkeit"]');
 
-    assert.ok(!verteilung.element.innerHTML.includes('taetigkeit-auswahl'));
+    oeffneVerlauf(verteilung.element);
+    assert.deepEqual(verlaufNamen(verteilung.element), []);
   });
 
   it('respektiert einen konfigurierten Verlaufszeitraum in Monaten', () => {
@@ -309,7 +342,8 @@ describe('ZeitVerteilung', () => {
     ]);
     const verteilung = createZeitVerteilung('01.01.2024');
 
-    assert.ok(verteilung.element.innerHTML.includes('Halbjahresaufgabe'));
+    oeffneVerlauf(verteilung.element);
+    assert.deepEqual(verlaufNamen(verteilung.element), ['Halbjahresaufgabe']);
   });
 
   it('zeigt die nicht verteilte Zeit als fixen Posten an, mit Anteil in Prozent', () => {
