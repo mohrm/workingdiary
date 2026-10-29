@@ -24,8 +24,7 @@
   overflow-wrap: break-word;
 }
 
-.zeit-verteilung__back,
-.zeit-verteilung__back-label {
+.zeit-verteilung__back {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -41,8 +40,7 @@
   transition: background 0.2s;
 }
 
-.zeit-verteilung__back:hover,
-.zeit-verteilung__back-label:hover {
+.zeit-verteilung__back:hover {
   background: rgba(0, 0, 0, 0.04);
 }
 
@@ -77,23 +75,30 @@
 }
 
 .zeit-verteilung__input--industrial {
-  flex: 0 0 72px;
-  width: 72px;
+  flex: 0 0 84px;
+  width: 84px;
   text-align: right;
 }
 
 .zeit-verteilung__input--percent {
-  flex: 0 0 64px;
-  width: 64px;
+  flex: 0 0 84px;
+  width: 84px;
   text-align: right;
 }
 
-.zeit-verteilung__input--readonly {
+/* View-mode value cell: an inline-flex box with the same height as the
+   edit-mode input above, so toggling edit mode never changes the row's
+   height. Padding (not box-sizing tricks) matches the input so the
+   digits sit at the same position in both modes. */
+.zeit-verteilung__value {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
+  height: 32px;
+  padding: 0 var(--spacing-sm);
   font-variant-numeric: tabular-nums;
-  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .zeit-verteilung__add {
@@ -135,20 +140,14 @@
 }
 
 /* Fixed numeric tracks (not auto-sized) so editing a value never reflows
-   the name column or any sibling row (layout stability). */
+   the name column or any sibling row (layout stability). The value
+   columns are wide enough for the percent string including the " %"
+   suffix ("100,0 %") so the percent sign is never clipped. */
 .zeit-verteilung__row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 72px 64px 32px;
+  grid-template-columns: minmax(0, 1fr) 84px 84px auto;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--padding-table-responsive) 0;
-}
-
-.zeit-verteilung__taetigkeit {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
 }
 
 .zeit-verteilung__name {
@@ -163,23 +162,30 @@
   font-size: var(--font-size-mobile);
   color: rgba(0, 0, 0, 0.6);
   white-space: nowrap;
+  grid-column: 1;
+  grid-row: 2;
 }
 
 .zeit-verteilung__row--unverteilt {
   font-weight: var(--font-weight-semibold);
 }
 
-.zeit-verteilung__delete {
-  display: inline-flex;
+/* Reserves 3 fixed-size slots regardless of how many are filled: view
+   mode only places `edit` (slot 2) and `delete` (slot 3), leaving slot 1
+   empty, so `delete` never moves and `edit`/`finish` share the same
+   slot — same mechanic as .abschnitt-icon-zone. */
+.zeit-verteilung__icon-zone {
+  display: grid;
+  grid-template-columns: repeat(3, 24px);
+  column-gap: var(--spacing-xs);
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: var(--spacing-xs);
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
+  justify-items: center;
+  grid-column: 4;
+  grid-row: 1 / span 2;
+}
+
+.zeit-verteilung__icon-zone--leer {
+  visibility: hidden;
 }
 
 .zeit-verteilung__fehler {
@@ -192,24 +198,26 @@
 
 /* mirrors --bp-tablet in styles.css */
 @container app (max-width: 600px) {
-  .zeit-verteilung__input--industrial {
-    flex-basis: 64px;
-    width: 64px;
-  }
-
-  .zeit-verteilung__input--percent {
-    flex-basis: 56px;
-    width: 56px;
-  }
-
   .zeit-verteilung__row {
-    grid-template-columns: minmax(0, 1fr) 64px 56px 32px;
+    grid-template-columns: minmax(0, 1fr) 76px 76px auto;
+  }
+
+  .zeit-verteilung__input--industrial,
+  .zeit-verteilung__input--percent {
+    flex-basis: 76px;
+    width: 76px;
   }
 }
 
 /* mirrors --bp-mobile in styles.css */
 @container app (max-width: 480px) {
   .zeit-verteilung__row {
-    grid-template-columns: minmax(0, 1fr) 64px 56px 32px;
+    grid-template-columns: minmax(0, 1fr) 72px 72px auto;
+  }
+
+  .zeit-verteilung__input--industrial,
+  .zeit-verteilung__input--percent {
+    flex-basis: 72px;
+    width: 72px;
   }
 }

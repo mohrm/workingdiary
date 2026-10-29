@@ -103,6 +103,43 @@ class PersistenceService {
     return undefined;
   }
 
+  // Previously used activity names, most recent first, from days within
+  // the last `months` months (relative to `day`). Powered by the per-day
+  // time distributions, so free-text activities a user once assigned
+  // become selectable suggestions again.
+  recentActivityNames(day: string, months: number): string[] {
+    const plans = this.loadPlans();
+    const reference = this.parseGermanDate(day);
+    const cutoff = new Date(
+      reference.getFullYear(),
+      reference.getMonth() - months,
+      reference.getDate(),
+    );
+
+    const dayNames: { day: Date; names: string[] }[] = [];
+    for (const pDay in plans) {
+      const d = this.parseGermanDate(pDay);
+      if (d < cutoff || d > reference) continue;
+      const names = (plans[pDay].timeDistribution ?? [])
+        .map((a) => a.name)
+        .filter((name) => name.length > 0);
+      if (names.length > 0) dayNames.push({ day: d, names });
+    }
+    dayNames.sort((a, b) => b.day.getTime() - a.day.getTime());
+
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const entry of dayNames) {
+      for (const name of entry.names) {
+        if (!seen.has(name)) {
+          seen.add(name);
+          result.push(name);
+        }
+      }
+    }
+    return result;
+  }
+
   // previousDay/nextDay jump to the closest day that actually has stored
   // data, not to the calendar day ±1 — days without an entry are skipped.
   previousDay(day: string): string {

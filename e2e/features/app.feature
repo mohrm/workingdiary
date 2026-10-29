@@ -299,7 +299,6 @@ Scenario: The version information dialog closes again
     Then I see "Zeitverteilung für den 17.02.2025" on the heading
     And I see the total duration of "8,00" industrial time
     And I see an entry for unassigned time
-
   Scenario: Distributing the day's total duration across activities
     Given today's date is "2025-02-17" and the current time is "08:00:00"
     When I open the day plan for today
@@ -308,11 +307,21 @@ Scenario: The version information dialog closes again
     And I log out
     And I open the time distribution
     And I add the free text activity "Review" with "2,5" industrial time
-    And I choose the predefined activity "Programmierung"
-    And I set the duration of activity "1" to "1,25" industrial time
+    And I add the free text activity "Programmierung" with "1,25" industrial time
     Then activity "0" is "Review" with "2,50" industrial time
     And activity "1" is "Programmierung" with "1,25" industrial time
     And the unassigned time shows "4,25" industrial time
+
+  Scenario: Previously used activities are offered for selection again
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    And the previous day "2025-02-10" has the activity "Programmierung" with "100" industrial time
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I choose the previously used activity "Programmierung"
+    Then activity "0" is "Programmierung" with "0,00" industrial time
 
   Scenario: An activity duration can also be entered as a percentage
     Given today's date is "2025-02-17" and the current time is "08:00:00"
@@ -324,7 +333,7 @@ Scenario: The version information dialog closes again
     And I add the free text activity "Review" with "25" percent of the day
     Then activity "0" is "Review" with "2,00" industrial time
 
-  Scenario: Changing an activity duration via the percentage input
+  Scenario: Changing an activity duration via the editor and the percentage input
     Given today's date is "2025-02-17" and the current time is "08:00:00"
     When I open the day plan for today
     And I log in
@@ -332,8 +341,22 @@ Scenario: The version information dialog closes again
     And I log out
     And I open the time distribution
     And I add the free text activity "Review" with "1" industrial time
+    And I open the editor for activity "0"
     And I set the percentage of activity "0" to "50"
     Then activity "0" is "Review" with "4,00" industrial time
+
+  Scenario: Aborting the activity editor keeps the stored duration
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "1" industrial time
+    And I open the editor for activity "0"
+    And I set the edit duration to "2,5"
+    And I abort the activity edit
+    Then activity "0" is "Review" with "1,00" industrial time
 
   Scenario: Activity durations stay visible after being confirmed
     Given today's date is "2025-02-17" and the current time is "08:00:00"
@@ -408,6 +431,17 @@ Scenario: The version information dialog closes again
     Then the time distribution title is fully visible
 
   @stable-layout
+  Scenario: The percent values including the percent sign are fully visible
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    Then the percent value of activity "0" is not clipped
+
+  @stable-layout
   Scenario: Opening the time distribution does not move the summary and navigation
     Given today's date is "2025-02-17" and the current time is "08:00:00"
     When I open the day plan for today
@@ -438,4 +472,17 @@ Scenario: The version information dialog closes again
     And I open the time distribution
     And I remember the position of the back button
     And I add the free text activity "Review" with "2,5" industrial time
+    Then the back button has not moved
+
+  @stable-layout
+  Scenario: Opening the activity editor does not move the row
+    Given today's date is "2025-02-17" and the current time is "08:00:00"
+    When I open the day plan for today
+    And I log in
+    And time moves forward to "2025-02-17" at "16:00:00"
+    And I log out
+    And I open the time distribution
+    And I add the free text activity "Review" with "2,5" industrial time
+    And I remember the position of the back button
+    And I open the editor for activity "0"
     Then the back button has not moved
