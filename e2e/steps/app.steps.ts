@@ -79,14 +79,13 @@ When('I open the day plan for today', async ({ page }) => {
 Then(
   'I see {string} on the heading',
   async ({ page }, expectedHeadingText: string) => {
-    // The heading belongs to whichever screen is mounted — the day plan
-    // title or the time distribution title.
-    const verteilungsTitle = page.getByTestId('zeitverteilung-title');
-    const testId =
-      (await verteilungsTitle.count()) > 0
-        ? 'zeitverteilung-title'
-        : 'dayplan-title';
-    await hasElementWithText(page, testId, expectedHeadingText);
+    // The heading belongs to whichever screen is mounted — match either
+    // title so the assertion also survives the brief moment right after
+    // a reload, before the app has rendered either screen.
+    const heading = page.locator(
+      '[data-testid="dayplan-title"], [data-testid="zeitverteilung-title"]',
+    );
+    await expect(heading.first()).toContainText(expectedHeadingText);
   },
 );
 
