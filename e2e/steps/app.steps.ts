@@ -625,6 +625,18 @@ When('I dismiss the undo hint', async ({ page }) => {
     .click();
 });
 
+When('I dismiss the time distribution error message', async ({ page }) => {
+  await page.getByTestId('zeitverteilung-fehler-schliessen').click();
+});
+
+Then('the time distribution error message is gone', async ({ page }) => {
+  await expect(page.getByTestId('zeitverteilung-fehler')).toHaveCount(0);
+});
+
+Then('the rounding check is visible', async ({ page }) => {
+  await expect(page.getByTestId('rundungs-check')).toBeVisible();
+});
+
 Then('no sections are left', async ({ page }) => {
   await expect(page.locator('[data-testid^="section-"]')).toHaveCount(0);
 });

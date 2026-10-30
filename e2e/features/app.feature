@@ -402,6 +402,9 @@ Scenario: The version information dialog closes again
     And I open the time distribution
     And I add the free text activity "Alles" with "9" industrial time
     Then I see the time distribution error message
+    When I dismiss the time distribution error message
+    Then the time distribution error message is gone
+    And the rounding check is visible
 
   Scenario: Returning from the time distribution to the day plan
     Given today's date is "2025-02-17" and the current time is "08:00:00"

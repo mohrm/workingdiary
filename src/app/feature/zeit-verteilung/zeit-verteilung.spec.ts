@@ -146,6 +146,16 @@ describe('ZeitVerteilung', () => {
       verteilung.element.innerHTML.includes('Diese Tätigkeit gibt es schon.'),
     );
     assert.equal(persistence.loadTimeDistribution('01.01.2024')?.length, 1);
+
+    fireClick(
+      verteilung.element,
+      '[data-testid="zeitverteilung-fehler-schliessen"]',
+    );
+    assert.equal(
+      verteilung.element.querySelector('[data-testid="zeitverteilung-fehler"]'),
+      null,
+    );
+    assert.equal(persistence.loadTimeDistribution('01.01.2024')?.length, 1);
   });
 
   it('lehnt eine Dauer ab, die die verbleibende Zeit übersteigt', () => {
