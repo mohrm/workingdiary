@@ -1,33 +1,30 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    ":pinDigests",
+    "schedule:weekly"
   ],
   "packageRules": [
     {
-      "matchManagers": [
-        "npm"
-      ],
-      "matchDepTypes": [
-        "dependencies",
-        "devDependencies",
-        "optionalDependencies"
-      ],
-      "rangeStrategy": "pin",
-      "minimumReleaseAge": "3 days",
-      "automerge": true
+      "matchManagers": ["npm"],
+      "rangeStrategy": "pin"
     },
     {
-      "matchManagers": ["dockerfile"],
-      "pinDigests": true
+      "description": "Automerge sicherer Updates nach bestandener CI",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["patch", "digest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
     },
     {
-      "groupName": "Angular",
-      "groupSlug": "angular",
-      "matchPackageNames": [
-        "@angular/**"
-      ],
-      "rangeStrategy": "replace"
+      "description": "Zusammengehörige Playwright-Tools gemeinsam aktualisieren",
+      "matchPackageNames": ["@playwright/test", "playwright-bdd"],
+      "groupName": "Playwright"
     }
-  ]
+  ],
+  "lockFileMaintenance": {
+    "enabled": true
+  }
 }
