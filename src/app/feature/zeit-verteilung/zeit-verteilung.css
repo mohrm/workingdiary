@@ -291,6 +291,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--spacing-sm);
   max-width: calc(100% - 2 * var(--spacing-md));
   padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-mobile);
@@ -299,9 +300,30 @@
   color: #ff8a80;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   font-weight: var(--font-weight-medium);
+}
+
+.zeit-verteilung__fehler-text {
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.zeit-verteilung__fehler-schliessen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: var(--spacing-xs);
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.zeit-verteilung__fehler-schliessen svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* mirrors --bp-tablet in styles.css */

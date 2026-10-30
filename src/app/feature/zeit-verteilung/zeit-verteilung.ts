@@ -222,7 +222,7 @@ export function createZeitVerteilung(
         </div>
       </div>
       ${renderRundungsCheck(aktivitaeten, total)}
-      ${fehlermeldung ? `<div class="zeit-verteilung__fehler" data-testid="zeitverteilung-fehler" role="alert">${escapeHtml(fehlermeldung)}</div>` : ''}`;
+      ${fehlermeldung ? `<div class="zeit-verteilung__fehler" data-testid="zeitverteilung-fehler" role="alert"><span class="zeit-verteilung__fehler-text">${escapeHtml(fehlermeldung)}</span><button type="button" class="zeit-verteilung__fehler-schliessen" data-action="dismiss-fehler" data-testid="zeitverteilung-fehler-schliessen" aria-label="Meldung ausblenden">${icon('close')}</button></div>` : ''}`;
 
     const freitextInput = el.querySelector<HTMLInputElement>(
       '[data-neue-taetigkeit]',
@@ -373,6 +373,10 @@ export function createZeitVerteilung(
     });
     bindActions(el, {
       'add-freitext': addFreitextTaetigkeit,
+      'dismiss-fehler': () => {
+        fehlermeldung = undefined;
+        render();
+      },
       back: () => onBack?.(),
     });
   }
