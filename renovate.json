@@ -1,6 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "pinDigests": true,
   "extends": [
     "config:recommended",
     "schedule:weekly"
@@ -9,6 +8,11 @@
     {
       "matchManagers": ["npm"],
       "rangeStrategy": "pin"
+    },
+    {
+      "description": "GitHub Actions per Digest pinnen (npm kennt keine Digests)",
+      "matchManagers": ["github-actions"],
+      "pinDigests": true
     },
     {
       "description": "Automerge sicherer Updates nach bestandener CI",
